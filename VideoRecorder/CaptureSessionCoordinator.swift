@@ -26,9 +26,9 @@ public class CaptureSessionCoordinator: NSObject {
 
     public let previewLayer: AVCaptureVideoPreviewLayer
 
-    private let sessionQueue: dispatch_queue_t
-
     public weak var delegate: CaptureSessionCoordinatorDelegate?
+
+    private let sessionQueue: dispatch_queue_t
 
     public init<T: UIViewController where T: CaptureSessionCoordinatorDelegate>(delegate: T) throws {
 
@@ -48,10 +48,9 @@ public class CaptureSessionCoordinator: NSObject {
         }()
 
         let captureSession: AVCaptureSession = {
-            let session = AVCaptureSession()
-            session.sessionPreset = AVCaptureSessionPreset640x480
-            return session
-        }()
+            $0.sessionPreset = AVCaptureSessionPreset640x480
+            return $0
+        }(AVCaptureSession())
 
         self.delegate       = delegate
         self.captureSession = captureSession
@@ -66,9 +65,14 @@ public class CaptureSessionCoordinator: NSObject {
     }
 }
 
+
 // MARK: Public Methods
 
 extension CaptureSessionCoordinator {
+
+    public func startRecording() {}
+
+    public func stopRecording() {}
 
     public func startRunning() {
         dispatch_sync(sessionQueue) {
@@ -83,10 +87,6 @@ extension CaptureSessionCoordinator {
         }
     }
 
-    public func startRecording() {}
-
-    public func stopRecording() {}
-
     public func addOutput(output: AVCaptureOutput, toCaptureSession captureSession: AVCaptureSession) throws {
         guard captureSession.canAddOutput(output) else { throw VideoRecorderError.CameraDeviceError }
         captureSession.addOutput(output)
@@ -98,6 +98,8 @@ extension CaptureSessionCoordinator {
     }
 }
 
+
+// MARK: Helper
 
 func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrows -> T {
     objc_sync_enter(lock)
