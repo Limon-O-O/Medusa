@@ -72,6 +72,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             } else {
 
                 if oldStatus == .StartingRecording && newStatus == .Recording {
+
                     dispatch_async(delegateCallbackQueue) {
                         autoreleasepool {
                             self.delegate?.coordinatorDidBeginRecording(self)
@@ -93,7 +94,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 
 
-    public init<T: UIViewController where T: CaptureSessionCoordinatorDelegate>(delegate: T, size: CGSize, recordingURL: NSURL) throws {
+    public init(sessionPreset: String, size: CGSize, recordingURL: NSURL) throws {
 
         videoDataOutput = {
             $0.videoSettings = nil
@@ -122,7 +123,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         self.recordingURL = recordingURL
 
-        try super.init(delegate: delegate)
+        try super.init(sessionPreset: sessionPreset)
 
         try addOutput(videoDataOutput, toCaptureSession: captureSession)
         try addOutput(audioDataOutput, toCaptureSession: captureSession)

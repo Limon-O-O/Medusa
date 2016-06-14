@@ -30,7 +30,7 @@ public class CaptureSessionCoordinator: NSObject {
 
     private let sessionQueue: dispatch_queue_t
 
-    public init<T: UIViewController where T: CaptureSessionCoordinatorDelegate>(delegate: T) throws {
+    public init(sessionPreset: String) throws {
 
          let cameraDeviceInput: AVCaptureDeviceInput = try {
 
@@ -48,11 +48,10 @@ public class CaptureSessionCoordinator: NSObject {
         }()
 
         let captureSession: AVCaptureSession = {
-            $0.sessionPreset = AVCaptureSessionPreset640x480
+            $0.sessionPreset = sessionPreset
             return $0
         }(AVCaptureSession())
 
-        self.delegate       = delegate
         self.captureSession = captureSession
         self.cameraDevice   = cameraDeviceInput.device
         self.sessionQueue   = dispatch_queue_create("top.limon.capturepipeline.session", DISPATCH_QUEUE_SERIAL)

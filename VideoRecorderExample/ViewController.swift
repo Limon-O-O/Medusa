@@ -43,7 +43,8 @@ class ViewController: UIViewController {
             let fileName = "video"
             let fileURL = NSFileManager.videoURLWithName(fileName)
 
-            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(delegate: self, size: CGSize(width: 480, height: 640), recordingURL: fileURL!)
+            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480, size: CGSize(width: 480, height: 640), recordingURL: fileURL!)
+            captureSessionCoordinator?.delegate = self
 
         } catch {
 
