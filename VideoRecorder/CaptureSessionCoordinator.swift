@@ -49,7 +49,7 @@ public class CaptureSessionCoordinator: NSObject {
 
         let captureSession: AVCaptureSession = {
             let session = AVCaptureSession()
-            session.sessionPreset = AVCaptureSessionPreset352x288
+            session.sessionPreset = AVCaptureSessionPreset640x480
             return session
         }()
 
@@ -64,12 +64,6 @@ public class CaptureSessionCoordinator: NSObject {
         try addInput(cameraDeviceInput, toCaptureSession: captureSession)
         try addInput(audioDeviceInput, toCaptureSession: captureSession)
     }
-}
-
-// MARK: Internal Methods
-
-extension CaptureSessionCoordinator {
-
 }
 
 // MARK: Public Methods

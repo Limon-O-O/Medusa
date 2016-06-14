@@ -36,13 +36,12 @@ public enum RecordingStatus: Hashable {
 public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
 
     public var recordingURL: NSURL
-    private var delegateCallbackQueue: dispatch_queue_t = dispatch_get_main_queue()
 
     private let videoDataOutput: AVCaptureVideoDataOutput
     private let audioDataOutput: AVCaptureAudioDataOutput
 
-    private let videoConnection: AVCaptureConnection
-    private let audioConnection: AVCaptureConnection
+    private var videoConnection: AVCaptureConnection!
+    private var audioConnection: AVCaptureConnection!
 
     private let videoCompressionSettings: [String: AnyObject]
     private let audioCompressionSettings: [String: AnyObject]
@@ -60,8 +59,10 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             guard newStatus != oldStatus else { return }
 
+            let delegateCallbackQueue = dispatch_get_main_queue()
+
             if case .Idle(let error) = newStatus {
-                
+
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: error)
@@ -70,7 +71,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             } else {
 
-                if (oldStatus == .StartingRecording && newStatus == .Recording) {
+                if oldStatus == .StartingRecording && newStatus == .Recording {
                     dispatch_async(delegateCallbackQueue) {
                         autoreleasepool {
                             self.delegate?.coordinatorDidBeginRecording(self)
@@ -84,7 +85,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                             self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: nil)
                         }
                     }
-                    
+
                 }
 
             }
@@ -102,21 +103,22 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         audioDataOutput = AVCaptureAudioDataOutput()
 
-        videoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo)
-        audioConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeAudio)
+        let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
 
-        let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 1]
+        videoCompressionSettings = [
+            AVVideoCodecKey: AVVideoCodecH264,
+            AVVideoCompressionPropertiesKey: codecSettings,
+            AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
+            AVVideoWidthKey: size.width,
+            AVVideoHeightKey: size.height
+        ]
 
-        videoCompressionSettings = [AVVideoCodecKey: AVVideoCodecH264, AVVideoCompressionPropertiesKey: codecSettings, AVVideoWidthKey: size.width, AVVideoHeightKey: size.height]
-
-        let audioOutputSettings: [String: AnyObject] = [
+        audioCompressionSettings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVNumberOfChannelsKey: 2,
             AVSampleRateKey: 44100,
             AVEncoderBitRateKey: 128000
         ]
-
-        audioCompressionSettings = audioOutputSettings
 
         self.recordingURL = recordingURL
 
@@ -124,6 +126,17 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         try addOutput(videoDataOutput, toCaptureSession: captureSession)
         try addOutput(audioDataOutput, toCaptureSession: captureSession)
+
+        guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
+            throw VideoRecorderError.CameraDeviceError
+        }
+
+        guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
+            throw VideoRecorderError.AudioDeviceError
+        }
+
+        videoConnection = unwrappedVideoConnection
+        audioConnection = unwrappedAudioConnection
 
         let videoDataOutputQueue = dispatch_queue_create("top.limon.capturesession.videodata", DISPATCH_QUEUE_SERIAL)
         let audioDataOutputQueue = dispatch_queue_create("top.limon.capturesession.audiodata", DISPATCH_QUEUE_SERIAL)
@@ -138,6 +151,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 extension CaptureSessionAssetWriterCoordinator {
 
     public override func startRecording() {
+        super.startRecording()
 
         synchronized(self) {
 
@@ -163,6 +177,7 @@ extension CaptureSessionAssetWriterCoordinator {
     }
 
     public override func stopRecording() {
+        super.stopRecording()
 
         guard recordingStatus == .Recording else { return }
 
@@ -223,7 +238,7 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
                 //TODO: outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
                 //Currently we don't use the outputVideoFormatDescription in IDAssetWriterRecoredSession
 
-                outputAudioFormatDescription = formatDescription
+                outputVideoFormatDescription = formatDescription
 
             } else {
 

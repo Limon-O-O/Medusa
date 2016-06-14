@@ -86,7 +86,9 @@ class AssetWriterCoordinator {
 
                     case .Failed(let error):
                         clearAction()
-                        let _ = try? NSFileManager.defaultManager().removeItemAtURL(self.URL)
+
+                        self.removeExistingFile(byURL: self.URL)
+
                         self.delegate?.writerCoordinator(self, didFailWithError: error)
 
                     case .Finished:
@@ -152,15 +154,10 @@ class AssetWriterCoordinator {
             autoreleasepool {
 
                 do {
-                    /*
-                     Remove file if necessary. AVAssetWriter will not overwrite
-                     an existing file.
-                     */
 
-                    let fileManager = NSFileManager()
-                    if let outputPath = self.URL.path where fileManager.fileExistsAtPath(outputPath) {
-                        try fileManager.removeItemAtURL(self.URL)
-                    }
+                    // Remove file if necessary. AVAssetWriter will not overwrite an existing file.
+
+                    self.removeExistingFile(byURL: self.URL)
 
                     self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: AVFileTypeQuickTimeMovie)
 
@@ -246,12 +243,14 @@ extension AssetWriterCoordinator {
         }
 
         dispatch_async(writingQueue) {
+
             autoreleasepool {
+
                 synchronized(self) {
                     // From the client's perspective the movie recorder can asynchronously transition to an error state as the result of an append.
                     // Because of this we are lenient when samples are appended and we are no longer recording.
                     // Instead of throwing an exception we just release the sample buffers and return.
-                    if self.writerStatus.hashValue < WriterStatus.FinishingRecordingPart1.hashValue {
+                    if self.writerStatus.hashValue > WriterStatus.FinishingRecordingPart1.hashValue {
                         return
                     }
                 }
@@ -268,6 +267,7 @@ extension AssetWriterCoordinator {
                 if !success {
                     self.writerStatus = .Failed(error: assetWriter.error)
                 }
+
             }
         }
 
@@ -296,6 +296,13 @@ extension AssetWriterCoordinator {
 
         if assetWriter.canAddInput(audioInput!) {
             assetWriter.addInput(audioInput!)
+        }
+    }
+
+    private func removeExistingFile(byURL URL: NSURL) {
+        let fileManager = NSFileManager.defaultManager()
+        if let outputPath = self.URL.path where fileManager.fileExistsAtPath(outputPath) {
+            let _ = try? fileManager.removeItemAtURL(self.URL)
         }
     }
 }
