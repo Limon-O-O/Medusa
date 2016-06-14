@@ -9,8 +9,8 @@
 import AVFoundation
 
 public protocol CaptureSessionCoordinatorDelegate: class {
-//    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
-//    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL)
+    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
+    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?)
 }
 
 public enum VideoRecorderError: ErrorType {
@@ -56,7 +56,7 @@ public class CaptureSessionCoordinator: NSObject {
         self.delegate       = delegate
         self.captureSession = captureSession
         self.cameraDevice   = cameraDeviceInput.device
-        self.sessionQueue   = dispatch_queue_create("top.limon.capturepipeline.session", nil)
+        self.sessionQueue   = dispatch_queue_create("top.limon.capturepipeline.session", DISPATCH_QUEUE_SERIAL)
         self.previewLayer   = AVCaptureVideoPreviewLayer(session: captureSession)
 
         super.init()
@@ -69,13 +69,7 @@ public class CaptureSessionCoordinator: NSObject {
 // MARK: Internal Methods
 
 extension CaptureSessionCoordinator {
-    func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrows -> T {
-        objc_sync_enter(lock)
-        defer {
-            objc_sync_exit(lock)
-        }
-        return try closure()
-    }
+
 }
 
 // MARK: Public Methods
@@ -108,8 +102,15 @@ extension CaptureSessionCoordinator {
         guard captureSession.canAddInput(input) else { throw VideoRecorderError.CameraDeviceError }
         captureSession.addInput(input)
     }
-
 }
 
+
+func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrows -> T {
+    objc_sync_enter(lock)
+    defer {
+        objc_sync_exit(lock)
+    }
+    return try closure()
+}
 
 

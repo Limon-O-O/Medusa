@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED5DD2CF1D0FBA3A00744F34 /* AssetWriterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5DD2CE1D0FBA3A00744F34 /* AssetWriterCoordinator.swift */; };
 		EDA9EC771D0EDCC8008CBCA0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA9EC761D0EDCC8008CBCA0 /* AppDelegate.swift */; };
 		EDA9EC791D0EDCC8008CBCA0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA9EC781D0EDCC8008CBCA0 /* ViewController.swift */; };
 		EDA9EC7C1D0EDCC8008CBCA0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDA9EC7A1D0EDCC8008CBCA0 /* Main.storyboard */; };
@@ -45,6 +46,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED5DD2CE1D0FBA3A00744F34 /* AssetWriterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetWriterCoordinator.swift; sourceTree = "<group>"; };
 		EDA9EC731D0EDCC8008CBCA0 /* VideoRecorderExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoRecorderExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA9EC761D0EDCC8008CBCA0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDA9EC781D0EDCC8008CBCA0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -114,10 +116,11 @@
 			isa = PBXGroup;
 			children = (
 				EDA9EC8F1D0EDD11008CBCA0 /* VideoRecorder.h */,
+				EDA9EC9E1D0F1778008CBCA0 /* Queue.swift */,
+				ED5DD2CE1D0FBA3A00744F34 /* AssetWriterCoordinator.swift */,
 				EDA9EC9A1D0EDE06008CBCA0 /* CaptureSessionCoordinator.swift */,
 				EDA9EC9C1D0EF44F008CBCA0 /* CaptureSessionAssetWriterCoordinator.swift */,
 				EDA9EC911D0EDD11008CBCA0 /* Info.plist */,
-				EDA9EC9E1D0F1778008CBCA0 /* Queue.swift */,
 			);
 			path = VideoRecorder;
 			sourceTree = "<group>";
@@ -244,6 +247,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED5DD2CF1D0FBA3A00744F34 /* AssetWriterCoordinator.swift in Sources */,
 				EDA9EC9D1D0EF44F008CBCA0 /* CaptureSessionAssetWriterCoordinator.swift in Sources */,
 				EDA9EC9F1D0F1778008CBCA0 /* Queue.swift in Sources */,
 				EDA9EC9B1D0EDE06008CBCA0 /* CaptureSessionCoordinator.swift in Sources */,
@@ -466,6 +470,7 @@
 				EDA9EC971D0EDD11008CBCA0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
