@@ -186,6 +186,7 @@ class AssetWriterCoordinator {
     }
 
     func finishRecording() {
+
         synchronized(self) {
             guard writerStatus == .Recording else { return }
             writerStatus = .FinishingRecordingPart1

@@ -9,8 +9,15 @@
 import AVFoundation
 
 public protocol CaptureSessionCoordinatorDelegate: class {
+    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator)
+    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?)
+}
+
+extension CaptureSessionCoordinatorDelegate {
+    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
+    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
 }
 
 public enum VideoRecorderError: ErrorType {

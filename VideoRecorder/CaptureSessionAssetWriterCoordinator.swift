@@ -61,7 +61,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             let delegateCallbackQueue = dispatch_get_main_queue()
 
-            if case .Idle(let error) = newStatus {
+            if case .Idle(let error) = newStatus where error != nil {
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -69,27 +69,47 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
-            } else {
+                return
+            }
 
-                if oldStatus == .StartingRecording && newStatus == .Recording {
+            switch (oldStatus, newStatus) {
+            case (.Idle, .StartingRecording):
 
-                    dispatch_async(delegateCallbackQueue) {
-                        autoreleasepool {
-                            self.delegate?.coordinatorDidBeginRecording(self)
-                        }
+                // "Click Record Action"
+                dispatch_async(delegateCallbackQueue) {
+                    autoreleasepool {
+                        self.delegate?.coordinatorWillBeginRecording(self)
                     }
-
-                } else if case .Idle = newStatus where oldStatus == .StoppingRecording {
-
-                    dispatch_async(delegateCallbackQueue) {
-                        autoreleasepool {
-                            self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: nil)
-                        }
-                    }
-
                 }
 
+            case (.Recording, .StoppingRecording):
+
+                // "Click Stop Record Action"
+                dispatch_async(delegateCallbackQueue) {
+                    autoreleasepool {
+                        self.delegate?.coordinatorWillDidFinishRecording(self)
+                    }
+                }
+
+            case (.StartingRecording, .Recording):
+                dispatch_async(delegateCallbackQueue) {
+                    autoreleasepool {
+                        self.delegate?.coordinatorDidBeginRecording(self)
+                    }
+                }
+
+            case (.StoppingRecording, .Idle(let error)) where error == nil:
+
+                dispatch_async(delegateCallbackQueue) {
+                    autoreleasepool {
+                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: nil)
+                    }
+                }
+
+            default:
+                print("Unknow RecordingStatus")
             }
+
         }
     }
 
@@ -152,6 +172,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 extension CaptureSessionAssetWriterCoordinator {
 
     public override func startRecording() {
+
         super.startRecording()
 
         synchronized(self) {
