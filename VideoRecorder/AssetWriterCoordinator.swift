@@ -9,10 +9,14 @@
 import AVFoundation
 
 protocol AssetWriterCoordinatorDelegate: class {
+
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator)
+
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator)
+
     func writerCoordinator(coordinator: AssetWriterCoordinator, didFailWithError error: NSError?)
 }
+
 
 func ==(lhs: WriterStatus, rhs: WriterStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
@@ -47,6 +51,7 @@ enum WriterStatus: Hashable {
         }
     }
 }
+
 
 class AssetWriterCoordinator {
 
@@ -156,7 +161,6 @@ class AssetWriterCoordinator {
                 do {
 
                     // Remove file if necessary. AVAssetWriter will not overwrite an existing file.
-
                     self.removeExistingFile(byURL: self.URL)
 
                     self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: AVFileTypeQuickTimeMovie)

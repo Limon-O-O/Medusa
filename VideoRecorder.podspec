@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name        = "VideoRecorder"
-  s.version     = "0.9.1"
+  s.version     = "0.1"
   s.summary     = "VideoRecorder helps you post messages to Chinese Social Networks, or do OAuth."
 
   s.description = <<-DESC

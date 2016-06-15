@@ -8,22 +8,31 @@
 
 import AVFoundation
 
+
 public protocol CaptureSessionCoordinatorDelegate: class {
+
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator)
+
     func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
+
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
+
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?)
 }
 
 extension CaptureSessionCoordinatorDelegate {
+
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
+
     func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
 }
+
 
 public enum VideoRecorderError: ErrorType {
     case CameraDeviceError
     case AudioDeviceError
 }
+
 
 public class CaptureSessionCoordinator: NSObject {
 
@@ -33,9 +42,10 @@ public class CaptureSessionCoordinator: NSObject {
 
     public let previewLayer: AVCaptureVideoPreviewLayer
 
+    private let sessionQueue: dispatch_queue_t
+
     public weak var delegate: CaptureSessionCoordinatorDelegate?
 
-    private let sessionQueue: dispatch_queue_t
 
     public init(sessionPreset: String) throws {
 
@@ -69,6 +79,7 @@ public class CaptureSessionCoordinator: NSObject {
         try addInput(cameraDeviceInput, toCaptureSession: captureSession)
         try addInput(audioDeviceInput, toCaptureSession: captureSession)
     }
+
 }
 
 
