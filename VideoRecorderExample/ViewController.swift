@@ -13,11 +13,26 @@ import AssetsLibrary
 
 class ViewController: UIViewController {
 
-    private var isRecording = false
+    private let maxTime = 30.0
+    private var currentTime: Int = 0
+    private var timer: NSTimer?
+
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
+    @IBOutlet private weak var hintLabel: UILabel!
+    @IBOutlet private weak var progressView: UIView!
     @IBOutlet private weak var previewView: VideoPreviewView!
     @IBOutlet private weak var ringControl: RingControl!
+    @IBOutlet private weak var progressViewConstraintWidth: NSLayoutConstraint!
+
+    @IBOutlet private weak var countdownButton: UIButton! {
+        didSet {
+            countdownButton.alpha = 0.0
+            countdownButton.userInteractionEnabled = false
+            countdownButton.layer.masksToBounds = true
+            countdownButton.layer.cornerRadius = countdownButton.frame.size.height / 2.0
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,16 +92,29 @@ class ViewController: UIViewController {
 
         captureSessionCoordinator.startRunning()
     }
+
+    @IBAction func swapCameraDevicePosition(sender: UIButton) {
+
+    }
+
 }
 
 
+// MARK: CaptureSessionCoordinatorDelegate
+
 extension ViewController: CaptureSessionCoordinatorDelegate {
 
+    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {
+        showViews()
+    }
+
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {
-        print("DidBeginRecording")
+
     }
 
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?) {
+
+        hideViews()
 
         guard error == nil else { print("error: \(error?.localizedDescription)"); return }
 
@@ -100,7 +128,57 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 }
 
 
+// MARK: Views
+
+extension ViewController {
+
+    private func showViews() {
+        showRecordProgressView()
+        showCountdownButton()
+        addTimer(timeInterval: 1.0)
+    }
+
+    private func hideViews() {
+        currentTime = 0
+        progressView.alpha = 0.0
+        progressView.layer.removeAllAnimations()
+        progressViewConstraintWidth.constant = 0.0
+        timer?.invalidate()
+    }
+
+    private func showRecordProgressView() {
+
+        progressView.alpha = 1.0
+
+        progressViewConstraintWidth.constant = UIScreen.mainScreen().bounds.width
+
+        UIView.animateWithDuration(maxTime, delay: 0.0, options: .CurveLinear, animations: {
+            self.view.layoutIfNeeded()
+
+        }, completion: {_ in
+
+            self.progressView.alpha = 0.0
+            self.progressViewConstraintWidth.constant = 0.0
+            self.captureSessionCoordinator?.stopRecording()
+        })
+    }
+
+    private func showCountdownButton() {
+
+        countdownButton.setTitle("0", forState: .Normal)
+
+        guard countdownButton.alpha == 0.0 else { return }
+
+        UIView.animateWithDuration(0.25) {
+            self.countdownButton.alpha = 1.0
+            self.hintLabel.alpha = 0.0
+        }
+    }
+}
+
+
 // MARK: Private Methods
+
 extension ViewController {
 
     private func saveVideoToPhotosAlbum(fileURL: NSURL) {
@@ -123,7 +201,24 @@ extension ViewController {
     private func fileSize(fileURL: NSURL) -> Double {
         return Double(NSData(contentsOfURL: fileURL)?.length ?? 0)/(1024.00*1024.0)
     }
+}
 
+
+// MARK: Timer
+
+extension ViewController {
+
+    private func addTimer(timeInterval duration: NSTimeInterval) {
+
+        timer?.invalidate()
+
+        timer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: #selector(ViewController.timerDidFired(_:)), userInfo: nil, repeats: true)
+    }
+
+    @objc private func timerDidFired(timer: NSTimer) {
+        currentTime = min(currentTime + 1, Int(maxTime))
+        countdownButton.setTitle("\(currentTime)", forState: .Normal)
+    }
 }
 
 
