@@ -149,7 +149,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         try addOutput(audioDataOutput, toCaptureSession: captureSession)
 
         guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
-            throw VideoRecorderError.CameraDeviceError
+            throw VideoRecorderError.CaptureDeviceError
         }
 
         guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {

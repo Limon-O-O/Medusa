@@ -29,14 +29,14 @@ public extension CaptureSessionCoordinatorDelegate {
 
 
 public enum VideoRecorderError: ErrorType {
-    case CameraDeviceError
+    case CaptureDeviceError
     case AudioDeviceError
 }
 
 
 public class CaptureSessionCoordinator: NSObject {
 
-    public let cameraDevice: AVCaptureDevice
+    public var captureDevice: AVCaptureDevice
 
     public let captureSession: AVCaptureSession
 
@@ -46,42 +46,69 @@ public class CaptureSessionCoordinator: NSObject {
 
     public weak var delegate: CaptureSessionCoordinatorDelegate?
 
+    private var captureDeviceInput: AVCaptureDeviceInput
 
-    public init(sessionPreset: String) throws {
 
-         let cameraDeviceInput: AVCaptureDeviceInput = try {
+    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
 
-            guard let cameraDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo).first as? AVCaptureDevice, cameraDeviceInput = try? AVCaptureDeviceInput(device: cameraDevice) else { throw VideoRecorderError.CameraDeviceError }
+        captureDeviceInput = try AVCaptureDeviceInput.vrr_captureDeviceInput(byPosition: position)
 
-            return cameraDeviceInput
-        }()
-
-        let audioDeviceInput: AVCaptureDeviceInput = try {
-
-            guard let audioDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as? AVCaptureDevice,
-                audioDeviceInput = try? AVCaptureDeviceInput(device: audioDevice) else { throw VideoRecorderError.AudioDeviceError }
-
-            return audioDeviceInput
-        }()
+        guard let audioDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as? AVCaptureDevice,
+            audioDeviceInput = try? AVCaptureDeviceInput(device: audioDevice) else { throw VideoRecorderError.AudioDeviceError }
 
         let captureSession: AVCaptureSession = {
             $0.sessionPreset = sessionPreset
             return $0
         }(AVCaptureSession())
 
-        self.captureSession = captureSession
-        self.cameraDevice   = cameraDeviceInput.device
-        self.sessionQueue   = dispatch_queue_create("top.limon.capturepipeline.session", DISPATCH_QUEUE_SERIAL)
-        self.previewLayer   = AVCaptureVideoPreviewLayer(session: captureSession)
+        self.captureSession  = captureSession
+        self.captureDevice   = captureDeviceInput.device
+        self.sessionQueue    = dispatch_queue_create("top.limon.capturepipeline.session", DISPATCH_QUEUE_SERIAL)
+        self.previewLayer    = AVCaptureVideoPreviewLayer(session: captureSession)
 
         super.init()
 
-        try addInput(cameraDeviceInput, toCaptureSession: captureSession)
+        try addInput(captureDeviceInput, toCaptureSession: captureSession)
         try addInput(audioDeviceInput, toCaptureSession: captureSession)
+    }
+}
+
+private extension AVCaptureDeviceInput {
+
+    class func vrr_captureDeviceInput(byPosition position: AVCaptureDevicePosition) throws -> AVCaptureDeviceInput {
+
+        guard let captureDevice = position == .Back ? AVCaptureDevice.vrr_CaptureDevice.Back.device : AVCaptureDevice.vrr_CaptureDevice.Front.device,
+            captureDeviceInput = try? AVCaptureDeviceInput(device: captureDevice) else { throw VideoRecorderError.CaptureDeviceError }
+
+        return captureDeviceInput
+    }
+}
+
+private extension AVCaptureDevice {
+
+    enum vrr_CaptureDevice {
+
+        case Back
+        case Front
+
+        var device: AVCaptureDevice? {
+            switch self {
+            case .Back:
+                return AVCaptureDevice.vrr_deviceWithPosition(.Back)
+            case .Front:
+                return AVCaptureDevice.vrr_deviceWithPosition(.Front)
+            }
+        }
+    }
+
+    private class func vrr_deviceWithPosition(position: AVCaptureDevicePosition) -> AVCaptureDevice? {
+        guard let devices = devicesWithMediaType(AVMediaTypeVideo) as? [AVCaptureDevice] else {
+            return nil
+        }
+        return devices.filter { $0.position == position }.first
     }
 
 }
-
 
 // MARK: Public Methods
 
@@ -104,13 +131,32 @@ extension CaptureSessionCoordinator {
         }
     }
 
+    public func swapCaptureDevicePosition() throws {
+
+        let newPosition = captureDevice.position == .Back ? AVCaptureDevicePosition.Front : .Back
+
+        let newCaptureDeviceInput = try AVCaptureDeviceInput.vrr_captureDeviceInput(byPosition: newPosition)
+
+        captureSession.beginConfiguration()
+
+        captureSession.removeInput(captureDeviceInput)
+
+        if captureSession.canAddInput(newCaptureDeviceInput) {
+            captureSession.addInput(newCaptureDeviceInput)
+            self.captureDeviceInput = newCaptureDeviceInput
+            self.captureDevice = newCaptureDeviceInput.device
+        }
+
+        captureSession.commitConfiguration()
+    }
+
     public func addOutput(output: AVCaptureOutput, toCaptureSession captureSession: AVCaptureSession) throws {
-        guard captureSession.canAddOutput(output) else { throw VideoRecorderError.CameraDeviceError }
+        guard captureSession.canAddOutput(output) else { throw VideoRecorderError.CaptureDeviceError }
         captureSession.addOutput(output)
     }
 
     public func addInput(input: AVCaptureDeviceInput, toCaptureSession captureSession: AVCaptureSession) throws {
-        guard captureSession.canAddInput(input) else { throw VideoRecorderError.CameraDeviceError }
+        guard captureSession.canAddInput(input) else { throw VideoRecorderError.CaptureDeviceError }
         captureSession.addInput(input)
     }
 }

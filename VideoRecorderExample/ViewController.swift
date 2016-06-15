@@ -88,13 +88,13 @@ class ViewController: UIViewController {
 
         previewView.previewLayer = captureSessionCoordinator.previewLayer
 
-        previewView.cameraDevice = captureSessionCoordinator.cameraDevice
+        previewView.cameraDevice = captureSessionCoordinator.captureDevice
 
         captureSessionCoordinator.startRunning()
     }
 
     @IBAction func swapCameraDevicePosition(sender: UIButton) {
-
+        try! captureSessionCoordinator?.swapCaptureDevicePosition()
     }
 
 }
