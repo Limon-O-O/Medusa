@@ -27,33 +27,58 @@ class VideoPreviewView: UIView {
 
         super.init(frame: frame)
 
-        configureFocus()
+        configure()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        configureFocus()
+        configure()
     }
 
     override class func layerClass() -> AnyClass {
         return AVCaptureVideoPreviewLayer.self
     }
 
-    private func configureFocus() {
+    private func configure() {
 
         if let gestureRecognizers = gestureRecognizers {
             gestureRecognizers.forEach({ removeGestureRecognizer($0) })
         }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(focus(_:)))
+        tapGesture.numberOfTapsRequired = 1
         addGestureRecognizer(tapGesture)
         userInteractionEnabled = true
-        addSubview(focusView)
 
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(changeVideoZoomFactor(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        addGestureRecognizer(doubleTap)
+        tapGesture.requireGestureRecognizerToFail(doubleTap)
+
+        addSubview(focusView)
         focusView.hidden = true
     }
 
-    func focus(gesture: UITapGestureRecognizer) {
+    @objc private func changeVideoZoomFactor(gesture: UITapGestureRecognizer) {
+
+        guard let device = cameraDevice else { return }
+
+        do {
+            try device.lockForConfiguration()
+        } catch {
+            return
+        }
+
+        if device.videoZoomFactor == 1.0 {
+            device.rampToVideoZoomFactor(1.8, withRate: 10.0)
+        } else {
+            device.rampToVideoZoomFactor(1.0, withRate: 10.0)
+        }
+
+        device.unlockForConfiguration()
+    }
+
+    @objc private func focus(gesture: UITapGestureRecognizer) {
 
         let point = gesture.locationInView(self)
 
@@ -78,12 +103,12 @@ class VideoPreviewView: UIView {
                 self.focusView.transform = CGAffineTransformMakeScale(0.8, 0.8)
             })
 
-            }, completion: { _ in
-                self.focusView.hidden = true
+        }, completion: { _ in
+            self.focusView.hidden = true
         })
     }
 
-    func focusCamera(toPoint: CGPoint) -> Bool {
+    private func focusCamera(toPoint: CGPoint) -> Bool {
 
         guard let device = cameraDevice else { return false }
 
