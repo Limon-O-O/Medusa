@@ -11,6 +11,7 @@
 		ED5DD2D11D10122700744F34 /* NSFileManager+VideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5DD2D01D10122700744F34 /* NSFileManager+VideoRecorder.swift */; };
 		ED5DD2D31D10FBEF00744F34 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5DD2D21D10FBEF00744F34 /* VideoPreviewView.swift */; };
 		ED5DD2D61D10FC9100744F34 /* FocusOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5DD2D51D10FC9100744F34 /* FocusOverlay.swift */; };
+		ED5DD2D81D1122FD00744F34 /* RingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5DD2D71D1122FD00744F34 /* RingControl.swift */; };
 		EDA9EC771D0EDCC8008CBCA0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA9EC761D0EDCC8008CBCA0 /* AppDelegate.swift */; };
 		EDA9EC791D0EDCC8008CBCA0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA9EC781D0EDCC8008CBCA0 /* ViewController.swift */; };
 		EDA9EC7C1D0EDCC8008CBCA0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDA9EC7A1D0EDCC8008CBCA0 /* Main.storyboard */; };
@@ -53,6 +54,7 @@
 		ED5DD2D01D10122700744F34 /* NSFileManager+VideoRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+VideoRecorder.swift"; sourceTree = "<group>"; };
 		ED5DD2D21D10FBEF00744F34 /* VideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		ED5DD2D51D10FC9100744F34 /* FocusOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FocusOverlay.swift; sourceTree = "<group>"; };
+		ED5DD2D71D1122FD00744F34 /* RingControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingControl.swift; sourceTree = "<group>"; };
 		EDA9EC731D0EDCC8008CBCA0 /* VideoRecorderExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoRecorderExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA9EC761D0EDCC8008CBCA0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDA9EC781D0EDCC8008CBCA0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -122,9 +124,10 @@
 				EDA9EC761D0EDCC8008CBCA0 /* AppDelegate.swift */,
 				EDA9EC781D0EDCC8008CBCA0 /* ViewController.swift */,
 				ED5DD2D21D10FBEF00744F34 /* VideoPreviewView.swift */,
+				ED5DD2D71D1122FD00744F34 /* RingControl.swift */,
+				ED5DD2D51D10FC9100744F34 /* FocusOverlay.swift */,
 				ED5DD2D01D10122700744F34 /* NSFileManager+VideoRecorder.swift */,
 				ED5DD2D41D10FC2F00744F34 /* Supporting Files */,
-				ED5DD2D51D10FC9100744F34 /* FocusOverlay.swift */,
 			);
 			path = VideoRecorderExample;
 			sourceTree = "<group>";
@@ -255,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED5DD2D81D1122FD00744F34 /* RingControl.swift in Sources */,
 				EDA9EC791D0EDCC8008CBCA0 /* ViewController.swift in Sources */,
 				ED5DD2D31D10FBEF00744F34 /* VideoPreviewView.swift in Sources */,
 				ED5DD2D61D10FC9100744F34 /* FocusOverlay.swift in Sources */,

@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
     @IBOutlet private weak var previewView: VideoPreviewView!
+    @IBOutlet private weak var ringControl: RingControl!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +37,21 @@ class ViewController: UIViewController {
             }
         }
 
+        ringControl.toucheActions = { [weak self] status in
+
+            switch status {
+
+            case .Began:
+                self?.captureSessionCoordinator?.startRecording()
+
+            case .End:
+                self?.captureSessionCoordinator?.stopRecording()
+
+            case .Press:
+                break
+            }
+
+        }
     }
 
     private func cameraSetup() {
@@ -61,18 +77,6 @@ class ViewController: UIViewController {
 
         captureSessionCoordinator.startRunning()
     }
-
-    @IBAction private func startOrStopAction(sender: UIButton) {
-
-        if !isRecording {
-            captureSessionCoordinator?.startRecording()
-        } else {
-            captureSessionCoordinator?.stopRecording()
-        }
-
-        isRecording = !isRecording
-    }
-
 }
 
 

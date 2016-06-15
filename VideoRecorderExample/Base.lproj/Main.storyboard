@@ -18,35 +18,33 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="taY-Sd-P7Y">
-                                <rect key="frame" x="177" y="656" width="60" height="60"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="Ozb-Wq-mx6"/>
-                                    <constraint firstAttribute="width" constant="60" id="QcN-a0-TNP"/>
-                                </constraints>
-                                <state key="normal" image="Circle"/>
-                                <connections>
-                                    <action selector="startOrStopAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kst-EV-IvY"/>
-                                </connections>
-                            </button>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kT4-dI-ZnX" customClass="VideoPreviewView" customModule="VideoRecorderExample" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="213" width="414" height="310.5"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iHv-Vg-nRb" customClass="RingControl" customModule="VideoRecorderExample" customModuleProvider="target">
+                                <rect key="frame" x="177" y="656" width="60" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="YTx-Xj-fes"/>
+                                    <constraint firstAttribute="width" constant="60" id="yDR-ic-tIk"/>
+                                </constraints>
+                            </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="kT4-dI-ZnX" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="1Gk-fi-2FH"/>
-                            <constraint firstItem="taY-Sd-P7Y" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="VuU-Fa-RhZ"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="iHv-Vg-nRb" secondAttribute="bottom" constant="20" id="1Ir-Rg-GIi"/>
                             <constraint firstItem="kT4-dI-ZnX" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="bxt-zn-yji"/>
+                            <constraint firstItem="iHv-Vg-nRb" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="hjJ-va-Jfc"/>
                             <constraint firstItem="kT4-dI-ZnX" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="3:4" id="ies-oI-FFg"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="taY-Sd-P7Y" secondAttribute="bottom" constant="20" id="zas-re-URC"/>
                             <constraint firstItem="kT4-dI-ZnX" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="zof-FA-dKf"/>
                         </constraints>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
                         <outlet property="previewView" destination="kT4-dI-ZnX" id="Kkm-pZ-SXa"/>
+                        <outlet property="ringControl" destination="iHv-Vg-nRb" id="6xJ-kw-022"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -54,7 +52,4 @@
             <point key="canvasLocation" x="386" y="509"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="Circle" width="60" height="60"/>
-    </resources>
 </document>
