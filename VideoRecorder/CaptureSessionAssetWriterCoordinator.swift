@@ -180,31 +180,53 @@ extension CaptureSessionAssetWriterCoordinator {
             guard case .Idle = recordingStatus else { return }
 
             recordingStatus = .StartingRecording
-
-            assetWriterCoordinator = AssetWriterCoordinator(URL: recordingURL)
-
-            if let outputAudioFormatDescription = outputAudioFormatDescription {
-                assetWriterCoordinator?.addAudioTrackWithSourceFormatDescription(outputAudioFormatDescription, settings: audioCompressionSettings)
-            }
-
-            if let outputVideoFormatDescription = outputVideoFormatDescription {
-                assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: videoCompressionSettings)
-            }
-
-            assetWriterCoordinator?.delegate = self
-
-            // asynchronous, will call us back with recorderDidFinishPreparing: or recorder:didFailWithError: when done
-            assetWriterCoordinator?.prepareToRecord()
         }
+
+        assetWriterCoordinator = AssetWriterCoordinator(URL: recordingURL)
+
+        if let outputAudioFormatDescription = outputAudioFormatDescription {
+            assetWriterCoordinator?.addAudioTrackWithSourceFormatDescription(outputAudioFormatDescription, settings: audioCompressionSettings)
+        }
+
+        if let outputVideoFormatDescription = outputVideoFormatDescription {
+            assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: videoCompressionSettings)
+        }
+
+        assetWriterCoordinator?.delegate = self
+
+        // asynchronous, will call us back with recorderDidFinishPreparing: or recorder:didFailWithError: when done
+        assetWriterCoordinator?.prepareToRecord()
     }
 
     public override func stopRecording() {
+
         super.stopRecording()
 
         guard recordingStatus == .Recording else { return }
 
         recordingStatus = .StoppingRecording
         assetWriterCoordinator?.finishRecording()
+    }
+
+    public override func swapCaptureDevicePosition() throws {
+
+        try super.swapCaptureDevicePosition()
+
+        // reset
+
+        outputAudioFormatDescription = nil
+        outputVideoFormatDescription = nil
+
+        guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
+            throw VideoRecorderError.CaptureDeviceError
+        }
+
+        guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
+            throw VideoRecorderError.AudioDeviceError
+        }
+
+        videoConnection = unwrappedVideoConnection
+        audioConnection = unwrappedAudioConnection
     }
 }
 
@@ -213,6 +235,7 @@ extension CaptureSessionAssetWriterCoordinator {
 extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator) {
+
         synchronized(self) {
             guard recordingStatus == .StartingRecording else { return }
             recordingStatus = .Recording
@@ -246,6 +269,7 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 // MARK: SampleBufferDelegate Methods
 
 extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+
     public func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
 
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
@@ -253,12 +277,13 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
         if connection == videoConnection {
 
             if outputVideoFormatDescription == nil {
+
                 // Don't render the first sample buffer.
                 // This gives us one frame interval (33ms at 30fps) for setupVideoPipelineWithInputFormatDescription: to complete.
                 // Ideally this would be done asynchronously to ensure frames don't back up on slower devices.
 
-                //TODO: outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
-                //Currently we don't use the outputVideoFormatDescription in IDAssetWriterRecoredSession
+                // TODO: outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
+                // Currently we don't use the outputVideoFormatDescription in IDAssetWriterRecoredSession
 
                 outputVideoFormatDescription = formatDescription
 

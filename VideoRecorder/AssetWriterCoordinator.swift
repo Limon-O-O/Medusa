@@ -126,9 +126,10 @@ class AssetWriterCoordinator {
     }
 
     func addAudioTrackWithSourceFormatDescription(formatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) {
+
         synchronized(self) {
 
-            guard audioTrackSourceFormatDescription == nil && writerStatus == .Idle else { return }
+            guard writerStatus == .Idle else { return }
 
             audioTrackSourceFormatDescription = formatDescription
 
@@ -140,7 +141,7 @@ class AssetWriterCoordinator {
 
         synchronized(self) {
 
-            guard videoTrackSourceFormatDescription == nil && writerStatus == .Idle else { return }
+            guard writerStatus == .Idle else { return }
 
             videoTrackSourceFormatDescription = formatDescription
 

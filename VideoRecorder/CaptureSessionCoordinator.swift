@@ -48,13 +48,14 @@ public class CaptureSessionCoordinator: NSObject {
 
     private var captureDeviceInput: AVCaptureDeviceInput
 
+    private var audioDeviceInput: AVCaptureDeviceInput
 
-    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
+
+    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Front) throws {
 
         captureDeviceInput = try AVCaptureDeviceInput.vrr_captureDeviceInput(byPosition: position)
 
-        guard let audioDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as? AVCaptureDevice,
-            audioDeviceInput = try? AVCaptureDeviceInput(device: audioDevice) else { throw VideoRecorderError.AudioDeviceError }
+        audioDeviceInput = try AVCaptureDeviceInput.vrr_audioDeviceInput()
 
         let captureSession: AVCaptureSession = {
             $0.sessionPreset = sessionPreset
@@ -71,43 +72,6 @@ public class CaptureSessionCoordinator: NSObject {
         try addInput(captureDeviceInput, toCaptureSession: captureSession)
         try addInput(audioDeviceInput, toCaptureSession: captureSession)
     }
-}
-
-private extension AVCaptureDeviceInput {
-
-    class func vrr_captureDeviceInput(byPosition position: AVCaptureDevicePosition) throws -> AVCaptureDeviceInput {
-
-        guard let captureDevice = position == .Back ? AVCaptureDevice.vrr_CaptureDevice.Back.device : AVCaptureDevice.vrr_CaptureDevice.Front.device,
-            captureDeviceInput = try? AVCaptureDeviceInput(device: captureDevice) else { throw VideoRecorderError.CaptureDeviceError }
-
-        return captureDeviceInput
-    }
-}
-
-private extension AVCaptureDevice {
-
-    enum vrr_CaptureDevice {
-
-        case Back
-        case Front
-
-        var device: AVCaptureDevice? {
-            switch self {
-            case .Back:
-                return AVCaptureDevice.vrr_deviceWithPosition(.Back)
-            case .Front:
-                return AVCaptureDevice.vrr_deviceWithPosition(.Front)
-            }
-        }
-    }
-
-    private class func vrr_deviceWithPosition(position: AVCaptureDevicePosition) -> AVCaptureDevice? {
-        guard let devices = devicesWithMediaType(AVMediaTypeVideo) as? [AVCaptureDevice] else {
-            return nil
-        }
-        return devices.filter { $0.position == position }.first
-    }
-
 }
 
 // MARK: Public Methods
@@ -136,18 +100,21 @@ extension CaptureSessionCoordinator {
         let newPosition = captureDevice.position == .Back ? AVCaptureDevicePosition.Front : .Back
 
         let newCaptureDeviceInput = try AVCaptureDeviceInput.vrr_captureDeviceInput(byPosition: newPosition)
+        let newAudioDeviceInput = try AVCaptureDeviceInput.vrr_audioDeviceInput()
 
         captureSession.beginConfiguration()
 
         captureSession.removeInput(captureDeviceInput)
+        captureSession.removeInput(audioDeviceInput)
 
-        if captureSession.canAddInput(newCaptureDeviceInput) {
-            captureSession.addInput(newCaptureDeviceInput)
-            self.captureDeviceInput = newCaptureDeviceInput
-            self.captureDevice = newCaptureDeviceInput.device
-        }
+        try addInput(newCaptureDeviceInput, toCaptureSession: captureSession)
+        try addInput(newAudioDeviceInput, toCaptureSession: captureSession)
 
         captureSession.commitConfiguration()
+
+        captureDeviceInput = newCaptureDeviceInput
+        audioDeviceInput = newAudioDeviceInput
+        captureDevice = captureDeviceInput.device
     }
 
     public func addOutput(output: AVCaptureOutput, toCaptureSession captureSession: AVCaptureSession) throws {
@@ -172,4 +139,47 @@ func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrow
     return try closure()
 }
 
+private extension AVCaptureDeviceInput {
+
+    class func vrr_captureDeviceInput(byPosition position: AVCaptureDevicePosition) throws -> AVCaptureDeviceInput {
+
+        guard let captureDevice = position == .Back ? AVCaptureDevice.vrr_CaptureDevice.Back.device : AVCaptureDevice.vrr_CaptureDevice.Front.device,
+            captureDeviceInput = try? AVCaptureDeviceInput(device: captureDevice) else { throw VideoRecorderError.CaptureDeviceError }
+
+        return captureDeviceInput
+    }
+
+    class func vrr_audioDeviceInput() throws -> AVCaptureDeviceInput {
+
+        guard let audioDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as? AVCaptureDevice,
+            audioDeviceInput = try? AVCaptureDeviceInput(device: audioDevice) else { throw VideoRecorderError.AudioDeviceError }
+
+        return audioDeviceInput
+    }
+}
+
+private extension AVCaptureDevice {
+
+    enum vrr_CaptureDevice {
+
+        case Back
+        case Front
+
+        var device: AVCaptureDevice? {
+            switch self {
+            case .Back:
+                return AVCaptureDevice.vrr_deviceWithPosition(.Back)
+            case .Front:
+                return AVCaptureDevice.vrr_deviceWithPosition(.Front)
+            }
+        }
+    }
+
+    private class func vrr_deviceWithPosition(position: AVCaptureDevicePosition) -> AVCaptureDevice? {
+        guard let devices = devicesWithMediaType(AVMediaTypeVideo) as? [AVCaptureDevice] else {
+            return nil
+        }
+        return devices.filter { $0.position == position }.first
+    }
+}
 
