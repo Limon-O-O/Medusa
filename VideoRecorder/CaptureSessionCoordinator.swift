@@ -13,18 +13,18 @@ public protocol CaptureSessionCoordinatorDelegate: class {
 
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator)
 
-    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
-
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
+
+    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
 
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?)
 }
 
-extension CaptureSessionCoordinatorDelegate {
+public extension CaptureSessionCoordinatorDelegate {
 
-    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
+    public func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
-    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
+    public func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
 }
 
 

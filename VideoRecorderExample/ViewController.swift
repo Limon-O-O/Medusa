@@ -16,6 +16,8 @@ class ViewController: UIViewController {
     private var isRecording = false
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
+    @IBOutlet private weak var previewView: VideoPreviewView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -53,15 +55,11 @@ class ViewController: UIViewController {
 
         guard let captureSessionCoordinator = captureSessionCoordinator else { return }
 
-        let previewLayer = captureSessionCoordinator.previewLayer
+        previewView.previewLayer = captureSessionCoordinator.previewLayer
 
-        previewLayer.frame = view.bounds
-
-        view.layer.insertSublayer(previewLayer, atIndex: 0)
+        previewView.cameraDevice = captureSessionCoordinator.cameraDevice
 
         captureSessionCoordinator.startRunning()
-
-        NSFileManager.removeVideoFileWithFileURL(NSFileManager.videoURLWithName("video")!)
     }
 
     @IBAction private func startOrStopAction(sender: UIButton) {
