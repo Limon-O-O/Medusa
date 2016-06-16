@@ -502,6 +502,7 @@
 				EDE61F471D1250BA0088E42F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
