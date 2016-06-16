@@ -114,7 +114,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 
 
-    public init(sessionPreset: String, size: CGSize, recordingURL: NSURL, position: AVCaptureDevicePosition = .Back) throws {
+    public init(sessionPreset: String, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject], recordingURL: NSURL, position: AVCaptureDevicePosition = .Back) throws {
 
         videoDataOutput = {
             $0.videoSettings = nil
@@ -124,22 +124,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         audioDataOutput = AVCaptureAudioDataOutput()
 
-        let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
-
-        videoCompressionSettings = [
-            AVVideoCodecKey: AVVideoCodecH264,
-            AVVideoCompressionPropertiesKey: codecSettings,
-            AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
-            AVVideoWidthKey: size.width,
-            AVVideoHeightKey: size.height
-        ]
-
-        audioCompressionSettings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVNumberOfChannelsKey: 2,
-            AVSampleRateKey: 44100,
-            AVEncoderBitRateKey: 128000
-        ]
+        self.videoCompressionSettings = videoCompressionSettings
+        self.audioCompressionSettings = audioCompressionSettings
 
         self.recordingURL = recordingURL
 
@@ -266,8 +252,7 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
                 // This gives us one frame interval (33ms at 30fps) for setupVideoPipelineWithInputFormatDescription: to complete.
                 // Ideally this would be done asynchronously to ensure frames don't back up on slower devices.
 
-                // TODO: outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
-                // Currently we don't use the outputVideoFormatDescription in IDAssetWriterRecoredSession
+                // outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
 
                 outputVideoFormatDescription = formatDescription
 

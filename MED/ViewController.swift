@@ -76,7 +76,27 @@ class ViewController: UIViewController {
             let fileName = "video"
             let fileURL = NSFileManager.videoURLWithName(fileName)
 
-            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480, size: CGSize(width: 480, height: 640), recordingURL: fileURL!)
+            let videoFinalSize = CGSize(width: 480, height: 640)
+
+            let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
+
+            let videoCompressionSettings: [String : AnyObject] = [
+                AVVideoCodecKey: AVVideoCodecH264,
+                AVVideoCompressionPropertiesKey: codecSettings,
+                AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
+                AVVideoWidthKey: videoFinalSize.width,
+                AVVideoHeightKey: videoFinalSize.height
+            ]
+
+            let audioCompressionSettings: [String : AnyObject] = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVNumberOfChannelsKey: 2,
+                AVSampleRateKey: 44100,
+                AVEncoderBitRateKey: 128000
+            ]
+
+            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings, recordingURL: fileURL!)
+
             captureSessionCoordinator?.delegate = self
 
         } catch {
