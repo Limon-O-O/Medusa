@@ -82,7 +82,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hZw-5d-22z" userLabel="Progress View">
-                                <rect key="frame" x="0.0" y="652" width="0.0" height="4"/>
+                                <rect key="frame" x="0.0" y="642" width="0.0" height="4"/>
                                 <color key="backgroundColor" red="1" green="0.87450980389999999" blue="0.2901960784" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" id="004-2e-gL2"/>
@@ -103,7 +103,7 @@
                             <constraint firstAttribute="trailing" secondItem="85b-4A-DS8" secondAttribute="trailing" id="Pg8-7e-ZGG"/>
                             <constraint firstItem="2EG-1J-N3m" firstAttribute="height" secondItem="IfU-Qd-pqh" secondAttribute="width" multiplier="3:4" id="TE3-yF-JCW"/>
                             <constraint firstItem="2EG-1J-N3m" firstAttribute="centerY" secondItem="IfU-Qd-pqh" secondAttribute="centerY" id="eD2-iD-934"/>
-                            <constraint firstItem="hZw-5d-22z" firstAttribute="bottom" secondItem="gra-Lt-8ze" secondAttribute="top" id="iCg-af-Pwa"/>
+                            <constraint firstItem="hZw-5d-22z" firstAttribute="bottom" secondItem="gra-Lt-8ze" secondAttribute="top" constant="-10" id="iCg-af-Pwa"/>
                             <constraint firstItem="85b-4A-DS8" firstAttribute="centerY" secondItem="gra-Lt-8ze" secondAttribute="centerY" id="qky-yO-3ul"/>
                             <constraint firstItem="wwH-h3-lAo" firstAttribute="leading" secondItem="IfU-Qd-pqh" secondAttribute="leading" id="r6f-DX-5ab"/>
                             <constraint firstItem="wwH-h3-lAo" firstAttribute="height" secondItem="gra-Lt-8ze" secondAttribute="height" id="xNG-Xn-ZAs"/>

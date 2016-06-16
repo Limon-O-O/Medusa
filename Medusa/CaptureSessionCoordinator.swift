@@ -8,6 +8,10 @@
 
 import AVFoundation
 
+public enum MedusaError: ErrorType {
+    case CaptureDeviceError
+    case AudioDeviceError
+}
 
 public protocol CaptureSessionCoordinatorDelegate: class {
 
@@ -28,12 +32,6 @@ public extension CaptureSessionCoordinatorDelegate {
 }
 
 
-public enum MedusaError: ErrorType {
-    case CaptureDeviceError
-    case AudioDeviceError
-}
-
-
 public class CaptureSessionCoordinator: NSObject {
 
     public var captureDevice: AVCaptureDevice
@@ -51,7 +49,7 @@ public class CaptureSessionCoordinator: NSObject {
     private var audioDeviceInput: AVCaptureDeviceInput
 
 
-    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Front) throws {
+    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
 
         captureDeviceInput = try AVCaptureDeviceInput.med_captureDeviceInput(byPosition: position)
 
@@ -73,6 +71,7 @@ public class CaptureSessionCoordinator: NSObject {
         try addInput(audioDeviceInput, toCaptureSession: captureSession)
     }
 }
+
 
 // MARK: Public Methods
 
@@ -129,57 +128,4 @@ extension CaptureSessionCoordinator {
 }
 
 
-// MARK: Helper
-
-func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrows -> T {
-    objc_sync_enter(lock)
-    defer {
-        objc_sync_exit(lock)
-    }
-    return try closure()
-}
-
-private extension AVCaptureDeviceInput {
-
-    class func med_captureDeviceInput(byPosition position: AVCaptureDevicePosition) throws -> AVCaptureDeviceInput {
-
-        guard let captureDevice = position == .Back ? AVCaptureDevice.MEDCaptureDevice.Back.device : AVCaptureDevice.MEDCaptureDevice.Front.device,
-            captureDeviceInput = try? AVCaptureDeviceInput(device: captureDevice) else { throw MedusaError.CaptureDeviceError }
-
-        return captureDeviceInput
-    }
-
-    class func med_audioDeviceInput() throws -> AVCaptureDeviceInput {
-
-        guard let audioDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as? AVCaptureDevice,
-            audioDeviceInput = try? AVCaptureDeviceInput(device: audioDevice) else { throw MedusaError.AudioDeviceError }
-
-        return audioDeviceInput
-    }
-}
-
-private extension AVCaptureDevice {
-
-    enum MEDCaptureDevice {
-
-        case Back
-        case Front
-
-        var device: AVCaptureDevice? {
-            switch self {
-            case .Back:
-                return AVCaptureDevice.med_deviceWithPosition(.Back)
-            case .Front:
-                return AVCaptureDevice.med_deviceWithPosition(.Front)
-            }
-        }
-    }
-
-    private class func med_deviceWithPosition(position: AVCaptureDevicePosition) -> AVCaptureDevice? {
-        guard let devices = devicesWithMediaType(AVMediaTypeVideo) as? [AVCaptureDevice] else {
-            return nil
-        }
-        return devices.filter { $0.position == position }.first
-    }
-}
 

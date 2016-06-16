@@ -13,7 +13,7 @@ import AssetsLibrary
 
 class ViewController: UIViewController {
 
-    private let maxTime = 30.0
+    private let maxTime = 5.0
     private var currentTime: Int = 0
     private var timer: NSTimer?
 

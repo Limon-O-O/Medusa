@@ -8,6 +8,7 @@
 
 import AVFoundation
 
+
 protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator)
@@ -231,6 +232,7 @@ class AssetWriterCoordinator {
     }
 
 }
+
 
 // MARK: Private Methods
 

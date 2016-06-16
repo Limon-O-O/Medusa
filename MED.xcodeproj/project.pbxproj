@@ -22,6 +22,7 @@
 		EDE61F541D1251560088E42F /* RingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F511D1251560088E42F /* RingControl.swift */; };
 		EDE61F551D1251560088E42F /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F521D1251560088E42F /* VideoPreviewView.swift */; };
 		EDE61F591D1251C00088E42F /* NSFileManager+VideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */; };
+		EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F5A1D125C400088E42F /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,7 @@
 		EDE61F511D1251560088E42F /* RingControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingControl.swift; sourceTree = "<group>"; };
 		EDE61F521D1251560088E42F /* VideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+VideoRecorder.swift"; sourceTree = "<group>"; };
+		EDE61F5A1D125C400088E42F /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,10 +123,11 @@
 		EDE61F3D1D1250BA0088E42F /* Medusa */ = {
 			isa = PBXGroup;
 			children = (
+				EDE61F3E1D1250BA0088E42F /* Medusa.h */,
 				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
 				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
 				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
-				EDE61F3E1D1250BA0088E42F /* Medusa.h */,
+				EDE61F5A1D125C400088E42F /* Utilities.swift */,
 				EDE61F401D1250BA0088E42F /* Info.plist */,
 			);
 			path = Medusa;
@@ -286,6 +289,7 @@
 			files = (
 				EDE61F4D1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift in Sources */,
 				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
+				EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */,
 				EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
