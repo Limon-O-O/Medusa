@@ -114,7 +114,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 
 
-    public init(sessionPreset: String, size: CGSize, recordingURL: NSURL) throws {
+    public init(sessionPreset: String, size: CGSize, recordingURL: NSURL, position: AVCaptureDevicePosition = .Back) throws {
 
         videoDataOutput = {
             $0.videoSettings = nil
@@ -143,21 +143,12 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         self.recordingURL = recordingURL
 
-        try super.init(sessionPreset: sessionPreset)
+        try super.init(sessionPreset: sessionPreset, position: position)
 
         try addOutput(videoDataOutput, toCaptureSession: captureSession)
         try addOutput(audioDataOutput, toCaptureSession: captureSession)
 
-        guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
-            throw MedusaError.CaptureDeviceError
-        }
-
-        guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
-            throw MedusaError.AudioDeviceError
-        }
-
-        videoConnection = unwrappedVideoConnection
-        audioConnection = unwrappedAudioConnection
+        (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
 
         let videoDataOutputQueue = dispatch_queue_create("top.limon.capturesession.videodata", DISPATCH_QUEUE_SERIAL)
         let audioDataOutputQueue = dispatch_queue_create("top.limon.capturesession.audiodata", DISPATCH_QUEUE_SERIAL)
@@ -168,6 +159,9 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
     }
 }
+
+
+// MARK: Public Methods
 
 extension CaptureSessionAssetWriterCoordinator {
 
@@ -217,18 +211,10 @@ extension CaptureSessionAssetWriterCoordinator {
         outputAudioFormatDescription = nil
         outputVideoFormatDescription = nil
 
-        guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
-            throw MedusaError.CaptureDeviceError
-        }
-
-        guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
-            throw MedusaError.AudioDeviceError
-        }
-
-        videoConnection = unwrappedVideoConnection
-        audioConnection = unwrappedAudioConnection
+        (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
     }
 }
+
 
 // MARK: AssetWriterCoordinatorDelegate
 
@@ -254,8 +240,6 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
         synchronized(self) {
             guard recordingStatus == .StoppingRecording else { return }
-            // No state transition, we are still in the process of stopping.
-            // We will be stopped once we save to the assets library.
         }
 
         synchronized(self) {
@@ -312,3 +296,29 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
         }
     }
 }
+
+
+// MARK: Private Methods
+
+extension CaptureSessionAssetWriterCoordinator {
+
+    private func fetchConnections(fromVideoDataOutput videoDataOutput: AVCaptureVideoDataOutput, andAudioDataOutput audioDataOutput: AVCaptureAudioDataOutput) throws -> (videoConnection: AVCaptureConnection!, audioConnection: AVCaptureConnection!) {
+
+        guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
+            throw MedusaError.CaptureDeviceError
+        }
+
+        guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
+            throw MedusaError.AudioDeviceError
+        }
+
+        if unwrappedVideoConnection.supportsVideoStabilization {
+            unwrappedVideoConnection.preferredVideoStabilizationMode = .Auto
+        }
+
+        return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
+
+    }
+}
+
+
