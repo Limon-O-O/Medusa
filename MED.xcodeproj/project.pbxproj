@@ -1,0 +1,509 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EDE61F261D12507C0088E42F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F251D12507C0088E42F /* AppDelegate.swift */; };
+		EDE61F281D12507C0088E42F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F271D12507C0088E42F /* ViewController.swift */; };
+		EDE61F2B1D12507C0088E42F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDE61F291D12507C0088E42F /* Main.storyboard */; };
+		EDE61F2D1D12507C0088E42F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDE61F2C1D12507C0088E42F /* Assets.xcassets */; };
+		EDE61F301D12507C0088E42F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDE61F2E1D12507C0088E42F /* LaunchScreen.storyboard */; };
+		EDE61F3F1D1250BA0088E42F /* Medusa.h in Headers */ = {isa = PBXBuildFile; fileRef = EDE61F3E1D1250BA0088E42F /* Medusa.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EDE61F431D1250BA0088E42F /* Medusa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE61F3C1D1250BA0088E42F /* Medusa.framework */; };
+		EDE61F441D1250BA0088E42F /* Medusa.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EDE61F3C1D1250BA0088E42F /* Medusa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */; };
+		EDE61F4D1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */; };
+		EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */; };
+		EDE61F531D1251560088E42F /* FocusOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F501D1251560088E42F /* FocusOverlay.swift */; };
+		EDE61F541D1251560088E42F /* RingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F511D1251560088E42F /* RingControl.swift */; };
+		EDE61F551D1251560088E42F /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F521D1251560088E42F /* VideoPreviewView.swift */; };
+		EDE61F591D1251C00088E42F /* NSFileManager+VideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EDE61F411D1250BA0088E42F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EDE61F1A1D12507C0088E42F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EDE61F3B1D1250BA0088E42F;
+			remoteInfo = Medusa;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EDE61F481D1250BA0088E42F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				EDE61F441D1250BA0088E42F /* Medusa.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		EDE61F221D12507C0088E42F /* MED.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MED.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDE61F251D12507C0088E42F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EDE61F271D12507C0088E42F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EDE61F2A1D12507C0088E42F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EDE61F2C1D12507C0088E42F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EDE61F2F1D12507C0088E42F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EDE61F311D12507C0088E42F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EDE61F3C1D1250BA0088E42F /* Medusa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Medusa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDE61F3E1D1250BA0088E42F /* Medusa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Medusa.h; sourceTree = "<group>"; };
+		EDE61F401D1250BA0088E42F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetWriterCoordinator.swift; sourceTree = "<group>"; };
+		EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureSessionAssetWriterCoordinator.swift; sourceTree = "<group>"; };
+		EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureSessionCoordinator.swift; sourceTree = "<group>"; };
+		EDE61F501D1251560088E42F /* FocusOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FocusOverlay.swift; sourceTree = "<group>"; };
+		EDE61F511D1251560088E42F /* RingControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingControl.swift; sourceTree = "<group>"; };
+		EDE61F521D1251560088E42F /* VideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
+		EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+VideoRecorder.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EDE61F1F1D12507C0088E42F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDE61F431D1250BA0088E42F /* Medusa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EDE61F381D1250BA0088E42F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EDE61F191D12507C0088E42F = {
+			isa = PBXGroup;
+			children = (
+				EDE61F241D12507C0088E42F /* MED */,
+				EDE61F3D1D1250BA0088E42F /* Medusa */,
+				EDE61F231D12507C0088E42F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EDE61F231D12507C0088E42F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F221D12507C0088E42F /* MED.app */,
+				EDE61F3C1D1250BA0088E42F /* Medusa.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EDE61F241D12507C0088E42F /* MED */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F251D12507C0088E42F /* AppDelegate.swift */,
+				EDE61F271D12507C0088E42F /* ViewController.swift */,
+				EDE61F291D12507C0088E42F /* Main.storyboard */,
+				EDE61F571D1251C00088E42F /* Extensions */,
+				EDE61F4F1D1251560088E42F /* Views */,
+				EDE61F561D1251700088E42F /* Supporting Files */,
+			);
+			path = MED;
+			sourceTree = "<group>";
+		};
+		EDE61F3D1D1250BA0088E42F /* Medusa */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
+				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
+				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
+				EDE61F3E1D1250BA0088E42F /* Medusa.h */,
+				EDE61F401D1250BA0088E42F /* Info.plist */,
+			);
+			path = Medusa;
+			sourceTree = "<group>";
+		};
+		EDE61F4F1D1251560088E42F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F501D1251560088E42F /* FocusOverlay.swift */,
+				EDE61F511D1251560088E42F /* RingControl.swift */,
+				EDE61F521D1251560088E42F /* VideoPreviewView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		EDE61F561D1251700088E42F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F2C1D12507C0088E42F /* Assets.xcassets */,
+				EDE61F2E1D12507C0088E42F /* LaunchScreen.storyboard */,
+				EDE61F311D12507C0088E42F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		EDE61F571D1251C00088E42F /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		EDE61F391D1250BA0088E42F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDE61F3F1D1250BA0088E42F /* Medusa.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		EDE61F211D12507C0088E42F /* MED */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDE61F341D12507C0088E42F /* Build configuration list for PBXNativeTarget "MED" */;
+			buildPhases = (
+				EDE61F1E1D12507C0088E42F /* Sources */,
+				EDE61F1F1D12507C0088E42F /* Frameworks */,
+				EDE61F201D12507C0088E42F /* Resources */,
+				EDE61F481D1250BA0088E42F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EDE61F421D1250BA0088E42F /* PBXTargetDependency */,
+			);
+			name = MED;
+			productName = MED;
+			productReference = EDE61F221D12507C0088E42F /* MED.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EDE61F3B1D1250BA0088E42F /* Medusa */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDE61F451D1250BA0088E42F /* Build configuration list for PBXNativeTarget "Medusa" */;
+			buildPhases = (
+				EDE61F371D1250BA0088E42F /* Sources */,
+				EDE61F381D1250BA0088E42F /* Frameworks */,
+				EDE61F391D1250BA0088E42F /* Headers */,
+				EDE61F3A1D1250BA0088E42F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Medusa;
+			productName = Medusa;
+			productReference = EDE61F3C1D1250BA0088E42F /* Medusa.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EDE61F1A1D12507C0088E42F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = MED;
+				TargetAttributes = {
+					EDE61F211D12507C0088E42F = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					EDE61F3B1D1250BA0088E42F = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = EDE61F1D1D12507C0088E42F /* Build configuration list for PBXProject "MED" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EDE61F191D12507C0088E42F;
+			productRefGroup = EDE61F231D12507C0088E42F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EDE61F211D12507C0088E42F /* MED */,
+				EDE61F3B1D1250BA0088E42F /* Medusa */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EDE61F201D12507C0088E42F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDE61F301D12507C0088E42F /* LaunchScreen.storyboard in Resources */,
+				EDE61F2D1D12507C0088E42F /* Assets.xcassets in Resources */,
+				EDE61F2B1D12507C0088E42F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EDE61F3A1D1250BA0088E42F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EDE61F1E1D12507C0088E42F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDE61F281D12507C0088E42F /* ViewController.swift in Sources */,
+				EDE61F541D1251560088E42F /* RingControl.swift in Sources */,
+				EDE61F531D1251560088E42F /* FocusOverlay.swift in Sources */,
+				EDE61F261D12507C0088E42F /* AppDelegate.swift in Sources */,
+				EDE61F591D1251C00088E42F /* NSFileManager+VideoRecorder.swift in Sources */,
+				EDE61F551D1251560088E42F /* VideoPreviewView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EDE61F371D1250BA0088E42F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDE61F4D1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift in Sources */,
+				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
+				EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EDE61F421D1250BA0088E42F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EDE61F3B1D1250BA0088E42F /* Medusa */;
+			targetProxy = EDE61F411D1250BA0088E42F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EDE61F291D12507C0088E42F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EDE61F2A1D12507C0088E42F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		EDE61F2E1D12507C0088E42F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EDE61F2F1D12507C0088E42F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EDE61F321D12507C0088E42F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		EDE61F331D12507C0088E42F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EDE61F351D12507C0088E42F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				INFOPLIST_FILE = MED/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = top.limon.MED;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EDE61F361D12507C0088E42F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				INFOPLIST_FILE = MED/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = top.limon.MED;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		EDE61F461D1250BA0088E42F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Medusa/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = top.limon.Medusa;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		EDE61F471D1250BA0088E42F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Medusa/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = top.limon.Medusa;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EDE61F1D1D12507C0088E42F /* Build configuration list for PBXProject "MED" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDE61F321D12507C0088E42F /* Debug */,
+				EDE61F331D12507C0088E42F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EDE61F341D12507C0088E42F /* Build configuration list for PBXNativeTarget "MED" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDE61F351D12507C0088E42F /* Debug */,
+				EDE61F361D12507C0088E42F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EDE61F451D1250BA0088E42F /* Build configuration list for PBXNativeTarget "Medusa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDE61F461D1250BA0088E42F /* Debug */,
+				EDE61F471D1250BA0088E42F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EDE61F1A1D12507C0088E42F /* Project object */;
+}

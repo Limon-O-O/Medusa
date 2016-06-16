@@ -1,15 +1,15 @@
 Pod::Spec.new do |s|
 
-  s.name        = "VideoRecorder"
+  s.name        = "Medusa"
   s.version     = "0.1"
-  s.summary     = "VideoRecorder helps you post messages to Chinese Social Networks, or do OAuth."
+  s.summary     = "Medusa helps you post messages to Chinese Social Networks, or do OAuth."
 
   s.description = <<-DESC
                    You just want to share some information to WeChat, QQ, ...
                    Why use their buggy SDKs?
                    DESC
 
-  s.homepage    = "https://github.com/Limon-O-O/VideoRecorder"
+  s.homepage    = "https://github.com/Limon-O-O/Medusa"
 
   s.license     = { :type => "MIT", :file => "LICENSE" }
 
@@ -19,8 +19,8 @@ Pod::Spec.new do |s|
   s.ios.deployment_target   = "8.0"
   # s.osx.deployment_target = "10.7"
 
-  s.source          = { :git => "https://github.com/Limon-O-O/VideoRecorder.git", :tag => s.version }
-  s.source_files    = "VideoRecorder/*.swift"
+  s.source          = { :git => "https://github.com/Limon-O-O/Medusa.git", :tag => s.version }
+  s.source_files    = "Medusa/*.swift"
   s.requires_arc    = true
 
 end

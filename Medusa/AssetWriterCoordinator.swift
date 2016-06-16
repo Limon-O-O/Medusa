@@ -1,9 +1,9 @@
 //
 //  AssetWriterCoordinator.swift
-//  VideoRecorderExample
+//  Medusa
 //
 //  Created by Limon on 6/14/16.
-//  Copyright © 2016 VideoRecorder. All rights reserved.
+//  Copyright © 2016 Medusa. All rights reserved.
 //
 
 import AVFoundation

@@ -1,15 +1,15 @@
 //
 //  ViewController.swift
-//  VideoRecorderExample
+//  MED
 //
-//  Created by Limon on 2016/6/13.
-//  Copyright © 2016年 VideoRecorder. All rights reserved.
+//  Created by Limon on 6/16/16.
+//  Copyright © 2016 MED. All rights reserved.
 //
-
 import UIKit
 import AVFoundation
-import VideoRecorder
+import Medusa
 import AssetsLibrary
+
 
 class ViewController: UIViewController {
 
@@ -209,17 +209,18 @@ extension ViewController {
 extension ViewController {
 
     private func addTimer(timeInterval duration: NSTimeInterval) {
-
+        
         timer?.invalidate()
-
+        
         timer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: #selector(ViewController.timerDidFired(_:)), userInfo: nil, repeats: true)
     }
-
+    
     @objc private func timerDidFired(timer: NSTimer) {
         currentTime = min(currentTime + 1, Int(maxTime))
         countdownButton.setTitle("\(currentTime)", forState: .Normal)
     }
 }
+
 
 
 

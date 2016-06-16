@@ -1,9 +1,9 @@
 //
 //  CaptureSessionAssetWriterCoordinator.swift
-//  VideoRecorderExample
+//  Medusa
 //
 //  Created by Limon on 2016/6/13.
-//  Copyright © 2016年 VideoRecorder. All rights reserved.
+//  Copyright © 2016年 Medusa. All rights reserved.
 //
 
 import AVFoundation
@@ -149,11 +149,11 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         try addOutput(audioDataOutput, toCaptureSession: captureSession)
 
         guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
-            throw VideoRecorderError.CaptureDeviceError
+            throw MedusaError.CaptureDeviceError
         }
 
         guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
-            throw VideoRecorderError.AudioDeviceError
+            throw MedusaError.AudioDeviceError
         }
 
         videoConnection = unwrappedVideoConnection
@@ -218,11 +218,11 @@ extension CaptureSessionAssetWriterCoordinator {
         outputVideoFormatDescription = nil
 
         guard let unwrappedVideoConnection = videoDataOutput.connectionWithMediaType(AVMediaTypeVideo) else {
-            throw VideoRecorderError.CaptureDeviceError
+            throw MedusaError.CaptureDeviceError
         }
 
         guard let unwrappedAudioConnection = audioDataOutput.connectionWithMediaType(AVMediaTypeAudio) else {
-            throw VideoRecorderError.AudioDeviceError
+            throw MedusaError.AudioDeviceError
         }
 
         videoConnection = unwrappedVideoConnection

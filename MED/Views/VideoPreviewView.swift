@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import VideoRecorder
+import Medusa
 import AVFoundation
 
 class VideoPreviewView: UIView {
