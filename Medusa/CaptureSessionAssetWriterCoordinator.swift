@@ -73,24 +73,24 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             }
 
             switch (oldStatus, newStatus) {
-            case (.Idle, .StartingRecording):
 
-                // "Click Record Action"
+            // "Click Record Action"
+            case (.Idle, .StartingRecording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinatorWillBeginRecording(self)
                     }
                 }
 
+            // "Click Stop Record Action"
             case (.Recording, .StoppingRecording):
-
-                // "Click Stop Record Action"
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinatorWillDidFinishRecording(self)
                     }
                 }
 
+            // "Start Recording"
             case (.StartingRecording, .Recording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -98,8 +98,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
+            // "Stop Recording"
             case (.StoppingRecording, .Idle(let error)) where error == nil:
-
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: nil)
