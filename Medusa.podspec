@@ -2,12 +2,11 @@ Pod::Spec.new do |s|
 
   s.name        = "Medusa"
   s.version     = "0.1"
-  s.summary     = "Medusa helps you post messages to Chinese Social Networks, or do OAuth."
+  s.summary     = "Video recorder."
 
   s.description = <<-DESC
-                   You just want to share some information to WeChat, QQ, ...
-                   Why use their buggy SDKs?
-                   DESC
+                    A Video Recorder for the Zodio iPhone app.
+                  DESC
 
   s.homepage    = "https://github.com/Limon-O-O/Medusa"
 
