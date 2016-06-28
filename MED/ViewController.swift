@@ -35,8 +35,9 @@ class ViewController: UIViewController {
     }
 
     private let attributes: Attributes = {
+
         let fileName = "video"
-        let fileURL = NSFileManager.videoURLWithName(fileName)
+        let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: ".mp4")
 
         let videoFinalSize = CGSize(width: 480, height: 640)
 
@@ -57,7 +58,7 @@ class ViewController: UIViewController {
             AVEncoderBitRateKey: 128000
         ]
 
-        return Attributes(recordingURL: fileURL!, fileType: AVFileTypeQuickTimeMovie, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
+        return Attributes(recordingURL: fileURL!, fileType: AVFileTypeMPEG4, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
     }()
 
 

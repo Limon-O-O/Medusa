@@ -27,9 +27,9 @@ extension NSFileManager {
         return nil
     }
 
-    class func videoURLWithName(name: String) -> NSURL? {
+    class func videoURLWithName(name: String, fileExtension: String) -> NSURL? {
 
-        let fileName = name + ".mov"
+        let fileName = name + fileExtension
         if let videoCachesURL = videoCachesURL() {
             return videoCachesURL.URLByAppendingPathComponent("\(fileName)")
         }
