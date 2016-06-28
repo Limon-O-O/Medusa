@@ -4,12 +4,21 @@
 <a href="http://cocoadocs.org/docsets/Medusa"><img src="https://img.shields.io/cocoapods/v/Medusa.svg?style=flat"></a>
 </p>
 
+## Requirements
+
+iOS 8.0
+
+Swift 2.0
+
+## Installation
+
+### CocoaPods
+
+```ruby
+pod 'Medusa', '~> 0.2'
+```
+
 
 ## Contacts
 
-<a href="https://twitter.com/Limon______">
-<img src="https://cloud.githubusercontent.com/assets/1567433/6521243/fb085da4-c378-11e4-973e-1eeeac4b5ba5.png" height="44" hspace="2"/>
-</a>
-<a href="http://weibo.com/u/1783821582">
-<img src="http://7xqy7m.com1.z0.glb.clouddn.com/weibo.png" height="44" hspace="2"/>
-</a>
+Contact me on [Twitter](https://twitter.com/Limon______) or [Weibo](http://weibo.com/u/1783821582) . If you find an issue, just open a ticket on it. Pull requests are warmly welcome as well.
