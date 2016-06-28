@@ -34,6 +34,33 @@ class ViewController: UIViewController {
         }
     }
 
+    private let attributes: Attributes = {
+        let fileName = "video"
+        let fileURL = NSFileManager.videoURLWithName(fileName)
+
+        let videoFinalSize = CGSize(width: 480, height: 640)
+
+        let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
+
+        let videoCompressionSettings: [String : AnyObject] = [
+            AVVideoCodecKey: AVVideoCodecH264,
+            AVVideoCompressionPropertiesKey: codecSettings,
+            AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
+            AVVideoWidthKey: videoFinalSize.width,
+            AVVideoHeightKey: videoFinalSize.height
+        ]
+
+        let audioCompressionSettings: [String : AnyObject] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVNumberOfChannelsKey: 2,
+            AVSampleRateKey: 44100,
+            AVEncoderBitRateKey: 128000
+        ]
+
+        return Attributes(recordingURL: fileURL!, fileType: AVFileTypeQuickTimeMovie, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
+    }()
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -54,10 +81,12 @@ class ViewController: UIViewController {
 
         ringControl.toucheActions = { [weak self] status in
 
+            guard let strongSelf = self else { return }
+
             switch status {
 
             case .Began:
-                self?.captureSessionCoordinator?.startRecording()
+                self?.captureSessionCoordinator?.startRecording(byAttributes: strongSelf.attributes)
 
             case .End:
                 self?.captureSessionCoordinator?.stopRecording()
@@ -73,29 +102,7 @@ class ViewController: UIViewController {
 
         do {
 
-            let fileName = "video"
-            let fileURL = NSFileManager.videoURLWithName(fileName)
-
-            let videoFinalSize = CGSize(width: 480, height: 640)
-
-            let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
-
-            let videoCompressionSettings: [String : AnyObject] = [
-                AVVideoCodecKey: AVVideoCodecH264,
-                AVVideoCompressionPropertiesKey: codecSettings,
-                AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
-                AVVideoWidthKey: videoFinalSize.width,
-                AVVideoHeightKey: videoFinalSize.height
-            ]
-
-            let audioCompressionSettings: [String : AnyObject] = [
-                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                AVNumberOfChannelsKey: 2,
-                AVSampleRateKey: 44100,
-                AVEncoderBitRateKey: 128000
-            ]
-
-            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings, recordingURL: fileURL!)
+            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480)
 
             captureSessionCoordinator?.delegate = self
 
@@ -128,15 +135,15 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
         showViews()
     }
 
-    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {
+    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
-    }
-
-    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?) {
+    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?) {
 
         hideViews()
 
         guard error == nil else { print("error: \(error?.localizedDescription)"); return }
+
+        guard let outputFileURL = outputFileURL else { return }
 
         let videoAsset = AVURLAsset(URL: outputFileURL, options: nil)
         let videoDuration = Int(CMTimeGetSeconds(videoAsset.duration) as Double)

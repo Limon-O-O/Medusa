@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED0A01581D222F330075A660 /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0A01571D222F330075A660 /* Attributes.swift */; };
 		EDE61F261D12507C0088E42F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F251D12507C0088E42F /* AppDelegate.swift */; };
 		EDE61F281D12507C0088E42F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F271D12507C0088E42F /* ViewController.swift */; };
 		EDE61F2B1D12507C0088E42F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDE61F291D12507C0088E42F /* Main.storyboard */; };
@@ -50,6 +51,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED0A01571D222F330075A660 /* Attributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attributes.swift; sourceTree = "<group>"; };
 		EDE61F221D12507C0088E42F /* MED.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MED.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDE61F251D12507C0088E42F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDE61F271D12507C0088E42F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -124,9 +126,10 @@
 			isa = PBXGroup;
 			children = (
 				EDE61F3E1D1250BA0088E42F /* Medusa.h */,
+				ED0A01571D222F330075A660 /* Attributes.swift */,
 				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
-				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
 				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
+				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
 				EDE61F5A1D125C400088E42F /* Utilities.swift */,
 				EDE61F401D1250BA0088E42F /* Info.plist */,
 			);
@@ -290,6 +293,7 @@
 				EDE61F4D1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift in Sources */,
 				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
 				EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */,
+				ED0A01581D222F330075A660 /* Attributes.swift in Sources */,
 				EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

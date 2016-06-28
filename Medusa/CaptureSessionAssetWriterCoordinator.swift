@@ -8,6 +8,7 @@
 
 import AVFoundation
 
+
 public func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
@@ -33,18 +34,14 @@ public enum RecordingStatus: Hashable {
     }
 }
 
-public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
 
-    public var recordingURL: NSURL
+public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
 
     private let videoDataOutput: AVCaptureVideoDataOutput
     private let audioDataOutput: AVCaptureAudioDataOutput
 
     private var videoConnection: AVCaptureConnection!
     private var audioConnection: AVCaptureConnection!
-
-    private let videoCompressionSettings: [String: AnyObject]
-    private let audioCompressionSettings: [String: AnyObject]
 
     private var outputVideoFormatDescription: CMFormatDescriptionRef?
     private var outputAudioFormatDescription: CMFormatDescriptionRef?
@@ -65,7 +62,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: error)
+                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.assetWriterCoordinator?.URL, error: error)
+                        self.assetWriterCoordinator = nil
                     }
                 }
 
@@ -102,7 +100,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             case (.StoppingRecording, .Idle(let error)) where error == nil:
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.recordingURL, error: nil)
+                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.assetWriterCoordinator?.URL, error: nil)
+                        self.assetWriterCoordinator = nil
                     }
                 }
 
@@ -114,7 +113,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 
 
-    public init(sessionPreset: String, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject], recordingURL: NSURL, position: AVCaptureDevicePosition = .Back) throws {
+    public override init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
 
         videoDataOutput = {
             $0.videoSettings = nil
@@ -123,11 +122,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         }(AVCaptureVideoDataOutput())
 
         audioDataOutput = AVCaptureAudioDataOutput()
-
-        self.videoCompressionSettings = videoCompressionSettings
-        self.audioCompressionSettings = audioCompressionSettings
-
-        self.recordingURL = recordingURL
 
         try super.init(sessionPreset: sessionPreset, position: position)
 
@@ -151,25 +145,21 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
 extension CaptureSessionAssetWriterCoordinator {
 
-    public override func startRecording() {
-
-        super.startRecording()
+    public func startRecording(byAttributes attributes: Attributes) {
 
         synchronized(self) {
-
             guard case .Idle = recordingStatus else { return }
-
             recordingStatus = .StartingRecording
         }
 
-        assetWriterCoordinator = AssetWriterCoordinator(URL: recordingURL)
-
-        if let outputAudioFormatDescription = outputAudioFormatDescription {
-            assetWriterCoordinator?.addAudioTrackWithSourceFormatDescription(outputAudioFormatDescription, settings: audioCompressionSettings)
-        }
+        assetWriterCoordinator = AssetWriterCoordinator(URL: attributes.recordingURL, fileType: attributes.fileType)
 
         if let outputVideoFormatDescription = outputVideoFormatDescription {
-            assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: videoCompressionSettings)
+            assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: attributes.videoCompressionSettings)
+        }
+
+        if let outputAudioFormatDescription = outputAudioFormatDescription {
+            assetWriterCoordinator?.addAudioTrackWithSourceFormatDescription(outputAudioFormatDescription, settings: attributes.audioCompressionSettings)
         }
 
         assetWriterCoordinator?.delegate = self
@@ -178,9 +168,7 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.prepareToRecord()
     }
 
-    public override func stopRecording() {
-
-        super.stopRecording()
+    public func stopRecording() {
 
         guard recordingStatus == .Recording else { return }
 
@@ -217,7 +205,6 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
     func writerCoordinator(coordinator: AssetWriterCoordinator, didFailWithError error: NSError?) {
 
         synchronized(self) {
-            assetWriterCoordinator = nil
             recordingStatus = .Idle(error: error)
         }
     }
@@ -229,7 +216,6 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         }
 
         synchronized(self) {
-            assetWriterCoordinator = nil
             recordingStatus = .Idle(error: nil)
         }
     }
@@ -305,5 +291,4 @@ extension CaptureSessionAssetWriterCoordinator {
 
     }
 }
-
 

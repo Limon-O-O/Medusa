@@ -8,10 +8,12 @@
 
 import AVFoundation
 
+
 public enum MedusaError: ErrorType {
     case CaptureDeviceError
     case AudioDeviceError
 }
+
 
 public protocol CaptureSessionCoordinatorDelegate: class {
 
@@ -21,7 +23,7 @@ public protocol CaptureSessionCoordinatorDelegate: class {
 
     func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
 
-    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL, error: NSError?)
+    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?)
 }
 
 public extension CaptureSessionCoordinatorDelegate {
@@ -77,10 +79,6 @@ public class CaptureSessionCoordinator: NSObject {
 
 extension CaptureSessionCoordinator {
 
-    public func startRecording() {}
-
-    public func stopRecording() {}
-
     public func startRunning() {
         dispatch_sync(sessionQueue) {
             self.captureSession.startRunning()
@@ -89,7 +87,6 @@ extension CaptureSessionCoordinator {
 
     public func stopRunning() {
         dispatch_sync(sessionQueue) {
-            self.stopRecording()
             self.captureSession.stopRunning()
         }
     }

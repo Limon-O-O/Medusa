@@ -58,7 +58,8 @@ class AssetWriterCoordinator {
 
     weak var delegate: AssetWriterCoordinatorDelegate?
 
-    private let URL: NSURL
+    let URL: NSURL
+    private let outputFileType: String
     private var assetWriter: AVAssetWriter?
     private let writingQueue: dispatch_queue_t
 
@@ -113,9 +114,10 @@ class AssetWriterCoordinator {
         }
     }
 
-    init(URL: NSURL) {
+    init(URL: NSURL, fileType outputFileType: String) {
         self.URL = URL
         self.writingQueue = dispatch_queue_create("top.limon.assetwriter.writing", DISPATCH_QUEUE_SERIAL)
+        self.outputFileType = outputFileType
     }
 
     func appendVideoSampleBuffer(sampleBuffer: CMSampleBufferRef) {
@@ -165,7 +167,7 @@ class AssetWriterCoordinator {
                     // Remove file if necessary. AVAssetWriter will not overwrite an existing file.
                     self.removeExistingFile(byURL: self.URL)
 
-                    self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: AVFileTypeQuickTimeMovie)
+                    self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: self.outputFileType)
 
                     if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, videoTrackSettings = self.videoTrackSettings {
                         self.setupAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
@@ -314,6 +316,4 @@ extension AssetWriterCoordinator {
         }
     }
 }
-
-
 
