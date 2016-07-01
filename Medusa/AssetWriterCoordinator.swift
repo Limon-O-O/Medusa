@@ -58,7 +58,7 @@ class AssetWriterCoordinator {
 
     weak var delegate: AssetWriterCoordinatorDelegate?
 
-    let URL: NSURL
+    var URL: NSURL
     private let outputFileType: String
     private var assetWriter: AVAssetWriter?
     private let writingQueue: dispatch_queue_t
@@ -311,8 +311,8 @@ extension AssetWriterCoordinator {
 
     private func removeExistingFile(byURL URL: NSURL) {
         let fileManager = NSFileManager.defaultManager()
-        if let outputPath = self.URL.path where fileManager.fileExistsAtPath(outputPath) {
-            let _ = try? fileManager.removeItemAtURL(self.URL)
+        if let outputPath = URL.path where fileManager.fileExistsAtPath(outputPath) {
+            let _ = try? fileManager.removeItemAtURL(URL)
         }
     }
 }

@@ -124,7 +124,28 @@ class ViewController: UIViewController {
     @IBAction func swapCameraDevicePosition(sender: UIButton) {
         try! captureSessionCoordinator?.swapCaptureDevicePosition()
     }
+    @IBAction func startAction(sender: UIButton) {
+        captureSessionCoordinator?.startRecording(byAttributes: self.attributes)
+    }
 
+    @IBAction func pauseAction(sender: UIButton) {
+        captureSessionCoordinator?.pause()
+    }
+
+    @IBAction func resumeAction(sender: UIButton) {
+        captureSessionCoordinator?.resume()
+    }
+
+    @IBAction func stopAction(sender: UIButton) {
+        captureSessionCoordinator?.stopRecording()
+    }
+}
+
+func delay(seconds: Double, delayedCode: ()->()) {
+    let targetTime = dispatch_time(DISPATCH_TIME_NOW, Int64(Double(NSEC_PER_SEC) * seconds))
+    dispatch_after(targetTime, dispatch_get_main_queue()) {
+        delayedCode()
+    }
 }
 
 

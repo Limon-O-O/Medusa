@@ -62,3 +62,11 @@ extension AVCaptureDevice {
     }
 }
 
+extension String {
+    func med_find(a: String, options: NSStringCompareOptions = .CaseInsensitiveSearch) -> Int? {
+        guard let range = rangeOfString(a, options: options) else {
+            return nil
+        }
+        return startIndex.distanceTo(range.startIndex)
+    }
+}
