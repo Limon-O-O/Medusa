@@ -212,8 +212,6 @@ class AssetWriterCoordinator {
         videoInput?.markAsFinished()
         audioInput?.markAsFinished()
 
-        print("finishRecording")
-
         dispatch_async(writingQueue) {
 
             autoreleasepool {
@@ -227,17 +225,16 @@ class AssetWriterCoordinator {
                 self.writerStatus = .FinishingRecordingPart2
                 objc_sync_exit(self)
 
-                self.assetWriter!.finishWritingWithCompletionHandler {
+                self.assetWriter?.finishWritingWithCompletionHandler {
 
                     objc_sync_enter(self)
-
-                    print("assetWriter \(self.assetWriter?.status.rawValue)")
 
                     if let error = self.assetWriter?.error {
                         self.writerStatus = .Failed(error: error)
                     } else {
                         self.writerStatus = .Finished
                     }
+
                     objc_sync_exit(self)
                 }
 

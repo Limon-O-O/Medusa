@@ -29,7 +29,7 @@ func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMut
 
         do {
             try compositionTrack.insertTimeRange(timeRange, ofTrack: track, atTime: time)
-            print("Inserted %@ at %fs (%fs -> %fs)", track.mediaType, CMTimeGetSeconds(time), CMTimeGetSeconds(timeRange.start), CMTimeGetSeconds(timeRange.duration))
+//            print("Inserted %@ at %fs (%fs -> %fs)", track.mediaType, CMTimeGetSeconds(time), CMTimeGetSeconds(timeRange.start), CMTimeGetSeconds(timeRange.duration))
 
         } catch let error as NSError {
 
@@ -65,8 +65,8 @@ func appendSegmentsToComposition(composition: AVMutableComposition, segments: [S
 
     var currentTime = composition.duration
 
-    for (index, segment) in segments.enumerate() {
-        print("segment \(index) -----  \(segment.URL)")
+    for (_, segment) in segments.enumerate() {
+
         let asset = AVAsset(URL: segment.URL)
 
         let audioAssetTracks = asset.tracksWithMediaType(AVMediaTypeAudio)

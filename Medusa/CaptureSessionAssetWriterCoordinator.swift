@@ -304,15 +304,14 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
                 exportSession.exportAsynchronouslyWithCompletionHandler {
                     _ in
 
-//                    objc_sync_enter(self)
                     self.recordingStatus = .Idle(error: nil)
-//                    objc_sync_exit(self)
+
                 }
             }
 
         } else if self.recordingStatus == .Pause {
 
-            // Move out destination file. Prepare for next segment.
+            // Move out destination file. Prepare for next segment video.
             if segments.isEmpty {
                 let newURL = makeNewFileURL()
                 NSFileManager.med_moveItem(atURL: attributes.destinationURL, toURL: newURL)
