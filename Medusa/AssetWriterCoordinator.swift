@@ -79,8 +79,6 @@ class AssetWriterCoordinator {
 
             guard newStatus != writerStatus else { return }
 
-            print("finishRecording() \(newStatus.hashValue)")
-
             let clearAction = {
                 self.assetWriter = nil
                 self.videoInput = nil
@@ -94,8 +92,8 @@ class AssetWriterCoordinator {
                     switch newStatus {
 
                     case .Failed(let error):
-                        clearAction()
 
+                        clearAction()
                         NSFileManager.med_removeExistingFile(byURL: self.URL)
 
                         self.delegate?.writerCoordinator(self, didFailWithError: error)
@@ -136,34 +134,37 @@ class AssetWriterCoordinator {
 
     func addAudioTrackWithSourceFormatDescription(formatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) {
 
-        synchronized(self) {
+        objc_sync_enter(self)
 
-            guard writerStatus == .Idle else { return }
+        guard writerStatus == .Idle else { return }
 
-            audioTrackSourceFormatDescription = formatDescription
+        audioTrackSourceFormatDescription = formatDescription
 
-            audioTrackSettings = audioSettings
-        }
+        audioTrackSettings = audioSettings
+
+        objc_sync_exit(self)
+
     }
 
     func addVideoTrackWithSourceFormatDescription(formatDescription: CMFormatDescriptionRef, settings videoSettings: [String: AnyObject]) {
 
-        synchronized(self) {
+        objc_sync_enter(self)
 
-            guard writerStatus == .Idle else { return }
+        guard writerStatus == .Idle else { return }
 
-            videoTrackSourceFormatDescription = formatDescription
+        videoTrackSourceFormatDescription = formatDescription
 
-            videoTrackSettings = videoSettings
-        }
+        videoTrackSettings = videoSettings
+
+        objc_sync_exit(self)
     }
 
     func prepareToRecord() {
 
-        synchronized(self) {
-            guard writerStatus == .Idle else { return }
-            writerStatus = .PreparingToRecord
-        }
+        objc_sync_enter(self)
+        guard writerStatus == .Idle else { return }
+        writerStatus = .PreparingToRecord
+        objc_sync_exit(self)
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)) {
             autoreleasepool {
@@ -188,12 +189,14 @@ class AssetWriterCoordinator {
                         throw self.assetWriter!.error!
                     }
 
-                    synchronized(self) {
-                        self.writerStatus = .Recording
-                    }
+                    objc_sync_enter(self)
+                    self.writerStatus = .Recording
+                    objc_sync_exit(self)
 
                 } catch let error as NSError {
+                    objc_sync_enter(self)
                     self.writerStatus = .Failed(error: error)
+                    objc_sync_exit(self)
                 }
             }
         }
@@ -201,44 +204,41 @@ class AssetWriterCoordinator {
 
     func finishRecording() {
 
-        synchronized(self) {
-            guard writerStatus == .Recording else { return }
-            videoInput?.markAsFinished()
-            audioInput?.markAsFinished()
-            writerStatus = .FinishingRecordingPart1
-        }
+        objc_sync_enter(self)
+        guard writerStatus == .Recording else { return }
+        writerStatus = .FinishingRecordingPart1
+        objc_sync_exit(self)
+
+        videoInput?.markAsFinished()
+        audioInput?.markAsFinished()
+
+        print("finishRecording")
 
         dispatch_async(writingQueue) {
 
             autoreleasepool {
 
-                synchronized(self) {
+                objc_sync_enter(self)
+                // We may have transitioned to an error state as we appended inflight buffers. In that case there is nothing to do now.
+                guard self.writerStatus == .FinishingRecordingPart1 else { return }
 
-                    // We may have transitioned to an error state as we appended inflight buffers. In that case there is nothing to do now.
-                    guard self.writerStatus == .FinishingRecordingPart1 else { return }
-
-                    // It is not safe to call -[AVAssetWriter finishWriting*] concurrently with -[AVAssetWriterInput appendSampleBuffer:]
-                    // We transition to MovieRecorderStatusFinishingRecordingPart2 while on _writingQueue, which guarantees that no more buffers will be appended.
-                    self.writerStatus = .FinishingRecordingPart2
-                }
+                // It is not safe to call -[AVAssetWriter finishWriting*] concurrently with -[AVAssetWriterInput appendSampleBuffer:]
+                // We transition to MovieRecorderStatusFinishingRecordingPart2 while on _writingQueue, which guarantees that no more buffers will be appended.
+                self.writerStatus = .FinishingRecordingPart2
+                objc_sync_exit(self)
 
                 self.assetWriter!.finishWritingWithCompletionHandler {
 
-                    synchronized(self) {
+                    objc_sync_enter(self)
 
-//                        guard self.assetWriter!.status == .Completed else {
-//                            //                    self.assetWriter?.cancelWriting()
-//                            //                    self.writerStatus = .Finished
-//                            return
-//                        }
+                    print("assetWriter \(self.assetWriter?.status.rawValue)")
 
-                        if let error = self.assetWriter?.error {
-                            self.writerStatus = .Failed(error: error)
-                        } else {
-                            self.writerStatus = .Finished
-                        }
+                    if let error = self.assetWriter?.error {
+                        self.writerStatus = .Failed(error: error)
+                    } else {
+                        self.writerStatus = .Finished
                     }
-
+                    objc_sync_exit(self)
                 }
 
             }
@@ -258,25 +258,20 @@ extension AssetWriterCoordinator {
 
         guard let assetWriter = assetWriter else { return }
 
-        synchronized(self){
-
-            if writerStatus.hashValue < WriterStatus.Recording.hashValue {
-                print("Not ready to record yet")
-                return
-            }
+        if writerStatus.hashValue < WriterStatus.Recording.hashValue {
+            print("Not ready to record yet")
+            return
         }
 
         dispatch_async(writingQueue) {
 
             autoreleasepool {
 
-                synchronized(self) {
-                    // From the client's perspective the movie recorder can asynchronously transition to an error state as the result of an append.
-                    // Because of this we are lenient when samples are appended and we are no longer recording.
-                    // Instead of throwing an exception we just release the sample buffers and return.
-                    if self.writerStatus.hashValue > WriterStatus.FinishingRecordingPart1.hashValue {
-                        return
-                    }
+                // From the client's perspective the movie recorder can asynchronously transition to an error state as the result of an append.
+                // Because of this we are lenient when samples are appended and we are no longer recording.
+                // Instead of throwing an exception we just release the sample buffers and return.
+                if self.writerStatus.hashValue > WriterStatus.FinishingRecordingPart1.hashValue {
+                    return
                 }
 
                 if !self.didStartedSession && mediaType == AVMediaTypeVideo {
@@ -288,9 +283,11 @@ extension AssetWriterCoordinator {
 
                 let success = input.appendSampleBuffer(sampleBuffer)
 
+                objc_sync_enter(self)
                 if !success {
                     self.writerStatus = .Failed(error: assetWriter.error)
                 }
+                objc_sync_exit(self)
 
             }
         }

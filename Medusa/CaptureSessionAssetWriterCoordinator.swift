@@ -182,10 +182,10 @@ extension CaptureSessionAssetWriterCoordinator {
 
     public func startRecording() {
 
-        synchronized(self) {
-            guard case .Idle = recordingStatus else { return }
-            recordingStatus = .StartingRecording
-        }
+        objc_sync_enter(self)
+        guard case .Idle = recordingStatus else { return }
+        recordingStatus = .StartingRecording
+        objc_sync_exit(self)
 
         assetWriterCoordinator = AssetWriterCoordinator(URL: attributes._destinationURL, fileType: attributes.mediaFormat.fileFormat)
 
@@ -205,29 +205,27 @@ extension CaptureSessionAssetWriterCoordinator {
 
     public func stopRecording() {
 
-        synchronized(self) {
-            guard recordingStatus == .Recording else { return }
-            recordingStatus = .StoppingRecording
-        }
+        objc_sync_enter(self)
+        guard recordingStatus == .Recording else { return }
+        recordingStatus = .StoppingRecording
+        objc_sync_exit(self)
 
         assetWriterCoordinator?.finishRecording()
     }
 
     public func pause() {
 
-        synchronized(self) {
-            guard recordingStatus == .Recording else { return }
-            recordingStatus = .Pause
-        }
+        objc_sync_enter(self)
+        guard recordingStatus == .Recording else { return }
+        recordingStatus = .Pause
+        objc_sync_exit(self)
 
         assetWriterCoordinator?.finishRecording()
     }
 
     public func resume() {
 
-        synchronized(self) {
-            guard case .Idle = recordingStatus else { return }
-        }
+        guard case .Idle = recordingStatus else { return }
 
         let newURL = makeNewFileURL()
         let segment = Segment(URL: newURL)
@@ -268,17 +266,17 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator) {
 
-        synchronized(self) {
-            guard recordingStatus == .StartingRecording else { return }
-            recordingStatus = .Recording
-        }
+        objc_sync_enter(self)
+        guard recordingStatus == .StartingRecording else { return }
+        recordingStatus = .Recording
+        objc_sync_exit(self)
     }
 
     func writerCoordinator(coordinator: AssetWriterCoordinator, didFailWithError error: NSError?) {
 
-        synchronized(self) {
-            recordingStatus = .Idle(error: error)
-        }
+        objc_sync_enter(self)
+        recordingStatus = .Idle(error: error)
+        objc_sync_exit(self)
     }
 
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {
@@ -286,9 +284,9 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         if recordingStatus == .StoppingRecording {
 
             if segments.isEmpty {
-                synchronized(self) {
-                    recordingStatus = .Idle(error: nil)
-                }
+                objc_sync_enter(self)
+                recordingStatus = .Idle(error: nil)
+                objc_sync_exit(self)
                 return
             }
 
@@ -302,12 +300,13 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
                 exportSession.outputURL = attributes.destinationURL
                 exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
                 exportSession.outputFileType = attributes.mediaFormat.fileFormat
+
                 exportSession.exportAsynchronouslyWithCompletionHandler {
                     _ in
 
-                    synchronized(self) {
-                        self.recordingStatus = .Idle(error: nil)
-                    }
+//                    objc_sync_enter(self)
+                    self.recordingStatus = .Idle(error: nil)
+//                    objc_sync_exit(self)
                 }
             }
 
@@ -321,9 +320,9 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
                 segments.append(segment)
             }
 
-            synchronized(self) {
-                recordingStatus = .Idle(error: nil)
-            }
+            objc_sync_enter(self)
+            recordingStatus = .Idle(error: nil)
+            objc_sync_exit(self)
 
         }
 
@@ -355,10 +354,8 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
 
                 outputVideoFormatDescription = formatDescription;
 
-                synchronized(self) {
-                    if recordingStatus == .Recording {
-                        assetWriterCoordinator?.appendVideoSampleBuffer(sampleBuffer)
-                    }
+                if recordingStatus == .Recording {
+                    assetWriterCoordinator?.appendVideoSampleBuffer(sampleBuffer)
                 }
 
             }
@@ -367,10 +364,8 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
 
             outputAudioFormatDescription = formatDescription
 
-            synchronized(self) {
-                if recordingStatus == .Recording {
-                    assetWriterCoordinator?.appendAudioSampleBuffer(sampleBuffer)
-                }
+            if recordingStatus == .Recording {
+                assetWriterCoordinator?.appendAudioSampleBuffer(sampleBuffer)
             }
 
         }

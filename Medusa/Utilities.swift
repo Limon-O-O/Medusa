@@ -8,16 +8,6 @@
 
 import AVFoundation
 
-// MARK: Helper
-
-func synchronized<T>(lock: AnyObject, @noescape closure: () throws -> T) rethrows -> T {
-    objc_sync_enter(lock)
-    defer {
-        objc_sync_exit(lock)
-    }
-    return try closure()
-}
-
 extension AVCaptureDeviceInput {
 
     class func med_captureDeviceInput(byPosition position: AVCaptureDevicePosition) throws -> AVCaptureDeviceInput {
