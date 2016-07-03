@@ -37,7 +37,8 @@ class ViewController: UIViewController {
     private let attributes: Attributes = {
 
         let fileName = "video"
-        let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: ".mp4")
+        let mediaFormat = MediaFormat.MP4
+        let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: mediaFormat.filenameExtension)
 
         let videoFinalSize = CGSize(width: 480, height: 640)
 
@@ -58,7 +59,7 @@ class ViewController: UIViewController {
             AVEncoderBitRateKey: 128000
         ]
 
-        return Attributes(recordingURL: fileURL!, fileType: AVFileTypeMPEG4, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
+        return Attributes(destinationURL: fileURL!, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
     }()
 
 
@@ -82,12 +83,10 @@ class ViewController: UIViewController {
 
         ringControl.toucheActions = { [weak self] status in
 
-            guard let strongSelf = self else { return }
-
             switch status {
 
             case .Began:
-                self?.captureSessionCoordinator?.startRecording(byAttributes: strongSelf.attributes)
+                self?.captureSessionCoordinator?.startRecording()
 
             case .End:
                 self?.captureSessionCoordinator?.stopRecording()
@@ -103,7 +102,7 @@ class ViewController: UIViewController {
 
         do {
 
-            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480)
+            captureSessionCoordinator = try CaptureSessionAssetWriterCoordinator(sessionPreset: AVCaptureSessionPreset640x480, attributes: attributes)
 
             captureSessionCoordinator?.delegate = self
 
@@ -125,7 +124,7 @@ class ViewController: UIViewController {
         try! captureSessionCoordinator?.swapCaptureDevicePosition()
     }
     @IBAction func startAction(sender: UIButton) {
-        captureSessionCoordinator?.startRecording(byAttributes: self.attributes)
+        captureSessionCoordinator?.startRecording()
     }
 
     @IBAction func pauseAction(sender: UIButton) {
@@ -208,7 +207,7 @@ extension ViewController {
 
             self.progressView.alpha = 0.0
             self.progressViewConstraintWidth.constant = 0.0
-            self.captureSessionCoordinator?.stopRecording()
+//            self.captureSessionCoordinator?.stopRecording()
         })
     }
 

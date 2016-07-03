@@ -19,7 +19,6 @@ public enum RecordingStatus: Hashable {
     case StartingRecording
     case Recording
     case Pause
-    case Resume
     case StoppingRecording
 
     public var hashValue: Int {
@@ -32,8 +31,6 @@ public enum RecordingStatus: Hashable {
             return 30000
         case .Pause:
             return 40000
-        case .Resume:
-            return 50000
         case .StoppingRecording:
             return 60000
         }
@@ -56,7 +53,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private var segments = [Segment]()
 
-    private var attributes: Attributes?
+    private var attributes: Attributes
 
     private var recordingStatus: RecordingStatus = .Idle(error: nil) {
 
@@ -72,7 +69,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.assetWriterCoordinator?.URL, error: error)
+                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
                         self.assetWriterCoordinator = nil
                     }
                 }
@@ -110,7 +107,16 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             case (.StoppingRecording, .Idle):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.assetWriterCoordinator?.URL, error: nil)
+
+                        self.segments.forEach {
+                            NSFileManager.med_removeExistingFile(byURL: $0.URL)
+                        }
+
+                        self.segments.removeAll()
+
+                        self.attributes._destinationURL = self.attributes.destinationURL
+
+                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.attributes.destinationURL, error: nil)
                         self.assetWriterCoordinator = nil
                     }
                 }
@@ -140,7 +146,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 
 
-    public override init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
+    public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .Back) throws {
 
         videoDataOutput = {
             $0.videoSettings = nil
@@ -149,6 +155,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         }(AVCaptureVideoDataOutput())
 
         audioDataOutput = AVCaptureAudioDataOutput()
+
+        self.attributes = attributes
 
         try super.init(sessionPreset: sessionPreset, position: position)
 
@@ -172,16 +180,14 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
 extension CaptureSessionAssetWriterCoordinator {
 
-    public func startRecording(byAttributes attributes: Attributes) {
+    public func startRecording() {
 
         synchronized(self) {
             guard case .Idle = recordingStatus else { return }
             recordingStatus = .StartingRecording
         }
 
-        self.attributes = attributes
-
-        assetWriterCoordinator = AssetWriterCoordinator(URL: attributes.recordingURL, fileType: attributes.fileType)
+        assetWriterCoordinator = AssetWriterCoordinator(URL: attributes._destinationURL, fileType: attributes.mediaFormat.fileFormat)
 
         if let outputVideoFormatDescription = outputVideoFormatDescription {
             assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: attributes.videoCompressionSettings)
@@ -199,42 +205,36 @@ extension CaptureSessionAssetWriterCoordinator {
 
     public func stopRecording() {
 
-        guard recordingStatus == .Recording else { return }
+        synchronized(self) {
+            guard recordingStatus == .Recording else { return }
+            recordingStatus = .StoppingRecording
+        }
 
-        recordingStatus = .StoppingRecording
-        self.assetWriterCoordinator?.finishRecording()
+        assetWriterCoordinator?.finishRecording()
     }
 
     public func pause() {
 
-        guard recordingStatus == .Recording else { return }
+        synchronized(self) {
+            guard recordingStatus == .Recording else { return }
+            recordingStatus = .Pause
+        }
 
-        endSegment()
+        assetWriterCoordinator?.finishRecording()
     }
 
     public func resume() {
 
-        guard let attributes = self.attributes else { return }
-
-        let absoluteString = attributes.recordingURL.absoluteString
-        var newAbsoluteString: String?
-
-        if let startIndex = absoluteString.med_find(".", options: .BackwardsSearch) {
-
-            let suffix = "---medusa_segment"
-            let filePath = absoluteString[absoluteString.startIndex..<absoluteString.startIndex.advancedBy(startIndex)]
-            let fileExtension = absoluteString[absoluteString.startIndex.advancedBy(startIndex)..<absoluteString.endIndex]
-
-            newAbsoluteString = filePath + suffix + fileExtension
+        synchronized(self) {
+            guard case .Idle = recordingStatus else { return }
         }
 
-        let newURL = NSURL(string: newAbsoluteString!)!
+        let newURL = makeNewFileURL()
+        let segment = Segment(URL: newURL)
+        segments.append(segment)
 
-        print(newURL.absoluteString)
-
-        let newAttributes = Attributes(recordingURL: newURL, fileType: attributes.fileType, videoCompressionSettings: attributes.videoCompressionSettings, audioCompressionSettings: attributes.audioCompressionSettings)
-
-        startRecording(byAttributes: newAttributes)
+        attributes._destinationURL = newURL
+        startRecording()
     }
 
     public override func swapCaptureDevicePosition() throws {
@@ -249,24 +249,15 @@ extension CaptureSessionAssetWriterCoordinator {
         (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
     }
 
-    private func endSegment() {
+    private func makeNewFileURL() -> NSURL {
 
-        let segment = Segment(URL: assetWriterCoordinator!.URL)
-        segments.append(segment)
+        let suffix = "-medusa_segment\(segments.count)"
 
-        synchronized(self) {
-            recordingStatus = .Pause
-        }
+        let destinationPath = String(attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
 
-        assetWriterCoordinator?.finishRecording()
-    }
+        let newAbsoluteString = destinationPath + suffix + attributes.mediaFormat.filenameExtension
 
-    private func nextFileURL() {
-
-    }
-
-    private func segmentURLForFilename() {
-
+        return  NSURL(string: newAbsoluteString)!
     }
 }
 
@@ -290,48 +281,50 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         }
     }
 
-    private func removeExistingFile(byURL URL: NSURL) {
-        let fileManager = NSFileManager.defaultManager()
-        if let outputPath = URL.path where fileManager.fileExistsAtPath(outputPath) {
-            let _ = try? fileManager.removeItemAtURL(URL)
-        }
-    }
-
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {
 
         if recordingStatus == .StoppingRecording {
 
-            let segment = Segment(URL: assetWriterCoordinator!.URL)
-            segments.append(segment)
+            if segments.isEmpty {
+                synchronized(self) {
+                    recordingStatus = .Idle(error: nil)
+                }
+                return
+            }
+
+            // Merge segments
 
             let asset = assetRepresentingSegments(segments)
-
-            let documentsDirectory = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0] as NSURL
-            let filePath = documentsDirectory.URLByAppendingPathComponent("rendered-audioxxx.mp4")
-
-            removeExistingFile(byURL: filePath)
 
             if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
 
                 exportSession.canPerformMultiplePassesOverSourceMediaData = true
-                exportSession.outputURL = filePath
+                exportSession.outputURL = attributes.destinationURL
                 exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
-                exportSession.outputFileType = AVFileTypeMPEG4
+                exportSession.outputFileType = attributes.mediaFormat.fileFormat
                 exportSession.exportAsynchronouslyWithCompletionHandler {
                     _ in
 
-                    print("finished: \(filePath) :  \(exportSession.status == .Failed)")
-                    self.assetWriterCoordinator?.URL = filePath
-
                     synchronized(self) {
-                        guard self.recordingStatus == .StoppingRecording else { return }
                         self.recordingStatus = .Idle(error: nil)
                     }
                 }
             }
 
         } else if self.recordingStatus == .Pause {
-            self.recordingStatus = .Idle(error: nil)
+
+            // Move out destination file. Prepare for next segment.
+            if segments.isEmpty {
+                let newURL = makeNewFileURL()
+                NSFileManager.med_moveItem(atURL: attributes.destinationURL, toURL: newURL)
+                let segment = Segment(URL: newURL)
+                segments.append(segment)
+            }
+
+            synchronized(self) {
+                recordingStatus = .Idle(error: nil)
+            }
+
         }
 
     }

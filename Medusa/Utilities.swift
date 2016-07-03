@@ -70,3 +70,34 @@ extension String {
         return startIndex.distanceTo(range.startIndex)
     }
 }
+
+
+extension NSFileManager {
+
+    class func med_moveItem(atURL sourceURL: NSURL, toURL dstURL: NSURL) {
+
+        NSFileManager.med_removeExistingFile(byURL: dstURL)
+
+        let fileManager = NSFileManager.defaultManager()
+
+        if let dstPath = sourceURL.path where fileManager.fileExistsAtPath(dstPath) {
+            do {
+                try fileManager.moveItemAtURL(sourceURL, toURL: dstURL)
+            } catch let error as NSError {
+                print("[Medusa] \((#file as NSString).lastPathComponent)[\(#line)], \(#function): \(error.localizedDescription)")
+            }
+        }
+    }
+
+    class func med_removeExistingFile(byURL URL: NSURL) {
+        let fileManager = NSFileManager.defaultManager()
+        if let outputPath = URL.path where fileManager.fileExistsAtPath(outputPath) {
+            do {
+                try fileManager.removeItemAtURL(URL)
+            } catch let error as NSError {
+                print("[Medusa] \((#file as NSString).lastPathComponent)[\(#line)], \(#function): \(error.localizedDescription)")
+            }
+        }
+    }
+
+}

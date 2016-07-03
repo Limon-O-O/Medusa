@@ -8,10 +8,8 @@
 
 import AVFoundation
 
-public struct Segment {
+struct Segment {
     let URL: NSURL
-    //    let asset: AVAsset
-    //    let duration: CMTime
 }
 
 func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
@@ -44,7 +42,7 @@ func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMut
     return time
 }
 
-public func assetRepresentingSegments(segments: [Segment]) -> AVAsset {
+func assetRepresentingSegments(segments: [Segment]) -> AVAsset {
 
     if segments.count == 1 {
 
@@ -60,7 +58,7 @@ public func assetRepresentingSegments(segments: [Segment]) -> AVAsset {
     }
 }
 
-public func appendSegmentsToComposition(composition: AVMutableComposition, segments: [Segment]) {
+func appendSegmentsToComposition(composition: AVMutableComposition, segments: [Segment]) {
 
     var audioTrack: AVMutableCompositionTrack? = nil
     var videoTrack: AVMutableCompositionTrack? = nil

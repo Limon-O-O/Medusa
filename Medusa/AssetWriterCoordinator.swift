@@ -79,6 +79,8 @@ class AssetWriterCoordinator {
 
             guard newStatus != writerStatus else { return }
 
+            print("finishRecording() \(newStatus.hashValue)")
+
             let clearAction = {
                 self.assetWriter = nil
                 self.videoInput = nil
@@ -94,7 +96,7 @@ class AssetWriterCoordinator {
                     case .Failed(let error):
                         clearAction()
 
-                        self.removeExistingFile(byURL: self.URL)
+                        NSFileManager.med_removeExistingFile(byURL: self.URL)
 
                         self.delegate?.writerCoordinator(self, didFailWithError: error)
 
@@ -118,6 +120,10 @@ class AssetWriterCoordinator {
         self.URL = URL
         self.writingQueue = dispatch_queue_create("top.limon.assetwriter.writing", DISPATCH_QUEUE_SERIAL)
         self.outputFileType = outputFileType
+    }
+
+    deinit {
+        print("AssetWriterCoordinator Deinit")
     }
 
     func appendVideoSampleBuffer(sampleBuffer: CMSampleBufferRef) {
@@ -165,7 +171,7 @@ class AssetWriterCoordinator {
                 do {
 
                     // Remove file if necessary. AVAssetWriter will not overwrite an existing file.
-                    self.removeExistingFile(byURL: self.URL)
+                    NSFileManager.med_removeExistingFile(byURL: self.URL)
 
                     self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: self.outputFileType)
 
@@ -197,6 +203,8 @@ class AssetWriterCoordinator {
 
         synchronized(self) {
             guard writerStatus == .Recording else { return }
+            videoInput?.markAsFinished()
+            audioInput?.markAsFinished()
             writerStatus = .FinishingRecordingPart1
         }
 
@@ -214,9 +222,15 @@ class AssetWriterCoordinator {
                     self.writerStatus = .FinishingRecordingPart2
                 }
 
-                self.assetWriter?.finishWritingWithCompletionHandler {
+                self.assetWriter!.finishWritingWithCompletionHandler {
 
                     synchronized(self) {
+
+//                        guard self.assetWriter!.status == .Completed else {
+//                            //                    self.assetWriter?.cancelWriting()
+//                            //                    self.writerStatus = .Finished
+//                            return
+//                        }
 
                         if let error = self.assetWriter?.error {
                             self.writerStatus = .Failed(error: error)
@@ -306,13 +320,6 @@ extension AssetWriterCoordinator {
 
         if assetWriter.canAddInput(audioInput!) {
             assetWriter.addInput(audioInput!)
-        }
-    }
-
-    private func removeExistingFile(byURL URL: NSURL) {
-        let fileManager = NSFileManager.defaultManager()
-        if let outputPath = URL.path where fileManager.fileExistsAtPath(outputPath) {
-            let _ = try? fileManager.removeItemAtURL(URL)
         }
     }
 }
