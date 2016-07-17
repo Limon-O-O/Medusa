@@ -55,7 +55,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private var attributes: Attributes
 
-    private var recordingStatus: RecordingStatus = .Idle(error: nil) {
+    public private(set) var recordingStatus: RecordingStatus = .Idle(error: nil) {
 
         willSet(newStatus) {
 
