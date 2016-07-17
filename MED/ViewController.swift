@@ -13,26 +13,17 @@ import AssetsLibrary
 
 class ViewController: UIViewController {
 
-    private let maxTime = 5.0
-    private var currentTime: Int = 0
+    private let maxTime: Float = 5.0
+    private var currentTime: Float = 0.0
     private var timer: NSTimer?
 
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
-    @IBOutlet private weak var hintLabel: UILabel!
-    @IBOutlet private weak var progressView: UIView!
+    @IBOutlet private weak var progressView: ProgressView!
     @IBOutlet private weak var previewView: VideoPreviewView!
     @IBOutlet private weak var ringControl: RingControl!
-    @IBOutlet private weak var progressViewConstraintWidth: NSLayoutConstraint!
-
-    @IBOutlet private weak var countdownButton: UIButton! {
-        didSet {
-            countdownButton.alpha = 0.0
-            countdownButton.userInteractionEnabled = false
-            countdownButton.layer.masksToBounds = true
-            countdownButton.layer.cornerRadius = countdownButton.frame.size.height / 2.0
-        }
-    }
+    @IBOutlet private weak var rollbackButton: UIButton!
+    @IBOutlet private weak var saveButton: UIButton!
 
     private let attributes: Attributes = {
 
@@ -123,29 +114,36 @@ class ViewController: UIViewController {
     @IBAction func swapCameraDevicePosition(sender: UIButton) {
         try! captureSessionCoordinator?.swapCaptureDevicePosition()
     }
-    @IBAction func startAction(sender: UIButton) {
-        captureSessionCoordinator?.startRecording()
+
+    @IBAction func rollbackAction(sender: UIButton) {
+
+        if sender.selected {
+
+            let delta = progressView.rollback()
+
+            currentTime -= (maxTime * delta)
+
+            if progressView.trackViews.isEmpty {
+                rollbackButton.hidden = true
+                saveButton.hidden = true
+            }
+
+        } else {
+
+            progressView.trackViews.last?.backgroundColor = UIColor.brownColor()
+
+        }
+
+        sender.selected = !sender.selected
+
     }
 
-    @IBAction func pauseAction(sender: UIButton) {
-        captureSessionCoordinator?.pause()
+    @IBAction func saveAction(sender: UIButton) {
+        progressView.status = .Idle
     }
 
-    @IBAction func resumeAction(sender: UIButton) {
-        captureSessionCoordinator?.resume()
-    }
-
-    @IBAction func stopAction(sender: UIButton) {
-        captureSessionCoordinator?.stopRecording()
-    }
 }
 
-func delay(seconds: Double, delayedCode: ()->()) {
-    let targetTime = dispatch_time(DISPATCH_TIME_NOW, Int64(Double(NSEC_PER_SEC) * seconds))
-    dispatch_after(targetTime, dispatch_get_main_queue()) {
-        delayedCode()
-    }
-}
 
 
 // MARK: CaptureSessionCoordinatorDelegate
@@ -153,14 +151,32 @@ func delay(seconds: Double, delayedCode: ()->()) {
 extension ViewController: CaptureSessionCoordinatorDelegate {
 
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {
-        showViews()
+
+        switch progressView.status {
+        case .Pause:
+            progressView.resume()
+        case .Progressing, .Idle:
+            break
+        }
+
+        addTimer(timeInterval: 0.01)
+        rollbackButton.hidden = true
+        saveButton.hidden = true
+
+        rollbackButton.selected = false
+        progressView.trackViews.last?.backgroundColor = progressView.progressTintColor
+
     }
 
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?) {
 
-        hideViews()
+        timer?.invalidate()
+        progressView.pause()
+
+        rollbackButton.hidden = false
+        saveButton.hidden = false
 
         guard error == nil else { print("error: \(error?.localizedDescription)"); return }
 
@@ -171,56 +187,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 
         print("didFinishRecording fileSize: \(fileSize(outputFileURL)) M, \(videoDuration) seconds")
 
-        saveVideoToPhotosAlbum(outputFileURL)
-    }
-}
-
-
-// MARK: Views
-
-extension ViewController {
-
-    private func showViews() {
-        showRecordProgressView()
-        showCountdownButton()
-        addTimer(timeInterval: 1.0)
-    }
-
-    private func hideViews() {
-        currentTime = 0
-        progressView.alpha = 0.0
-        progressView.layer.removeAllAnimations()
-        progressViewConstraintWidth.constant = 0.0
-        timer?.invalidate()
-    }
-
-    private func showRecordProgressView() {
-
-        progressView.alpha = 1.0
-
-        progressViewConstraintWidth.constant = UIScreen.mainScreen().bounds.width
-
-        UIView.animateWithDuration(maxTime, delay: 0.0, options: .CurveLinear, animations: {
-            self.view.layoutIfNeeded()
-
-        }, completion: {_ in
-
-            self.progressView.alpha = 0.0
-            self.progressViewConstraintWidth.constant = 0.0
-//            self.captureSessionCoordinator?.stopRecording()
-        })
-    }
-
-    private func showCountdownButton() {
-
-        countdownButton.setTitle("0", forState: .Normal)
-
-        guard countdownButton.alpha == 0.0 else { return }
-
-        UIView.animateWithDuration(0.25) {
-            self.countdownButton.alpha = 1.0
-            self.hintLabel.alpha = 0.0
-        }
+//        saveVideoToPhotosAlbum(outputFileURL)
     }
 }
 
@@ -264,8 +231,16 @@ extension ViewController {
     }
     
     @objc private func timerDidFired(timer: NSTimer) {
-        currentTime = min(currentTime + 1, Int(maxTime))
-        countdownButton.setTitle("\(currentTime)", forState: .Normal)
+
+        currentTime = currentTime + Float(timer.timeInterval)
+
+        if currentTime > maxTime {
+            timer.invalidate()
+            self.captureSessionCoordinator?.stopRecording()
+            return
+        }
+
+        progressView.progress = currentTime / maxTime
     }
 }
 
