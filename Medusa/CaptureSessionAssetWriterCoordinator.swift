@@ -8,7 +8,6 @@
 
 import AVFoundation
 
-
 public func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
@@ -19,6 +18,7 @@ public enum RecordingStatus: Hashable {
     case StartingRecording
     case Recording
     case Pause
+    case Pausing
     case StoppingRecording
 
     public var hashValue: Int {
@@ -31,12 +31,13 @@ public enum RecordingStatus: Hashable {
             return 30000
         case .Pause:
             return 40000
+        case .Pausing:
+            return 50000
         case .StoppingRecording:
             return 60000
         }
     }
 }
-
 
 public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
 
@@ -105,44 +106,29 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             // Stop Recording
             case (.StoppingRecording, .Idle):
-
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
 
-                        let finish = {
+                        let finish = { [weak self] in
 
-                            self.segments.forEach {
+                            guard let strongSelf = self else { return }
+
+                            strongSelf.segments.forEach {
                                 NSFileManager.med_removeExistingFile(byURL: $0.URL)
                             }
 
-                            self.segments.removeAll()
+                            strongSelf.segments.removeAll()
 
-                            self.attributes._destinationURL = self.attributes.destinationURL
-                            self.recordingStatus = .Idle(error: nil)
-                            self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.attributes.destinationURL, error: nil)
-                            self.assetWriterCoordinator = nil
+                            strongSelf.attributes._destinationURL = strongSelf.attributes.destinationURL
+                            strongSelf.recordingStatus = .Idle(error: nil)
+                            strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: strongSelf.attributes.destinationURL, error: nil)
+                            strongSelf.assetWriterCoordinator = nil
                         }
 
                         if !self.segments.isEmpty {
-
-                            // Merge segments
-                            let asset = assetRepresentingSegments(self.segments)
-
-                            if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
-
-                                exportSession.canPerformMultiplePassesOverSourceMediaData = true
-                                exportSession.outputURL = self.attributes.destinationURL
-                                exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
-                                exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
-
-                                exportSession.exportAsynchronouslyWithCompletionHandler {
-                                    _ in
-
-                                    finish()
-                                    
-                                }
+                            self.mergeSegments() {
+                                finish()
                             }
-
                         } else {
                             finish()
                         }
@@ -150,11 +136,14 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
-            // Idle -> StoppingRecording
-            case (.Idle, .StoppingRecording):
-                // FIXME
-                dispatch_async(delegateCallbackQueue) { [weak self] in
-                    self?.recordingStatus = .Idle(error: nil)
+            // Pausing -> StoppingRecording
+            case (.Pausing, .StoppingRecording):
+                dispatch_async(delegateCallbackQueue) {
+                    autoreleasepool { [weak self] in
+                        self?.mergeSegments() {
+                            self?.recordingStatus = .Idle(error: nil)
+                        }
+                    }
                 }
 
             // Click Pause
@@ -166,7 +155,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 }
 
             // Did Pause
-            case (.Pause, .Idle):
+            case (.Pause, .Pausing):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinatorDidPauseRecording(self)
@@ -177,6 +166,23 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 print("Unknow RecordingStatus: \(oldStatus) -> \(currentStatus)")
             }
 
+        }
+    }
+
+    private func mergeSegments(handler: () -> Void) {
+
+        let asset = assetRepresentingSegments(self.segments)
+
+        if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
+
+            exportSession.canPerformMultiplePassesOverSourceMediaData = true
+            exportSession.outputURL = self.attributes.destinationURL
+            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
+            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+
+            exportSession.exportAsynchronouslyWithCompletionHandler {
+                handler()
+            }
         }
     }
 
@@ -217,16 +223,22 @@ extension CaptureSessionAssetWriterCoordinator {
     public func startRecording() {
 
         objc_sync_enter(self)
-        guard case .Idle = recordingStatus else { return }
-        recordingStatus = .StartingRecording
-        objc_sync_exit(self)
 
-        if !segments.isEmpty { // Resume
+        switch recordingStatus {
+        case .Idle:
+            break
+        case .Pausing:
             let newURL = makeNewFileURL()
             let segment = Segment(URL: newURL)
             segments.append(segment)
             attributes._destinationURL = newURL
+        default:
+            return
         }
+
+        recordingStatus = .StartingRecording
+
+        objc_sync_exit(self)
 
         assetWriterCoordinator = AssetWriterCoordinator(URL: attributes._destinationURL, fileType: attributes.mediaFormat.fileFormat)
 
@@ -246,16 +258,8 @@ extension CaptureSessionAssetWriterCoordinator {
 
     public func stopRecording() {
 
-        var flag = false
-
         objc_sync_enter(self)
-        switch recordingStatus {
-        case .Idle, .Recording:
-            flag = true
-        default:
-            flag = false
-        }
-        guard flag else { return }
+        guard recordingStatus == .Pausing || recordingStatus == .Recording else { return }
         recordingStatus = .StoppingRecording
         objc_sync_exit(self)
 
@@ -272,24 +276,11 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.finishRecording()
     }
 
-//    public func resume() {
-//
-//        guard case .Idle = recordingStatus else { return }
-//
-//        let newURL = makeNewFileURL()
-//        let segment = Segment(URL: newURL)
-//        segments.append(segment)
-//
-//        attributes._destinationURL = newURL
-//        startRecording()
-//    }
-
     public override func swapCaptureDevicePosition() throws {
 
         try super.swapCaptureDevicePosition()
 
         // reset
-
         outputAudioFormatDescription = nil
         outputVideoFormatDescription = nil
 
@@ -330,8 +321,6 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {
 
-        // 1. 在 captureSession running 但状态为 Idle 时，停止录制
-        // 2. 在状态为 Recording 时，停止录制
         if recordingStatus == .StoppingRecording {
 
             objc_sync_enter(self)
@@ -349,7 +338,7 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
             }
 
             objc_sync_enter(self)
-            recordingStatus = .Idle(error: nil)
+            recordingStatus = .Pausing
             objc_sync_exit(self)
 
         }
