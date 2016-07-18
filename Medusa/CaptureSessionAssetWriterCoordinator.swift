@@ -57,15 +57,15 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     public private(set) var recordingStatus: RecordingStatus = .Idle(error: nil) {
 
-        willSet(newStatus) {
+        didSet(oldStatus) {
 
-            let oldStatus = recordingStatus
+            let currentStatus = recordingStatus
 
-            guard newStatus != oldStatus else { return }
+            guard currentStatus != oldStatus else { return }
 
             let delegateCallbackQueue = dispatch_get_main_queue()
 
-            if case .Idle(let error) = newStatus where error != nil {
+            if case .Idle(let error) = currentStatus where error != nil {
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -77,9 +77,9 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 return
             }
 
-            switch (oldStatus, newStatus) {
+            switch (oldStatus, currentStatus) {
 
-            // "Click Record Action"
+            // Click Record Action
             case (.Idle, .StartingRecording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -87,7 +87,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
-            // "Click Stop Record Action"
+            // Click Stop Record Action
             case (.Recording, .StoppingRecording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -95,7 +95,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
-            // "Start Recording"
+            // Start Recording
             case (.StartingRecording, .Recording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
@@ -103,48 +103,82 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                     }
                 }
 
-            // "Stop Recording"
+            // Stop Recording
             case (.StoppingRecording, .Idle):
+
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
 
-                        self.segments.forEach {
-                            NSFileManager.med_removeExistingFile(byURL: $0.URL)
+                        let finish = {
+
+                            self.segments.forEach {
+                                NSFileManager.med_removeExistingFile(byURL: $0.URL)
+                            }
+
+                            self.segments.removeAll()
+
+                            self.attributes._destinationURL = self.attributes.destinationURL
+                            self.recordingStatus = .Idle(error: nil)
+                            self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.attributes.destinationURL, error: nil)
+                            self.assetWriterCoordinator = nil
                         }
 
-                        self.segments.removeAll()
+                        if !self.segments.isEmpty {
 
-                        self.attributes._destinationURL = self.attributes.destinationURL
+                            // Merge segments
+                            let asset = assetRepresentingSegments(self.segments)
 
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: self.attributes.destinationURL, error: nil)
-                        self.assetWriterCoordinator = nil
+                            if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
+
+                                exportSession.canPerformMultiplePassesOverSourceMediaData = true
+                                exportSession.outputURL = self.attributes.destinationURL
+                                exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
+                                exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+
+                                exportSession.exportAsynchronouslyWithCompletionHandler {
+                                    _ in
+
+                                    finish()
+                                    
+                                }
+                            }
+
+                        } else {
+                            finish()
+                        }
+
                     }
                 }
 
-            // "Click Pause"
+            // Idle -> StoppingRecording
+            case (.Idle, .StoppingRecording):
+                // FIXME
+                dispatch_async(delegateCallbackQueue) { [weak self] in
+                    self?.recordingStatus = .Idle(error: nil)
+                }
+
+            // Click Pause
             case (.Recording, .Pause):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        print("Click Pause")
+                        self.delegate?.coordinatorWillPauseRecording(self)
                     }
                 }
 
-            // "Did Pause"
+            // Did Pause
             case (.Pause, .Idle):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-                        print("Did Pause")
-                        self.assetWriterCoordinator = nil
+                        self.delegate?.coordinatorDidPauseRecording(self)
                     }
                 }
 
             default:
-                print("Unknow RecordingStatus")
+                print("Unknow RecordingStatus: \(oldStatus) -> \(currentStatus)")
             }
 
         }
     }
-
 
     public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .Back) throws {
 
@@ -187,6 +221,13 @@ extension CaptureSessionAssetWriterCoordinator {
         recordingStatus = .StartingRecording
         objc_sync_exit(self)
 
+        if !segments.isEmpty { // Resume
+            let newURL = makeNewFileURL()
+            let segment = Segment(URL: newURL)
+            segments.append(segment)
+            attributes._destinationURL = newURL
+        }
+
         assetWriterCoordinator = AssetWriterCoordinator(URL: attributes._destinationURL, fileType: attributes.mediaFormat.fileFormat)
 
         if let outputVideoFormatDescription = outputVideoFormatDescription {
@@ -205,8 +246,16 @@ extension CaptureSessionAssetWriterCoordinator {
 
     public func stopRecording() {
 
+        var flag = false
+
         objc_sync_enter(self)
-        guard recordingStatus == .Recording else { return }
+        switch recordingStatus {
+        case .Idle, .Recording:
+            flag = true
+        default:
+            flag = false
+        }
+        guard flag else { return }
         recordingStatus = .StoppingRecording
         objc_sync_exit(self)
 
@@ -223,17 +272,17 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.finishRecording()
     }
 
-    public func resume() {
-
-        guard case .Idle = recordingStatus else { return }
-
-        let newURL = makeNewFileURL()
-        let segment = Segment(URL: newURL)
-        segments.append(segment)
-
-        attributes._destinationURL = newURL
-        startRecording()
-    }
+//    public func resume() {
+//
+//        guard case .Idle = recordingStatus else { return }
+//
+//        let newURL = makeNewFileURL()
+//        let segment = Segment(URL: newURL)
+//        segments.append(segment)
+//
+//        attributes._destinationURL = newURL
+//        startRecording()
+//    }
 
     public override func swapCaptureDevicePosition() throws {
 
@@ -281,33 +330,13 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {
 
+        // 1. 在 captureSession running 但状态为 Idle 时，停止录制
+        // 2. 在状态为 Recording 时，停止录制
         if recordingStatus == .StoppingRecording {
 
-            if segments.isEmpty {
-                objc_sync_enter(self)
-                recordingStatus = .Idle(error: nil)
-                objc_sync_exit(self)
-                return
-            }
-
-            // Merge segments
-
-            let asset = assetRepresentingSegments(segments)
-
-            if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
-
-                exportSession.canPerformMultiplePassesOverSourceMediaData = true
-                exportSession.outputURL = attributes.destinationURL
-                exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
-                exportSession.outputFileType = attributes.mediaFormat.fileFormat
-
-                exportSession.exportAsynchronouslyWithCompletionHandler {
-                    _ in
-
-                    self.recordingStatus = .Idle(error: nil)
-
-                }
-            }
+            objc_sync_enter(self)
+            recordingStatus = .Idle(error: nil)
+            objc_sync_exit(self)
 
         } else if self.recordingStatus == .Pause {
 

@@ -74,13 +74,16 @@ class ViewController: UIViewController {
 
         ringControl.toucheActions = { [weak self] status in
 
+            guard let strongSelf = self, captureSessionCoordinator = strongSelf.captureSessionCoordinator else { return }
+
             switch status {
 
             case .Began:
-                self?.captureSessionCoordinator?.startRecording()
+
+                captureSessionCoordinator.startRecording()
 
             case .End:
-                self?.captureSessionCoordinator?.stopRecording()
+                captureSessionCoordinator.pause()
 
             case .Press:
                 break
@@ -139,7 +142,14 @@ class ViewController: UIViewController {
     }
 
     @IBAction func saveAction(sender: UIButton) {
+        resetProgressView()
+        captureSessionCoordinator?.stopRecording()
+    }
+
+    private func resetProgressView() {
+        timer?.invalidate()
         progressView.status = .Idle
+        currentTime = 0.0
     }
 
 }
@@ -150,7 +160,18 @@ class ViewController: UIViewController {
 
 extension ViewController: CaptureSessionCoordinatorDelegate {
 
-    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {
+    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
+
+    func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator) {
+
+        timer?.invalidate()
+        progressView.pause()
+
+        rollbackButton.hidden = false
+        saveButton.hidden = false
+    }
+
+    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {
 
         switch progressView.status {
         case .Pause:
@@ -159,26 +180,21 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
             break
         }
 
-        addTimer(timeInterval: 0.01)
+        addTimer(timeInterval: 0.02)
         rollbackButton.hidden = true
         saveButton.hidden = true
 
         rollbackButton.selected = false
         progressView.trackViews.last?.backgroundColor = progressView.progressTintColor
-
     }
-
-    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?) {
 
-        timer?.invalidate()
-        progressView.pause()
-
-        rollbackButton.hidden = false
-        saveButton.hidden = false
-
-        guard error == nil else { print("error: \(error?.localizedDescription)"); return }
+        guard error == nil else {
+            print("error: \(error?.localizedDescription)");
+            resetProgressView()
+            return
+        }
 
         guard let outputFileURL = outputFileURL else { return }
 
@@ -187,7 +203,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 
         print("didFinishRecording fileSize: \(fileSize(outputFileURL)) M, \(videoDuration) seconds")
 
-//        saveVideoToPhotosAlbum(outputFileURL)
+        saveVideoToPhotosAlbum(outputFileURL)
     }
 }
 
@@ -235,8 +251,8 @@ extension ViewController {
         currentTime = currentTime + Float(timer.timeInterval)
 
         if currentTime > maxTime {
-            timer.invalidate()
             self.captureSessionCoordinator?.stopRecording()
+            resetProgressView()
             return
         }
 

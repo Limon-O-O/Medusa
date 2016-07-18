@@ -24,7 +24,11 @@ class ProgressView: UIView {
             switch newValue {
             case .Idle:
                 currentTrackView = nil
+                trackViews.forEach {
+                    $0.removeFromSuperview()
+                }
                 trackViews.removeAll()
+                appendTrackView()
             default:
                 break
             }
@@ -35,7 +39,7 @@ class ProgressView: UIView {
 
         willSet {
 
-            guard newValue <= 1.0 && progress != 1.0 else { return }
+            guard newValue <= 1.0 && progress != newValue else { return }
 
             if status == .Idle {
                 status = .Progressing

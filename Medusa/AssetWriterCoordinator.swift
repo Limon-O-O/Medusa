@@ -209,9 +209,6 @@ class AssetWriterCoordinator {
         writerStatus = .FinishingRecordingPart1
         objc_sync_exit(self)
 
-        videoInput?.markAsFinished()
-        audioInput?.markAsFinished()
-
         dispatch_async(writingQueue) {
 
             autoreleasepool {

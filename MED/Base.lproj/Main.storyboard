@@ -33,7 +33,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KtY-Rx-i9R" userLabel="Container View">
                                 <rect key="frame" x="0.0" y="587" width="157.5" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kUN-vd-Yix" userLabel="Rollback Button">
+                                    <button hidden="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kUN-vd-Yix" userLabel="Rollback Button">
                                         <rect key="frame" x="43.5" y="13" width="69" height="34"/>
                                         <state key="normal" title="Rollback"/>
                                         <state key="selected" title="Delete"/>
@@ -69,7 +69,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pWF-JQ-xnv" userLabel="Container View">
                                 <rect key="frame" x="217" y="587" width="157.5" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ovP-KA-Hcc" userLabel="Save Button">
+                                    <button hidden="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ovP-KA-Hcc" userLabel="Save Button">
                                         <rect key="frame" x="59" y="13" width="40" height="34"/>
                                         <state key="normal" title="Save"/>
                                         <connections>
