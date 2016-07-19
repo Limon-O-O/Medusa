@@ -43,16 +43,8 @@ class ViewController: UIViewController {
             AVVideoHeightKey: videoFinalSize.height
         ]
 
-        let audioCompressionSettings: [String : AnyObject] = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVNumberOfChannelsKey: 2,
-            AVSampleRateKey: 44100,
-            AVEncoderBitRateKey: 128000
-        ]
-
-        return Attributes(destinationURL: fileURL!, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings, audioCompressionSettings: audioCompressionSettings)
+        return Attributes(destinationURL: fileURL!, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings)
     }()
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -153,7 +145,6 @@ class ViewController: UIViewController {
     }
 
 }
-
 
 
 // MARK: CaptureSessionCoordinatorDelegate

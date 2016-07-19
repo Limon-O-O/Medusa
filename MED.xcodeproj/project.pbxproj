@@ -26,6 +26,7 @@
 		EDE61F551D1251560088E42F /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F521D1251560088E42F /* VideoPreviewView.swift */; };
 		EDE61F591D1251C00088E42F /* NSFileManager+VideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */; };
 		EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F5A1D125C400088E42F /* Utilities.swift */; };
+		EDFB5DD81D3E6B8300BD73DD /* CyanifyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFB5DD71D3E6B8300BD73DD /* CyanifyOperation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		EDE61F521D1251560088E42F /* VideoPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		EDE61F581D1251C00088E42F /* NSFileManager+VideoRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+VideoRecorder.swift"; sourceTree = "<group>"; };
 		EDE61F5A1D125C400088E42F /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		EDFB5DD71D3E6B8300BD73DD /* CyanifyOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CyanifyOperation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,8 +132,9 @@
 			isa = PBXGroup;
 			children = (
 				EDE61F3E1D1250BA0088E42F /* Medusa.h */,
-				ED0A01571D222F330075A660 /* Attributes.swift */,
 				ED6B75E11D268DE900D50C00 /* Segment.swift */,
+				ED0A01571D222F330075A660 /* Attributes.swift */,
+				EDFB5DD71D3E6B8300BD73DD /* CyanifyOperation.swift */,
 				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
 				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
 				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
@@ -301,6 +304,7 @@
 				ED6B75E21D268DE900D50C00 /* Segment.swift in Sources */,
 				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
 				EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */,
+				EDFB5DD81D3E6B8300BD73DD /* CyanifyOperation.swift in Sources */,
 				ED0A01581D222F330075A660 /* Attributes.swift in Sources */,
 				EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */,
 			);

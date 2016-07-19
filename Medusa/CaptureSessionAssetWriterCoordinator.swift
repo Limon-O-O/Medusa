@@ -56,6 +56,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private var attributes: Attributes
 
+    private var cyanifier: CyanifyOperation?
+
     public private(set) var recordingStatus: RecordingStatus = .Idle(error: nil) {
 
         didSet(oldStatus) {
@@ -66,12 +68,30 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             let delegateCallbackQueue = dispatch_get_main_queue()
 
+            let clearAction = { [weak self] in
+
+                guard let strongSelf = self else { return }
+
+                strongSelf.segments.forEach {
+                    NSFileManager.med_removeExistingFile(byURL: $0.URL)
+                }
+
+                strongSelf.segments.removeAll()
+
+                strongSelf.attributes._destinationURL = strongSelf.attributes.destinationURL
+
+                strongSelf.assetWriterCoordinator = nil
+                strongSelf.cyanifier = nil
+            }
+
             if case .Idle(let error) = currentStatus where error != nil {
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
+
+                        clearAction()
+
                         self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
-                        self.assetWriterCoordinator = nil
                     }
                 }
 
@@ -113,22 +133,23 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                             guard let strongSelf = self else { return }
 
-                            strongSelf.segments.forEach {
-                                NSFileManager.med_removeExistingFile(byURL: $0.URL)
-                            }
+                            clearAction()
 
-                            strongSelf.segments.removeAll()
-
-                            strongSelf.attributes._destinationURL = strongSelf.attributes.destinationURL
                             strongSelf.recordingStatus = .Idle(error: nil)
                             strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: strongSelf.attributes.destinationURL, error: nil)
-                            strongSelf.assetWriterCoordinator = nil
+
                         }
 
                         if !self.segments.isEmpty {
-                            self.mergeSegments() {
-                                finish()
+
+                            self.mergeSegmentsAsynchronously() { error in
+                                if let error = error {
+                                    self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
+                                } else {
+                                    finish()
+                                }
                             }
+
                         } else {
                             finish()
                         }
@@ -140,8 +161,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             case (.Pausing, .StoppingRecording):
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool { [weak self] in
-                        self?.mergeSegments() {
-                            self?.recordingStatus = .Idle(error: nil)
+                        self?.mergeSegmentsAsynchronously() { error in
+                            self?.recordingStatus = .Idle(error: error)
                         }
                     }
                 }
@@ -169,21 +190,49 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         }
     }
 
-    private func mergeSegments(handler: () -> Void) {
+    private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
 
         let asset = assetRepresentingSegments(self.segments)
 
-        if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
+        mergeSegmentsAndExport(asset) { result in
+            switch result {
+            case .Success:
+                completionHandler(error: nil)
 
-            exportSession.canPerformMultiplePassesOverSourceMediaData = true
-            exportSession.outputURL = self.attributes.destinationURL
-            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
-            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+            case .Failure(let error):
+                completionHandler(error: error as NSError)
 
-            exportSession.exportAsynchronouslyWithCompletionHandler {
-                handler()
+            case .Cancellation:
+                completionHandler(error: CyanifyError.Canceled as NSError)
             }
         }
+
+//        if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
+//
+//            exportSession.canPerformMultiplePassesOverSourceMediaData = true
+//            exportSession.outputURL = self.attributes.destinationURL
+//            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
+//            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+//
+//            exportSession.exportAsynchronouslyWithCompletionHandler {
+//                handler()
+//            }
+//        }
+    }
+
+    private func mergeSegmentsAndExport(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {
+
+        cyanifier = CyanifyOperation(asset: sourceAsset, attributes: attributes)
+
+        cyanifier?.completionBlock = { [weak cyanifier] in
+
+            let result = cyanifier!.result!
+
+            dispatch_async(dispatch_get_main_queue()) {
+                completionHandler(result: result)
+            }
+        }
+        cyanifier?.start()
     }
 
     public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .Back) throws {
