@@ -74,7 +74,13 @@ class AssetWriterCoordinator {
 
     private var didStartedSession = false
 
-    private var currentSampleTime: CMTime = kCMTimeNegativeInfinity
+    private lazy var context: CIContext = {
+        let eaglContext = EAGLContext(API: EAGLRenderingAPI.OpenGLES2)
+        let options = [kCIContextWorkingColorSpace: NSNull()]
+        return CIContext(EAGLContext: eaglContext, options: options)
+    }()
+
+    private let genericRGBColorspace = CGColorSpaceCreateDeviceRGB()
 
     private var writerStatus: WriterStatus = .Idle {
 
@@ -187,14 +193,34 @@ class AssetWriterCoordinator {
                         self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
 
                         if let videoInput = self.assetWriterVideoInput {
-                            // TODO: Replace videoTrackSettings?
-                            self.assetWriterPixelBufferInput = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: videoTrackSettings)
+
+                            // TODO: Refine API about video dimensions and video orientation
+                            guard let videoWidth = videoTrackSettings[AVVideoWidthKey] as? Int, videoHeight = videoTrackSettings[AVVideoHeightKey] as? Int else { assert(false, "Must need video size."); return }
+
+                            // Use BGRA for the video in order to get realtime encoding.
+
+                            let sourcePixelBufferAttributes = [
+                                String(kCVPixelBufferPixelFormatTypeKey): Int(kCVPixelFormatType_32BGRA),
+                                String(kCVPixelBufferWidthKey): videoHeight,
+                                String(kCVPixelBufferHeightKey): videoWidth,
+                                String(kCVPixelFormatOpenGLESCompatibility): kCFBooleanTrue
+                            ]
+
+                            self.assetWriterPixelBufferInput = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: sourcePixelBufferAttributes)
+
+                            if self.assetWriter!.canAddInput(videoInput) {
+                                self.assetWriter!.addInput(videoInput)
+                            }
                         }
 
                     }
 
                     if let audioTrackSourceFormatDescription = self.audioTrackSourceFormatDescription, audioTrackSettings = self.audioTrackSettings {
                         self.assetWriterAudioInput = self.makeAssetWriterAudioInput(withSourceFormatDescription: audioTrackSourceFormatDescription, settings: audioTrackSettings)
+
+                        if self.assetWriter!.canAddInput(self.assetWriterAudioInput!) {
+                            self.assetWriter!.addInput(self.assetWriterAudioInput!)
+                        }
                     }
 
                     guard self.assetWriter!.startWriting() else {
@@ -286,34 +312,55 @@ extension AssetWriterCoordinator {
                     return
                 }
 
-                guard let assetWriterPixelBufferInput = self.assetWriterPixelBufferInput else { return }
+                var success: Bool?
 
-                self.currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+                if mediaType == AVMediaTypeVideo {
 
-                if !self.didStartedSession && mediaType == AVMediaTypeVideo {
-                    assetWriter.startSessionAtSourceTime(self.currentSampleTime)
-                    self.didStartedSession = true
+                    guard let assetWriterPixelBufferInput = self.assetWriterPixelBufferInput else { return }
+
+                    let timeStamp = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+
+                    if !self.didStartedSession && mediaType == AVMediaTypeVideo {
+                        assetWriter.startSessionAtSourceTime(timeStamp)
+                        self.didStartedSession = true
+                    }
+
+                    guard let assetWriterVideoInput = self.assetWriterVideoInput where assetWriterVideoInput.readyForMoreMediaData && self.didStartedSession else { return }
+
+                    var outputRenderBuffer: CVPixelBuffer?
+
+                    let status = CVPixelBufferPoolCreatePixelBuffer(nil, assetWriterPixelBufferInput.pixelBufferPool!, &outputRenderBuffer)
+
+                    if let pixelBuffer = outputRenderBuffer where status == 0 {
+
+                        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+                        let outputImage = CIImage(CVPixelBuffer: imageBuffer)
+
+                        // Render 'image' to the given CVPixelBufferRef.
+                        self.context.render(outputImage, toCVPixelBuffer: pixelBuffer, bounds: outputImage.extent, colorSpace: self.genericRGBColorspace)
+
+                        success = assetWriterPixelBufferInput.appendPixelBuffer(pixelBuffer, withPresentationTime: timeStamp)
+
+                    } else {
+                        print("Unable to obtain a pixel buffer from the pool.")
+                    }
+
+                } else if mediaType == AVMediaTypeAudio && self.didStartedSession {
+
+                    guard let assetWriterAudioInput = self.assetWriterAudioInput where assetWriterAudioInput.readyForMoreMediaData else { return }
+
+                    success = assetWriterAudioInput.appendSampleBuffer(sampleBuffer)
                 }
 
-                guard let input = (mediaType == AVMediaTypeVideo ? self.assetWriterVideoInput : self.assetWriterAudioInput) where input.readyForMoreMediaData && self.didStartedSession else { return }
-
-                var newPixelBuffer: CVPixelBuffer? = nil
-
-                CVPixelBufferPoolCreatePixelBuffer(nil, assetWriterPixelBufferInput.pixelBufferPool!, &newPixelBuffer)
-
-                let success = assetWriterPixelBufferInput.appendPixelBuffer(newPixelBuffer!, withPresentationTime: self.currentSampleTime)
-
-//                let success = input.appendSampleBuffer(sampleBuffer)
-
                 objc_sync_enter(self)
-                if !success {
+                if let unwrappedSuccess = success where !unwrappedSuccess {
                     self.writerStatus = .Failed(error: assetWriter.error)
                 }
                 objc_sync_exit(self)
 
             }
         }
-
     }
 
     private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescriptionRef, settings videoSettings: [String: AnyObject]) -> AVAssetWriterInput? {
@@ -322,14 +369,10 @@ extension AssetWriterCoordinator {
 
         let videoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
         videoInput.expectsMediaDataInRealTime = true
+
         videoInput.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2)) // portrait orientation
 
-        if assetWriter.canAddInput(videoInput) {
-            assetWriter.addInput(videoInput)
-            return videoInput
-        }
-
-        return nil
+        return videoInput
     }
 
     private func makeAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) -> AVAssetWriterInput? {
@@ -339,11 +382,7 @@ extension AssetWriterCoordinator {
         let audioInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
         audioInput.expectsMediaDataInRealTime = true
 
-        if assetWriter.canAddInput(audioInput) {
-            assetWriter.addInput(audioInput)
-            return audioInput
-        }
-        return nil
+        return audioInput
     }
 }
 

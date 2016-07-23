@@ -194,7 +194,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         let asset = assetRepresentingSegments(self.segments)
 
-        mergeSegmentsAndExport(asset) { result in
+        mergeSegmentsAndExport(asset.copy() as! AVAsset) { result in
             switch result {
             case .Success:
                 completionHandler(error: nil)
@@ -207,7 +207,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             }
         }
 
-//        if let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetMediumQuality) {
+//        if let exportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality) {
 //
 //            exportSession.canPerformMultiplePassesOverSourceMediaData = true
 //            exportSession.outputURL = self.attributes.destinationURL

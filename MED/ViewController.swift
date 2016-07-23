@@ -31,7 +31,7 @@ class ViewController: UIViewController {
         let mediaFormat = MediaFormat.MP4
         let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: mediaFormat.filenameExtension)
 
-        let videoFinalSize = CGSize(width: 480, height: 640)
+        let videoFinalSize = CMVideoDimensions(width: 480, height: 640)
 
         let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
 
@@ -39,8 +39,8 @@ class ViewController: UIViewController {
             AVVideoCodecKey: AVVideoCodecH264,
             AVVideoCompressionPropertiesKey: codecSettings,
             AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
-            AVVideoWidthKey: videoFinalSize.width,
-            AVVideoHeightKey: videoFinalSize.height
+            AVVideoWidthKey: Int(videoFinalSize.width),
+            AVVideoHeightKey: Int(videoFinalSize.height)
         ]
 
         return Attributes(destinationURL: fileURL!, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings)
@@ -182,7 +182,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?) {
 
         guard error == nil else {
-            print("error: \(error?.localizedDescription)");
+            print("\((#file as NSString).lastPathComponent)[\(#line)], \(#function): \(error?.localizedDescription)")
             resetProgressView()
             return
         }
