@@ -330,10 +330,10 @@ extension CaptureSessionAssetWriterCoordinator {
         try super.swapCaptureDevicePosition()
 
         // reset
-        outputAudioFormatDescription = nil
-        outputVideoFormatDescription = nil
-
-        (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
+        do {
+            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
+            (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
+        }
     }
 
     private func makeNewFileURL() -> NSURL {
@@ -455,6 +455,13 @@ extension CaptureSessionAssetWriterCoordinator {
 
         if unwrappedVideoConnection.supportsVideoStabilization {
             unwrappedVideoConnection.preferredVideoStabilizationMode = .Auto
+        }
+
+        // Flip Horizontal
+        if captureDevice.position == .Front && unwrappedVideoConnection.supportsVideoMirroring && unwrappedVideoConnection.supportsVideoOrientation {
+            unwrappedVideoConnection.videoMirrored = true
+            unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
+            unwrappedVideoConnection.videoOrientation = .LandscapeRight
         }
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
