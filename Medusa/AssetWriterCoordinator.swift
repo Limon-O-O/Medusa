@@ -61,17 +61,20 @@ class AssetWriterCoordinator {
     var URL: NSURL
     private let outputFileType: String
     private var assetWriter: AVAssetWriter?
+    private var assetWriterPixelBufferInput: AVAssetWriterInputPixelBufferAdaptor?
     private let writingQueue: dispatch_queue_t
 
     private weak var videoTrackSourceFormatDescription: CMFormatDescriptionRef?
     private var videoTrackSettings: [String: AnyObject]?
-    private var videoInput: AVAssetWriterInput?
+    private var assetWriterVideoInput: AVAssetWriterInput?
 
     private weak var audioTrackSourceFormatDescription: CMFormatDescriptionRef?
     private var audioTrackSettings: [String: AnyObject]?
-    private var audioInput: AVAssetWriterInput?
+    private var assetWriterAudioInput: AVAssetWriterInput?
 
     private var didStartedSession = false
+
+    private var currentSampleTime: CMTime = kCMTimeNegativeInfinity
 
     private var writerStatus: WriterStatus = .Idle {
 
@@ -81,8 +84,9 @@ class AssetWriterCoordinator {
 
             let clearAction = {
                 self.assetWriter = nil
-                self.videoInput = nil
-                self.audioInput = nil
+                self.assetWriterVideoInput = nil
+                self.assetWriterAudioInput = nil
+                self.assetWriterPixelBufferInput = nil
             }
 
             dispatch_async(dispatch_get_main_queue()) {
@@ -175,13 +179,22 @@ class AssetWriterCoordinator {
                     NSFileManager.med_removeExistingFile(byURL: self.URL)
 
                     self.assetWriter = try AVAssetWriter(URL: self.URL, fileType: self.outputFileType)
+                    // Set this to make sure that a functional movie is produced, even if the recording is cut off mid-stream. Only the last second should be lost in that case.
+                    self.assetWriter?.movieFragmentInterval = CMTimeMakeWithSeconds(1.0, 1000)
 
                     if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, videoTrackSettings = self.videoTrackSettings {
-                        self.setupAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
+
+                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
+
+                        if let videoInput = self.assetWriterVideoInput {
+                            // TODO: Replace videoTrackSettings?
+                            self.assetWriterPixelBufferInput = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: videoTrackSettings)
+                        }
+
                     }
 
                     if let audioTrackSourceFormatDescription = self.audioTrackSourceFormatDescription, audioTrackSettings = self.audioTrackSettings {
-                        self.setupAssetWriterAudioInput(withSourceFormatDescription: audioTrackSourceFormatDescription, settings: audioTrackSettings)
+                        self.assetWriterAudioInput = self.makeAssetWriterAudioInput(withSourceFormatDescription: audioTrackSourceFormatDescription, settings: audioTrackSettings)
                     }
 
                     guard self.assetWriter!.startWriting() else {
@@ -223,8 +236,8 @@ class AssetWriterCoordinator {
                 objc_sync_exit(self)
 
                 if self.assetWriter?.status == .Some(.Writing) {
-                    self.videoInput?.markAsFinished()
-                    self.audioInput?.markAsFinished()
+                    self.assetWriterVideoInput?.markAsFinished()
+                    self.assetWriterAudioInput?.markAsFinished()
                 }
 
                 self.assetWriter?.finishWritingWithCompletionHandler {
@@ -273,14 +286,24 @@ extension AssetWriterCoordinator {
                     return
                 }
 
+                guard let assetWriterPixelBufferInput = self.assetWriterPixelBufferInput else { return }
+
+                self.currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+
                 if !self.didStartedSession && mediaType == AVMediaTypeVideo {
-                    assetWriter.startSessionAtSourceTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+                    assetWriter.startSessionAtSourceTime(self.currentSampleTime)
                     self.didStartedSession = true
                 }
 
-                guard let input = (mediaType == AVMediaTypeVideo ? self.videoInput : self.audioInput) where input.readyForMoreMediaData else { return }
+                guard let input = (mediaType == AVMediaTypeVideo ? self.assetWriterVideoInput : self.assetWriterAudioInput) where input.readyForMoreMediaData && self.didStartedSession else { return }
 
-                let success = input.appendSampleBuffer(sampleBuffer)
+                var newPixelBuffer: CVPixelBuffer? = nil
+
+                CVPixelBufferPoolCreatePixelBuffer(nil, assetWriterPixelBufferInput.pixelBufferPool!, &newPixelBuffer)
+
+                let success = assetWriterPixelBufferInput.appendPixelBuffer(newPixelBuffer!, withPresentationTime: self.currentSampleTime)
+
+//                let success = input.appendSampleBuffer(sampleBuffer)
 
                 objc_sync_enter(self)
                 if !success {
@@ -293,30 +316,34 @@ extension AssetWriterCoordinator {
 
     }
 
-    private func setupAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescriptionRef, settings videoSettings: [String: AnyObject]) {
+    private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescriptionRef, settings videoSettings: [String: AnyObject]) -> AVAssetWriterInput? {
 
-        guard let assetWriter = self.assetWriter where assetWriter.canApplyOutputSettings(videoSettings, forMediaType: AVMediaTypeVideo) else { return }
+        guard let assetWriter = self.assetWriter where assetWriter.canApplyOutputSettings(videoSettings, forMediaType: AVMediaTypeVideo) else { return nil }
 
-        videoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
-        videoInput?.expectsMediaDataInRealTime = true
-        videoInput?.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2)) // portrait orientation
+        let videoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
+        videoInput.expectsMediaDataInRealTime = true
+        videoInput.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2)) // portrait orientation
 
-        if assetWriter.canAddInput(videoInput!) {
-            assetWriter.addInput(videoInput!)
+        if assetWriter.canAddInput(videoInput) {
+            assetWriter.addInput(videoInput)
+            return videoInput
         }
 
+        return nil
     }
 
-    private func setupAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) {
+    private func makeAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) -> AVAssetWriterInput? {
 
-        guard let assetWriter = self.assetWriter where assetWriter.canApplyOutputSettings(audioSettings, forMediaType: AVMediaTypeAudio) else { return }
+        guard let assetWriter = self.assetWriter where assetWriter.canApplyOutputSettings(audioSettings, forMediaType: AVMediaTypeAudio) else { return nil }
 
-        audioInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
-        audioInput?.expectsMediaDataInRealTime = true
+        let audioInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
+        audioInput.expectsMediaDataInRealTime = true
 
-        if assetWriter.canAddInput(audioInput!) {
-            assetWriter.addInput(audioInput!)
+        if assetWriter.canAddInput(audioInput) {
+            assetWriter.addInput(audioInput)
+            return audioInput
         }
+        return nil
     }
 }
 

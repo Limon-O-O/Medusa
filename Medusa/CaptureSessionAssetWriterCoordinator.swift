@@ -238,9 +238,15 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .Back) throws {
 
         videoDataOutput = {
+
+            /* 
+             To receive samples in a default uncompressed format, set this property to nil.
+             More infos: print(CMSampleBufferGetFormatDescription(sampleBuffer))
+            */
             $0.videoSettings = nil
             $0.alwaysDiscardsLateVideoFrames = false
             return $0
+
         }(AVCaptureVideoDataOutput())
 
         audioDataOutput = AVCaptureAudioDataOutput()
