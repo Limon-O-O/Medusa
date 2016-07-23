@@ -222,6 +222,11 @@ class AssetWriterCoordinator {
                 self.writerStatus = .FinishingRecordingPart2
                 objc_sync_exit(self)
 
+                if self.assetWriter?.status == .Some(.Writing) {
+                    self.videoInput?.markAsFinished()
+                    self.audioInput?.markAsFinished()
+                }
+
                 self.assetWriter?.finishWritingWithCompletionHandler {
 
                     objc_sync_enter(self)
