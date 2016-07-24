@@ -40,24 +40,35 @@ public struct Attributes {
 
     var _destinationURL: NSURL
 
-    public let mediaFormat: MediaFormat
     public let destinationURL: NSURL
+
+    public let mediaFormat: MediaFormat
+
+    public let videoDimensions: CMVideoDimensions
+
     public let videoCompressionSettings: [String: AnyObject]
     public let audioCompressionSettings: [String: AnyObject]
 
     public let videoDecompressionSettings: [String: AnyObject]
     public let audioDecompressionSettings: [String: AnyObject]
 
-    public init(destinationURL: NSURL, mediaFormat: MediaFormat = .MOV, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil, videoDecompressionSettings: [String: AnyObject]? = nil, audioDecompressionSettings: [String: AnyObject]? = nil) {
+    public init(destinationURL: NSURL, videoDimensions: CMVideoDimensions, mediaFormat: MediaFormat = .MOV, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil, videoDecompressionSettings: [String: AnyObject]? = nil, audioDecompressionSettings: [String: AnyObject]? = nil) {
 
         if !destinationURL.absoluteString.lowercaseString.containsString(mediaFormat.filenameExtension) {
             fatalError("DestinationURL is Invalid, must need filename extension.")
         }
 
+        var videoCompressionSettingsBuffer = videoCompressionSettings
+        videoCompressionSettingsBuffer[AVVideoWidthKey] = Int(videoDimensions.width)
+        videoCompressionSettingsBuffer[AVVideoHeightKey] = Int(videoDimensions.height)
+        videoCompressionSettingsBuffer[AVVideoCodecKey] = videoCompressionSettings[AVVideoCodecKey] ?? AVVideoCodecH264
+        videoCompressionSettingsBuffer[AVVideoScalingModeKey] = videoCompressionSettings[AVVideoScalingModeKey] ?? AVVideoScalingModeResizeAspectFill
+
         self.mediaFormat = mediaFormat
         self.destinationURL = destinationURL
         self._destinationURL = destinationURL
-        self.videoCompressionSettings = videoCompressionSettings
+        self.videoDimensions = videoDimensions
+        self.videoCompressionSettings = videoCompressionSettingsBuffer
 
         let defaultAudioCompressionSettings: [String: AnyObject] = [
             AVFormatIDKey: NSNumber(unsignedInt: kAudioFormatMPEG4AAC),

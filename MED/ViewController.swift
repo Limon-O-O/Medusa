@@ -31,19 +31,17 @@ class ViewController: UIViewController {
         let mediaFormat = MediaFormat.MP4
         let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: mediaFormat.filenameExtension)
 
-        let videoFinalSize = CMVideoDimensions(width: 480, height: 640)
+        let videoDimensions = CMVideoDimensions(width: 480, height: 640)
 
         let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
 
         let videoCompressionSettings: [String : AnyObject] = [
             AVVideoCodecKey: AVVideoCodecH264,
             AVVideoCompressionPropertiesKey: codecSettings,
-            AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
-            AVVideoWidthKey: Int(videoFinalSize.width),
-            AVVideoHeightKey: Int(videoFinalSize.height)
+            AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill
         ]
 
-        return Attributes(destinationURL: fileURL!, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings)
+        return Attributes(destinationURL: fileURL!, videoDimensions: videoDimensions, mediaFormat: mediaFormat, videoCompressionSettings: videoCompressionSettings)
     }()
 
     override func viewDidLoad() {
