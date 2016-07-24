@@ -270,8 +270,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     }
 }
 
-
-// MARK: Public Methods
+// MARK: - Public Methods
 
 extension CaptureSessionAssetWriterCoordinator {
 
@@ -354,8 +353,7 @@ extension CaptureSessionAssetWriterCoordinator {
     }
 }
 
-
-// MARK: AssetWriterCoordinatorDelegate
+// MARK: - AssetWriterCoordinatorDelegate
 
 extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
@@ -401,8 +399,7 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
     }
 }
 
-
-// MARK: SampleBufferDelegate Methods
+// MARK: - SampleBufferDelegate Methods
 
 extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
 
@@ -444,8 +441,7 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
     }
 }
 
-
-// MARK: Private Methods
+// MARK: - Private Methods
 
 extension CaptureSessionAssetWriterCoordinator {
 

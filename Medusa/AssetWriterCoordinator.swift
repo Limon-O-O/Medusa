@@ -8,7 +8,6 @@
 
 import AVFoundation
 
-
 protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator)
@@ -17,7 +16,6 @@ protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinator(coordinator: AssetWriterCoordinator, didFailWithError error: NSError?)
 }
-
 
 func ==(lhs: WriterStatus, rhs: WriterStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
@@ -52,7 +50,6 @@ enum WriterStatus: Hashable {
         }
     }
 }
-
 
 class AssetWriterCoordinator {
 
@@ -283,8 +280,7 @@ class AssetWriterCoordinator {
 
 }
 
-
-// MARK: Private Methods
+// MARK: - Private Methods
 
 extension AssetWriterCoordinator {
 
@@ -381,10 +377,11 @@ extension AssetWriterCoordinator {
         guard let assetWriter = self.assetWriter where assetWriter.canApplyOutputSettings(videoSettings, forMediaType: AVMediaTypeVideo) else { return nil }
 
         let videoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
+
         videoInput.expectsMediaDataInRealTime = true
 
-        // TODO: THTransformForDeviceOrientation(orientation);
-        videoInput.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2)) // portrait orientation
+        // portrait orientation
+        videoInput.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
 
         return videoInput
     }

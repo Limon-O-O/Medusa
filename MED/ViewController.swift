@@ -145,7 +145,7 @@ class ViewController: UIViewController {
 }
 
 
-// MARK: CaptureSessionCoordinatorDelegate
+// MARK: - CaptureSessionCoordinatorDelegate
 
 extension ViewController: CaptureSessionCoordinatorDelegate {
 
@@ -197,7 +197,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 }
 
 
-// MARK: Private Methods
+// MARK: - Private Methods
 
 extension ViewController {
 
@@ -224,7 +224,7 @@ extension ViewController {
 }
 
 
-// MARK: Timer
+// MARK: - Timer
 
 extension ViewController {
 

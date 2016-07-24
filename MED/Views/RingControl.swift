@@ -66,7 +66,7 @@ class RingControl: UIControl {
 }
 
 
-// MARK: Add Targets
+// MARK: - Add Targets
 
 extension RingControl {
 

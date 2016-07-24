@@ -51,7 +51,7 @@ public class CyanifyOperation: NSOperation {
         }
     }
 
-    // MARK: Initialization
+    // MARK: - Initialization
 
     public init(asset: AVAsset, attributes: Attributes) {
         self.asset = asset

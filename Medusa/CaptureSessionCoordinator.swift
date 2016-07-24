@@ -8,12 +8,10 @@
 
 import AVFoundation
 
-
 public enum MedusaError: ErrorType {
     case CaptureDeviceError
     case AudioDeviceError
 }
-
 
 public protocol CaptureSessionCoordinatorDelegate: class {
 
@@ -40,7 +38,6 @@ public extension CaptureSessionCoordinatorDelegate {
 
     public func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
 }
-
 
 public class CaptureSessionCoordinator: NSObject {
 
@@ -82,8 +79,7 @@ public class CaptureSessionCoordinator: NSObject {
     }
 }
 
-
-// MARK: Public Methods
+// MARK: - Public Methods
 
 extension CaptureSessionCoordinator {
 
