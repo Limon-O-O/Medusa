@@ -192,20 +192,35 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
 
-        let asset = assetRepresentingSegments(self.segments)
+//        let asset = assetRepresentingSegments(self.segments)
 
-        mergeSegmentsAndExport(asset.copy() as! AVAsset) { result in
-            switch result {
-            case .Success:
-                completionHandler(error: nil)
+//        mergeSegmentsAndExport(asset.copy() as! AVAsset) { result in
+//            switch result {
+//            case .Success:
+//                completionHandler(error: nil)
+//
+//            case .Failure(let error):
+//                completionHandler(error: error as NSError)
+//
+//            case .Cancellation:
+//                completionHandler(error: CyanifyError.Canceled as NSError)
+//            }
+//        }
 
-            case .Failure(let error):
-                completionHandler(error: error as NSError)
+        let videoAssets:[AVAsset] = segments.map { AVURLAsset(URL:$0.URL, options: nil) }
 
-            case .Cancellation:
-                completionHandler(error: CyanifyError.Canceled as NSError)
-            }
+        let videoWidth = max(attributes.videoDimensions.width, attributes.videoDimensions.height)
+        let videoHeight = min(attributes.videoDimensions.width, attributes.videoDimensions.height)
+
+        let builder = TransitionCompositionBuilder(assets: videoAssets, videoDimensions: CMVideoDimensions(width: videoWidth, height: videoHeight))
+
+        let transitionComposition = builder.buildComposition()
+        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetMediumQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
+
+        exportSession?.exportAsynchronouslyWithCompletionHandler() {
+            completionHandler(error: nil)
         }
+
 
 //        if let exportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality) {
 //
