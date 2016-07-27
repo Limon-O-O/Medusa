@@ -162,6 +162,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool { [weak self] in
                         self?.mergeSegmentsAsynchronously() { error in
+                            self?.segments.removeAll()
                             self?.recordingStatus = .Idle(error: error)
                         }
                     }
@@ -207,32 +208,42 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 //            }
 //        }
 
-        let videoAssets:[AVAsset] = segments.map { AVURLAsset(URL:$0.URL, options: nil) }
+        let videoAssets = segments.map { AVAsset(URL:$0.URL) }
 
-        let videoWidth = max(attributes.videoDimensions.width, attributes.videoDimensions.height)
-        let videoHeight = min(attributes.videoDimensions.width, attributes.videoDimensions.height)
-
-        let builder = TransitionCompositionBuilder(assets: videoAssets, videoDimensions: CMVideoDimensions(width: videoWidth, height: videoHeight))
+        var builder = TransitionCompositionBuilder(assets: videoAssets)
 
         let transitionComposition = builder.buildComposition()
-        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetMediumQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
 
-        exportSession?.exportAsynchronouslyWithCompletionHandler() {
-            completionHandler(error: nil)
+        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetLowQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
+
+        guard let unwrappedExportSession = exportSession else {
+
+            // TODO:
+            completionHandler(error: NSError(domain: "", code: 0, userInfo: nil))
+
+            return
         }
 
+        let sessionWaitSemaphore = dispatch_semaphore_create(0)
 
-//        if let exportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality) {
-//
-//            exportSession.canPerformMultiplePassesOverSourceMediaData = true
-//            exportSession.outputURL = self.attributes.destinationURL
-//            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration)
-//            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
-//
-//            exportSession.exportAsynchronouslyWithCompletionHandler {
-//                handler()
-//            }
-//        }
+        unwrappedExportSession.exportAsynchronouslyWithCompletionHandler({
+            dispatch_semaphore_signal(sessionWaitSemaphore)
+            return
+        })
+
+        dispatch_semaphore_wait(sessionWaitSemaphore, DISPATCH_TIME_FOREVER)
+
+        switch unwrappedExportSession.status {
+        case .Completed:
+            completionHandler(error: nil)
+
+        case .Failed:
+            completionHandler(error: unwrappedExportSession.error)
+
+        default:
+            break
+        }
+
     }
 
     private func mergeSegmentsAndExport(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {

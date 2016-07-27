@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		ED0A01581D222F330075A660 /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0A01571D222F330075A660 /* Attributes.swift */; };
+		ED6AD9AF1D48F2C4005D0529 /* TransitionComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6AD9AE1D48F2C4005D0529 /* TransitionComposition.swift */; };
 		ED6B75E21D268DE900D50C00 /* Segment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B75E11D268DE900D50C00 /* Segment.swift */; };
 		EDD3D1691D3A269600531DDC /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3D1681D3A269600531DDC /* ProgressView.swift */; };
 		EDE61F261D12507C0088E42F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE61F251D12507C0088E42F /* AppDelegate.swift */; };
@@ -55,6 +56,7 @@
 
 /* Begin PBXFileReference section */
 		ED0A01571D222F330075A660 /* Attributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attributes.swift; sourceTree = "<group>"; };
+		ED6AD9AE1D48F2C4005D0529 /* TransitionComposition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionComposition.swift; sourceTree = "<group>"; };
 		ED6B75E11D268DE900D50C00 /* Segment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Segment.swift; sourceTree = "<group>"; };
 		EDD3D1681D3A269600531DDC /* ProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
 		EDE61F221D12507C0088E42F /* MED.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MED.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,6 +137,7 @@
 				ED6B75E11D268DE900D50C00 /* Segment.swift */,
 				ED0A01571D222F330075A660 /* Attributes.swift */,
 				EDFB5DD71D3E6B8300BD73DD /* CyanifyOperation.swift */,
+				ED6AD9AE1D48F2C4005D0529 /* TransitionComposition.swift */,
 				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
 				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
 				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
@@ -305,6 +308,7 @@
 				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
 				EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */,
 				EDFB5DD81D3E6B8300BD73DD /* CyanifyOperation.swift in Sources */,
+				ED6AD9AF1D48F2C4005D0529 /* TransitionComposition.swift in Sources */,
 				ED0A01581D222F330075A660 /* Attributes.swift in Sources */,
 				EDE61F4C1D1250D90088E42F /* AssetWriterCoordinator.swift in Sources */,
 			);
