@@ -210,7 +210,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         let videoAssets = segments.map { AVAsset(URL:$0.URL) }
 
-        var builder = TransitionCompositionBuilder(assets: videoAssets)
+        var builder = TransitionCompositionBuilder(assets: videoAssets)!
 
         let transitionComposition = builder.buildComposition()
 

@@ -35,18 +35,33 @@ struct TransitionCompositionBuilder {
 
     let assets: [AVAsset]
 
-    private let transitionDuration: CMTime
+    private var transitionDuration: CMTime
 
     private var composition = AVMutableComposition()
 
     private var compositionVideoTracks = [AVMutableCompositionTrack]()
 
-    init(assets: [AVAsset], transitionDuration: Float64 = 0.6) {
+    init?(assets: [AVAsset], transitionDuration: Float64 = 0.3) {
+
+        guard !assets.isEmpty else { return nil }
+
         self.assets = assets
         self.transitionDuration = CMTimeMakeWithSeconds(transitionDuration, 600)
     }
 
     mutating func buildComposition() -> TransitionComposition {
+
+        var durations = assets.map { $0.duration }
+
+        durations.sortInPlace {
+            CMTimeCompare($0, $1) < 1
+        }
+
+        // Make transitionDuration no greater than half the shortest video duration.
+        let shortestVideoDuration = durations[0]
+        var halfDuration = shortestVideoDuration
+        halfDuration.timescale *= 2
+        transitionDuration = CMTimeMinimum(transitionDuration, halfDuration)
 
         // Now call the functions to do the preperation work for preparing a composition to export.
         // First create the tracks needed for the composition.
