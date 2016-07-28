@@ -72,11 +72,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                 guard let strongSelf = self else { return }
 
-                strongSelf.segments.forEach {
-                    NSFileManager.med_removeExistingFile(byURL: $0.URL)
-                }
-
-                strongSelf.segments.removeAll()
+                strongSelf.removeSegments()
 
                 strongSelf.attributes._destinationURL = strongSelf.attributes.destinationURL
 
@@ -140,7 +136,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                         }
 
-                        if !self.segments.isEmpty {
+                        if self.segments.count > 1 {
 
                             self.mergeSegmentsAsynchronously() { error in
                                 if let error = error {
@@ -160,10 +156,22 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             // Pausing -> StoppingRecording
             case (.Pausing, .StoppingRecording):
                 dispatch_async(delegateCallbackQueue) {
+
                     autoreleasepool { [weak self] in
-                        self?.mergeSegmentsAsynchronously() { error in
-                            self?.segments.removeAll()
-                            self?.recordingStatus = .Idle(error: error)
+
+                        guard let strongSelf = self else { return }
+
+                        if strongSelf.segments.count == 1 {
+
+                            NSFileManager.med_moveItem(atURL: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
+                            self?.recordingStatus = .Idle(error: nil)
+
+                        } else if strongSelf.segments.count > 1 {
+
+                            self?.mergeSegmentsAsynchronously() { error in
+                                strongSelf.removeSegments()
+                                self?.recordingStatus = .Idle(error: error)
+                            }
                         }
                     }
                 }
@@ -191,6 +199,14 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         }
     }
 
+    private func removeSegments() {
+        segments.forEach {
+            NSFileManager.med_removeExistingFile(byURL: $0.URL)
+        }
+
+        segments.removeAll()
+    }
+
     private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
 
 //        let asset = assetRepresentingSegments(self.segments)
@@ -214,7 +230,34 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         let transitionComposition = builder.buildComposition()
 
-        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetLowQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
+//        export(transitionComposition.composition.copy() as! AVAsset) { result in
+//            switch result {
+//            case .Success:
+//                completionHandler(error: nil)
+//
+//            case .Failure(let error):
+//                completionHandler(error: error as NSError)
+//
+//            case .Cancellation:
+//                completionHandler(error: CyanifyError.Canceled as NSError)
+//            }
+//        }
+
+//        if let exportSession = AVAssetExportSession(asset: transitionComposition.composition.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality) {
+//
+//            exportSession.canPerformMultiplePassesOverSourceMediaData = true
+//            exportSession.outputURL = self.attributes.destinationURL
+//            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, transitionComposition.composition.duration)
+//            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+//            exportSession.videoComposition = transitionComposition.videoComposition
+//
+//            exportSession.exportAsynchronouslyWithCompletionHandler {
+//                completionHandler(error: nil)
+//            }
+//        }
+
+
+        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetMediumQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
 
         guard let unwrappedExportSession = exportSession else {
 
@@ -246,7 +289,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     }
 
-    private func mergeSegmentsAndExport(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {
+    private func export(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {
 
         cyanifier = CyanifyOperation(asset: sourceAsset, attributes: attributes)
 

@@ -115,6 +115,8 @@ struct TransitionCompositionBuilder {
             let assetVideoTrack = assets[i].tracksWithMediaType(AVMediaTypeVideo)[0]
             let assetAudioTrack = assets[i].tracksWithMediaType(AVMediaTypeAudio)[0]
 
+            currentVideoTrack.preferredTransform = assetVideoTrack.preferredTransform
+
             let timeRange = CMTimeRangeMake(kCMTimeZero, assets[i].duration)
 
             do {
@@ -157,13 +159,9 @@ struct TransitionCompositionBuilder {
                 passThroughTimeRanges.append(NSValue(CMTimeRange: timeRange))
                 cursorTime = CMTimeAdd(cursorTime, asset.duration)
                 cursorTime = CMTimeSubtract(cursorTime, transitionDuration)
-                // println("cursorTime.value: \(cursorTime.value)")
-                // println("cursorTime.timescale: \(cursorTime.timescale)")
 
                 if i + 1 < assetsWithVideoTracks.count {
                     timeRange = CMTimeRangeMake(cursorTime, transitionDuration)
-                    // println("timeRange start value: \(timeRange.start.value)")
-                    // println("timeRange start timescale: \(timeRange.start.timescale)")
                     transitionTimeRanges.append(NSValue(CMTimeRange: timeRange))
                 }
             }
@@ -183,46 +181,59 @@ struct TransitionCompositionBuilder {
 
             let videoComposition = AVMutableVideoComposition(propertiesOfAsset: composition)
 
+            let videoWidth = composition.naturalSize.height
+            let videoHeight = composition.naturalSize.width
+
             // Now create the instructions from the various time ranges.
             for i in 0..<passThroughTimeRanges.count {
 
                 let trackIndex = i % 2
                 let currentVideoTrack = videoTracks[trackIndex]
 
-                let instruction = AVMutableVideoCompositionInstruction()
-                instruction.timeRange = passThroughTimeRanges[i].CMTimeRangeValue
+                let passThroughInstruction = AVMutableVideoCompositionInstruction()
+                passThroughInstruction.timeRange = passThroughTimeRanges[i].CMTimeRangeValue
 
-                let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: currentVideoTrack)
+                let passThroughLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: currentVideoTrack)
 
-                instruction.layerInstructions = [layerInstruction]
+                let transform = CGAffineTransformConcat(currentVideoTrack.preferredTransform, CGAffineTransformMakeTranslation(videoWidth, 0.0))
 
-                instructions.append(instruction)
+                passThroughLayerInstruction.setTransform(transform, atTime: kCMTimeZero)
+
+                // You can use it to debug.
+//                passThroughLayerInstruction.setTransformRampFromStartTransform(CGAffineTransformIdentity, toEndTransform: transform, timeRange: passThroughTimeRanges[i].CMTimeRangeValue)
+
+
+                passThroughInstruction.layerInstructions = [passThroughLayerInstruction]
+
+                instructions.append(passThroughInstruction)
 
                 if i < transitionTimeRanges.count {
 
-                    let instruction = AVMutableVideoCompositionInstruction()
-                    instruction.timeRange = transitionTimeRanges[i].CMTimeRangeValue
+                    let transitionInstruction = AVMutableVideoCompositionInstruction()
+                    transitionInstruction.timeRange = transitionTimeRanges[i].CMTimeRangeValue
 
                     // Determine the foreground and background tracks.
                     let fromTrack = videoTracks[trackIndex]
                     let toTrack = videoTracks[1 - trackIndex]
 
-                    let fromInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: fromTrack)
+                    let fromLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: fromTrack)
+                    fromLayerInstruction.setTransform(transform, atTime: kCMTimeZero)
 
                     // Make the opacity ramp and apply it to the from layer instruction.
-                    fromInstruction.setOpacityRampFromStartOpacity(1.0, toEndOpacity:0.0, timeRange: instruction.timeRange)
+                    fromLayerInstruction.setOpacityRampFromStartOpacity(1.0, toEndOpacity:0.0, timeRange: transitionInstruction.timeRange)
 
-                    let toInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: toTrack)
-                    instruction.layerInstructions = [fromInstruction, toInstruction]
-                    instructions.append(instruction)
+                    let toLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: toTrack)
+                    toLayerInstruction.setTransform(transform, atTime: kCMTimeZero)
+                    transitionInstruction.layerInstructions = [fromLayerInstruction, toLayerInstruction]
+                    instructions.append(transitionInstruction)
 
                 }
             }
-            
+
             videoComposition.instructions = instructions
-            videoComposition.renderSize = composition.naturalSize
             videoComposition.frameDuration = CMTimeMake(1, 30)
-            
+            videoComposition.renderSize = CGSize(width: videoWidth, height: videoHeight)
+
             return videoComposition
     }
 }
