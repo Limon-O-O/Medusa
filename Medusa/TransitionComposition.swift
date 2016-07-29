@@ -181,8 +181,25 @@ struct TransitionCompositionBuilder {
 
             let videoComposition = AVMutableVideoComposition(propertiesOfAsset: composition)
 
-            let videoWidth = composition.naturalSize.height
-            let videoHeight = composition.naturalSize.width
+            let videoWidth: CGFloat
+            let videoHeight: CGFloat
+
+            let transform: CGAffineTransform
+
+            let videoAngleInDegree  = atan2(videoTracks[0].preferredTransform.b, videoTracks[0].preferredTransform.a) * 180 / CGFloat(M_PI)
+
+            if videoAngleInDegree == 90 {
+
+                videoWidth = composition.naturalSize.height
+                videoHeight = composition.naturalSize.width
+                transform = CGAffineTransformConcat(videoTracks[0].preferredTransform, CGAffineTransformMakeTranslation(videoWidth, 0.0))
+
+            } else {
+
+                transform = videoTracks[0].preferredTransform
+                videoWidth = composition.naturalSize.width
+                videoHeight = composition.naturalSize.height
+            }
 
             // Now create the instructions from the various time ranges.
             for i in 0..<passThroughTimeRanges.count {
@@ -194,8 +211,6 @@ struct TransitionCompositionBuilder {
                 passThroughInstruction.timeRange = passThroughTimeRanges[i].CMTimeRangeValue
 
                 let passThroughLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: currentVideoTrack)
-
-                let transform = CGAffineTransformConcat(currentVideoTrack.preferredTransform, CGAffineTransformMakeTranslation(videoWidth, 0.0))
 
                 passThroughLayerInstruction.setTransform(transform, atTime: kCMTimeZero)
 
@@ -224,7 +239,9 @@ struct TransitionCompositionBuilder {
 
                     let toLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: toTrack)
                     toLayerInstruction.setTransform(transform, atTime: kCMTimeZero)
+
                     transitionInstruction.layerInstructions = [fromLayerInstruction, toLayerInstruction]
+
                     instructions.append(transitionInstruction)
 
                 }
