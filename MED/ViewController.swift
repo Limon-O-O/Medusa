@@ -69,14 +69,14 @@ class ViewController: UIViewController {
             switch status {
 
             case .Began:
-
-                captureSessionCoordinator.startRecording()
+                break
 
             case .End:
                 captureSessionCoordinator.pause()
 
             case .Press:
-                break
+                captureSessionCoordinator.startRecording()
+
             }
 
         }

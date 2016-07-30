@@ -19,7 +19,16 @@ class RingControl: UIControl {
 
     var toucheActions: ((status: TouchStatus) -> Void)?
 
+    private var touchStatus: TouchStatus = .End {
+        willSet {
+            guard touchStatus != newValue else { return }
+            toucheActions?(status: newValue)
+        }
+    }
+
     private let innerRing = UIView()
+
+    private var previousTimestamp: NSTimeInterval = 0.0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -72,28 +81,43 @@ extension RingControl {
 
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesBegan(touches, withEvent: event)
-        toucheActions?(status: .Began)
+
+        guard let touch = touches.first else { return }
+
+        touchStatus = .Began
+        previousTimestamp = touch.timestamp
     }
 
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesMoved(touches, withEvent: event)
 
+        guard let touch = touches.first else { return }
+
+        let currentTimestamp = touch.timestamp
+
         let validFrame = CGRect(x: -frame.size.width/2, y: -frame.size.height/2, width: frame.size.width*2, height: frame.size.width*2)
 
-        if let location = touches.first?.locationInView(self) where CGRectContainsPoint(validFrame, location) {
+        let location = touch.locationInView(self)
 
-            toucheActions?(status: .Press)
+        if CGRectContainsPoint(validFrame, location) {
+
+            if currentTimestamp - previousTimestamp > 0.14 {
+                touchStatus = .Press
+            }
 
         } else {
-
-            toucheActions?(status: .End)
+            touchStatus = .End
         }
     }
 
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesEnded(touches, withEvent: event)
+        touchStatus = .End
+    }
 
-        toucheActions?(status: .End)
+    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
+        super.touchesCancelled(touches, withEvent: event)
+        touchStatus = .End
     }
 }
 

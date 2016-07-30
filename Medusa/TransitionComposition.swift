@@ -177,7 +177,7 @@ struct TransitionCompositionBuilder {
             var instructions = [AVMutableVideoCompositionInstruction]()
 
             /// http://www.stackoverflow.com/a/31146867/1638273
-            let videoTracks = compositionVideoTracks
+            let videoTracks = compositionVideoTracks // guaranteed the correct time range
 
             let videoComposition = AVMutableVideoComposition(propertiesOfAsset: composition)
 
