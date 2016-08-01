@@ -41,6 +41,8 @@ public enum RecordingStatus: Hashable {
 
 public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
 
+    public var segmentsTransition = true
+
     private let videoDataOutput: AVCaptureVideoDataOutput
     private let audioDataOutput: AVCaptureAudioDataOutput
 
@@ -139,7 +141,11 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                             }
 
                         } else if self.segments.count == 1 {
+
                             NSFileManager.med_moveItem(atURL: self.segments[0].URL, toURL: self.attributes.destinationURL)
+                            finish()
+
+                        } else {
                             finish()
                         }
 
@@ -157,6 +163,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                         if strongSelf.segments.count == 1 {
 
                             NSFileManager.med_moveItem(atURL: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
+                            strongSelf.segments.removeAll()
+
                             self?.recordingStatus = .Idle(error: nil)
 
                         } else if strongSelf.segments.count > 1 {
@@ -191,6 +199,11 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
 
+        let asset: AVAsset
+        let videoComposition: AVVideoComposition?
+
+        NSFileManager.med_removeExistingFile(byURL: self.attributes.destinationURL)
+
 //        let asset = assetRepresentingSegments(self.segments)
 
 //        mergeSegmentsAndExport(asset.copy() as! AVAsset) { result in
@@ -206,47 +219,35 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 //            }
 //        }
 
-        let videoAssets = segments.map { AVAsset(URL:$0.URL) }
+        if segmentsTransition {
 
-        var builder = TransitionCompositionBuilder(assets: videoAssets)!
+            let videoAssets = segments.map { AVAsset(URL:$0.URL) }
 
-        let transitionComposition = builder.buildComposition()
+            var builder = TransitionCompositionBuilder(assets: videoAssets)!
 
-//        export(transitionComposition.composition.copy() as! AVAsset) { result in
-//            switch result {
-//            case .Success:
-//                completionHandler(error: nil)
-//
-//            case .Failure(let error):
-//                completionHandler(error: error as NSError)
-//
-//            case .Cancellation:
-//                completionHandler(error: CyanifyError.Canceled as NSError)
-//            }
-//        }
+            let transitionComposition = builder.buildComposition()
 
-//        if let exportSession = AVAssetExportSession(asset: transitionComposition.composition.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality) {
-//
-//            exportSession.canPerformMultiplePassesOverSourceMediaData = true
-//            exportSession.outputURL = self.attributes.destinationURL
-//            exportSession.timeRange = CMTimeRangeMake(kCMTimeZero, transitionComposition.composition.duration)
-//            exportSession.outputFileType = self.attributes.mediaFormat.fileFormat
-//            exportSession.videoComposition = transitionComposition.videoComposition
-//
-//            exportSession.exportAsynchronouslyWithCompletionHandler {
-//                completionHandler(error: nil)
-//            }
-//        }
+            asset = transitionComposition.composition
+            videoComposition = transitionComposition.videoComposition
 
+        } else {
+            asset = assetRepresentingSegments(segments)
+            videoComposition = nil
+        }
 
-        let exportSession = transitionComposition.makeExportSession(preset: AVAssetExportPresetMediumQuality, outputURL: attributes.destinationURL, outputFileType: attributes.mediaFormat.fileFormat)
+        let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality)
 
-        guard let unwrappedExportSession = exportSession else {
-
-            // TODO:
-            completionHandler(error: NSError(domain: "", code: 0, userInfo: nil))
-
+        guard let unwrappedExportSession = assetExportSession else {
+            completionHandler(error: NSError(domain: "AVAssetExportSession Error", code: 0, userInfo: nil))
             return
+        }
+
+        unwrappedExportSession.outputURL = self.attributes.destinationURL
+        unwrappedExportSession.outputFileType = self.attributes.mediaFormat.fileFormat
+        unwrappedExportSession.canPerformMultiplePassesOverSourceMediaData = true
+
+        if let unwrappedVideoComposition = videoComposition {
+            unwrappedExportSession.videoComposition = unwrappedVideoComposition
         }
 
         let sessionWaitSemaphore = dispatch_semaphore_create(0)
