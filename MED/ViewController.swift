@@ -151,6 +151,10 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
+    func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, segmentIndex: Int, seconds: Float) {
+        print("\(Int(seconds / 60)):\(seconds % 60)")
+    }
+
     func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator) {
 
         timer?.invalidate()

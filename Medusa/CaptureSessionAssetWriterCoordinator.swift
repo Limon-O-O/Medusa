@@ -189,6 +189,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
                         self.delegate?.coordinatorDidPauseRecording(self)
+                        self.assetWriterCoordinator = nil
                     }
                 }
 
@@ -439,6 +440,10 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         objc_sync_enter(self)
         recordingStatus = .Idle(error: error)
         objc_sync_exit(self)
+    }
+
+    func writerCoordinatorDidRecording(coordinator: AssetWriterCoordinator, seconds: Float) {
+        delegate?.coordinatorDidRecording(self, segmentIndex: segments.count, seconds: seconds)
     }
 
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {

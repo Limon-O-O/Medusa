@@ -25,6 +25,8 @@ public protocol CaptureSessionCoordinatorDelegate: class {
 
     func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
 
+    func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, segmentIndex: Int, seconds: Float)
+
     func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?)
 }
 
@@ -35,6 +37,8 @@ public extension CaptureSessionCoordinatorDelegate {
     public func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator) {}
 
     public func coordinatorDidPauseRecording(coordinator: CaptureSessionCoordinator) {}
+
+    public func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, segmentIndex: Int, seconds: Float) {}
 
     public func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
 }

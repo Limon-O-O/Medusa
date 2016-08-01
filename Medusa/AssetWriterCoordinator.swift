@@ -14,6 +14,8 @@ protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator)
 
+    func writerCoordinatorDidRecording(coordinator: AssetWriterCoordinator, seconds: Float)
+
     func writerCoordinator(coordinator: AssetWriterCoordinator, didFailWithError error: NSError?)
 }
 
@@ -83,6 +85,8 @@ class AssetWriterCoordinator {
     }()
 
     private let genericRGBColorspace = CGColorSpaceCreateDeviceRGB()
+
+    private var wrtingStartTime: CMTime = kCMTimeZero
 
     private var writerStatus: WriterStatus = .Idle {
 
@@ -251,16 +255,12 @@ class AssetWriterCoordinator {
                 self.writerStatus = .FinishingRecordingPart2
                 objc_sync_exit(self)
 
-                if self.assetWriter?.status == .Some(.Writing) {
-                    self.assetWriterVideoInput?.markAsFinished()
-                    self.assetWriterAudioInput?.markAsFinished()
-                }
-
                 self.assetWriter?.finishWritingWithCompletionHandler {
 
                     objc_sync_enter(self)
 
                     if let error = self.assetWriter?.error {
+                        print(error)
                         self.writerStatus = .Failed(error: error)
                     } else {
                         self.writerStatus = .Finished
@@ -305,20 +305,21 @@ extension AssetWriterCoordinator {
 
                 if mediaType == AVMediaTypeVideo {
 
-                    guard let assetWriterPixelBufferAdaptor = self.assetWriterPixelBufferAdaptor else { return }
+                    guard let assetWriterPixelBufferAdaptor = self.assetWriterPixelBufferAdaptor, pixelBufferPool = assetWriterPixelBufferAdaptor.pixelBufferPool where assetWriterPixelBufferAdaptor.assetWriterInput.readyForMoreMediaData else { return }
 
-                    let timeStamp = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+                    let timeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
 
-                    if !self.didStartedSession && mediaType == AVMediaTypeVideo {
+                    if !self.didStartedSession {
                         assetWriter.startSessionAtSourceTime(timeStamp)
                         self.didStartedSession = true
+                        self.wrtingStartTime = timeStamp
                     }
 
-                    guard let assetWriterVideoInput = self.assetWriterVideoInput where assetWriterVideoInput.readyForMoreMediaData && self.didStartedSession else { return }
+                    guard self.didStartedSession else { return }
 
                     var outputRenderBuffer: CVPixelBuffer?
 
-                    let status = CVPixelBufferPoolCreatePixelBuffer(nil, assetWriterPixelBufferAdaptor.pixelBufferPool!, &outputRenderBuffer)
+                    let status = CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &outputRenderBuffer)
 
                     if let pixelBuffer = outputRenderBuffer where status == 0 {
 
@@ -330,6 +331,8 @@ extension AssetWriterCoordinator {
                         self.context.render(outputImage, toCVPixelBuffer: pixelBuffer, bounds: outputImage.extent, colorSpace: self.genericRGBColorspace)
 
                         success = assetWriterPixelBufferAdaptor.appendPixelBuffer(pixelBuffer, withPresentationTime: timeStamp)
+
+                        self.delegate?.writerCoordinatorDidRecording(self, seconds: self.recordingSecondsSubtract(timeStamp, subtrahend: self.wrtingStartTime))
 
                     } else {
                         print("Unable to obtain a pixel buffer from the pool.")
@@ -345,6 +348,7 @@ extension AssetWriterCoordinator {
                 objc_sync_enter(self)
                 if let unwrappedSuccess = success where !unwrappedSuccess {
                     self.writerStatus = .Failed(error: assetWriter.error)
+                    print(assetWriter.error)
                 }
                 objc_sync_exit(self)
 
@@ -391,6 +395,12 @@ extension AssetWriterCoordinator {
         audioInput.expectsMediaDataInRealTime = true
 
         return audioInput
+    }
+
+    private func recordingSecondsSubtract(minuend: CMTime, subtrahend: CMTime) -> Float {
+        let diff = CMTimeSubtract(minuend, subtrahend)
+        let seconds = CMTimeGetSeconds(diff)
+        return Float(seconds)
     }
 }
 
