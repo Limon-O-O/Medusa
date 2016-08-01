@@ -8,11 +8,6 @@
 
 import AVFoundation
 
-public struct Segment {
-    public let URL: NSURL
-    public private(set) var seconds: Float
-}
-
 public func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
