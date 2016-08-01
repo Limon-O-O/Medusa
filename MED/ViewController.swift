@@ -14,8 +14,7 @@ import AssetsLibrary
 class ViewController: UIViewController {
 
     private let maxTime: Float = 5.0
-    private var currentTime: Float = 0.0
-    private var timer: NSTimer?
+    private var totalSeconds: Float = 0.0
 
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
@@ -114,7 +113,7 @@ class ViewController: UIViewController {
 
             let delta = progressView.rollback()
 
-            currentTime -= (maxTime * delta)
+            totalSeconds -= (maxTime * delta)
 
             if progressView.trackViews.isEmpty {
                 rollbackButton.hidden = true
@@ -137,9 +136,8 @@ class ViewController: UIViewController {
     }
 
     private func resetProgressView() {
-        timer?.invalidate()
         progressView.status = .Idle
-        currentTime = 0.0
+        totalSeconds = 0.0
     }
 
 }
@@ -151,17 +149,32 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
 
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
-    func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, segmentIndex: Int, seconds: Float) {
+    func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, seconds: Float) {
+
         print("\(Int(seconds / 60)):\(seconds % 60)")
+
+        let totalTimeBuffer = totalSeconds + seconds
+
+        if totalTimeBuffer > maxTime {
+            self.captureSessionCoordinator?.stopRecording()
+            resetProgressView()
+            return
+        }
+
+        progressView.progress = totalTimeBuffer / maxTime
     }
 
     func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator) {
 
-        timer?.invalidate()
         progressView.pause()
 
         rollbackButton.hidden = false
         saveButton.hidden = false
+    }
+
+    func coordinatorDidPauseRecording(coordinator: CaptureSessionCoordinator, segments: [Segment]) {
+        let seconds = segments.last?.seconds ?? 0.0
+        totalSeconds += seconds
     }
 
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator) {
@@ -173,7 +186,6 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
             break
         }
 
-        addTimer(timeInterval: 0.02)
         rollbackButton.hidden = true
         saveButton.hidden = true
 
@@ -226,33 +238,4 @@ extension ViewController {
         return Double(NSData(contentsOfURL: fileURL)?.length ?? 0)/(1024.00*1024.0)
     }
 }
-
-
-// MARK: - Timer
-
-extension ViewController {
-
-    private func addTimer(timeInterval duration: NSTimeInterval) {
-        
-        timer?.invalidate()
-        
-        timer = NSTimer.scheduledTimerWithTimeInterval(duration, target: self, selector: #selector(ViewController.timerDidFired(_:)), userInfo: nil, repeats: true)
-    }
-    
-    @objc private func timerDidFired(timer: NSTimer) {
-
-        currentTime = currentTime + Float(timer.timeInterval)
-
-        if currentTime > maxTime {
-            self.captureSessionCoordinator?.stopRecording()
-            resetProgressView()
-            return
-        }
-
-        progressView.progress = currentTime / maxTime
-    }
-}
-
-
-
 

@@ -8,10 +8,6 @@
 
 import AVFoundation
 
-struct Segment {
-    let URL: NSURL
-}
-
 func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
 
     var timeRange = track.timeRange

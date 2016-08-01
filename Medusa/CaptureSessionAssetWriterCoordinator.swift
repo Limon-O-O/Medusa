@@ -8,6 +8,11 @@
 
 import AVFoundation
 
+public struct Segment {
+    public let URL: NSURL
+    public private(set) var seconds: Float
+}
+
 public func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
@@ -84,9 +89,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                 dispatch_async(delegateCallbackQueue) {
                     autoreleasepool {
-
                         clearAction()
-
                         self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
                     }
                 }
@@ -99,25 +102,19 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             // Click Record Action
             case (.Idle, .StartingRecording):
                 dispatch_async(delegateCallbackQueue) {
-                    autoreleasepool {
-                        self.delegate?.coordinatorWillBeginRecording(self)
-                    }
+                    self.delegate?.coordinatorWillBeginRecording(self)
                 }
 
             // Click Stop Record Action
             case (.Recording, .StoppingRecording):
                 dispatch_async(delegateCallbackQueue) {
-                    autoreleasepool {
-                        self.delegate?.coordinatorWillDidFinishRecording(self)
-                    }
+                    self.delegate?.coordinatorWillDidFinishRecording(self)
                 }
 
             // Start Recording
             case (.StartingRecording, .Recording):
                 dispatch_async(delegateCallbackQueue) {
-                    autoreleasepool {
-                        self.delegate?.coordinatorDidBeginRecording(self)
-                    }
+                    self.delegate?.coordinatorDidBeginRecording(self)
                 }
 
             // Stop Recording
@@ -146,7 +143,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                                 }
                             }
 
-                        } else {
+                        } else if self.segments.count == 1 {
+                            NSFileManager.med_moveItem(atURL: self.segments[0].URL, toURL: self.attributes.destinationURL)
                             finish()
                         }
 
@@ -179,18 +177,14 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             // Click Pause
             case (.Recording, .Pause):
                 dispatch_async(delegateCallbackQueue) {
-                    autoreleasepool {
-                        self.delegate?.coordinatorWillPauseRecording(self)
-                    }
+                    self.delegate?.coordinatorWillPauseRecording(self)
                 }
 
             // Did Pause
             case (.Pause, .Pausing):
                 dispatch_async(delegateCallbackQueue) {
-                    autoreleasepool {
-                        self.delegate?.coordinatorDidPauseRecording(self)
-                        self.assetWriterCoordinator = nil
-                    }
+                    self.delegate?.coordinatorDidPauseRecording(self, segments: self.segments)
+                    self.assetWriterCoordinator = nil
                 }
 
             default:
@@ -198,14 +192,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             }
 
         }
-    }
-
-    private func removeSegments() {
-        segments.forEach {
-            NSFileManager.med_removeExistingFile(byURL: $0.URL)
-        }
-
-        segments.removeAll()
     }
 
     private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
@@ -349,11 +335,9 @@ extension CaptureSessionAssetWriterCoordinator {
         objc_sync_enter(self)
 
         switch recordingStatus {
-        case .Idle:
-            break
-        case .Pausing:
+        case .Idle, .Pausing:
             let newURL = makeNewFileURL()
-            let segment = Segment(URL: newURL)
+            let segment = Segment(URL: newURL, seconds: 0.0)
             segments.append(segment)
             attributes._destinationURL = newURL
         default:
@@ -443,10 +427,16 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
     }
 
     func writerCoordinatorDidRecording(coordinator: AssetWriterCoordinator, seconds: Float) {
-        delegate?.coordinatorDidRecording(self, segmentIndex: segments.count, seconds: seconds)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.coordinatorDidRecording(self, seconds: seconds)
+        }
     }
 
-    func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator) {
+    func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator, seconds: Float) {
+
+        if !segments.isEmpty {
+            segments[segments.count - 1].seconds = seconds
+        }
 
         if recordingStatus == .StoppingRecording {
 
@@ -455,14 +445,6 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
             objc_sync_exit(self)
 
         } else if self.recordingStatus == .Pause {
-
-            // Move out destination file. Prepare for next segment video.
-            if segments.isEmpty {
-                let newURL = makeNewFileURL()
-                NSFileManager.med_moveItem(atURL: attributes.destinationURL, toURL: newURL)
-                let segment = Segment(URL: newURL)
-                segments.append(segment)
-            }
 
             objc_sync_enter(self)
             recordingStatus = .Pausing
@@ -542,6 +524,14 @@ extension CaptureSessionAssetWriterCoordinator {
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
 
+    }
+
+    private func removeSegments() {
+        segments.forEach {
+            NSFileManager.med_removeExistingFile(byURL: $0.URL)
+        }
+
+        segments.removeAll()
     }
 }
 

@@ -12,7 +12,7 @@ protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidFinishPreparing(coordinator: AssetWriterCoordinator)
 
-    func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator)
+    func writerCoordinatorDidFinishRecording(coordinator: AssetWriterCoordinator, seconds: Float)
 
     func writerCoordinatorDidRecording(coordinator: AssetWriterCoordinator, seconds: Float)
 
@@ -86,7 +86,15 @@ class AssetWriterCoordinator {
 
     private let genericRGBColorspace = CGColorSpaceCreateDeviceRGB()
 
+    private var currentTimeStamp: CMTime = kCMTimeZero
+
     private var wrtingStartTime: CMTime = kCMTimeZero
+
+    private var recordingSeconds: Float {
+        let diff = CMTimeSubtract(currentTimeStamp, wrtingStartTime)
+        let seconds = CMTimeGetSeconds(diff)
+        return Float(seconds)
+    }
 
     private var writerStatus: WriterStatus = .Idle {
 
@@ -116,7 +124,7 @@ class AssetWriterCoordinator {
 
                     case .Finished:
                         clearAction()
-                        self.delegate?.writerCoordinatorDidFinishRecording(self)
+                        self.delegate?.writerCoordinatorDidFinishRecording(self, seconds: self.recordingSeconds)
 
                     case .Recording:
                         self.delegate?.writerCoordinatorDidFinishPreparing(self)
@@ -330,9 +338,11 @@ extension AssetWriterCoordinator {
                         // Render 'image' to the given CVPixelBufferRef.
                         self.context.render(outputImage, toCVPixelBuffer: pixelBuffer, bounds: outputImage.extent, colorSpace: self.genericRGBColorspace)
 
+                        self.currentTimeStamp = timeStamp
+
                         success = assetWriterPixelBufferAdaptor.appendPixelBuffer(pixelBuffer, withPresentationTime: timeStamp)
 
-                        self.delegate?.writerCoordinatorDidRecording(self, seconds: self.recordingSecondsSubtract(timeStamp, subtrahend: self.wrtingStartTime))
+                        self.delegate?.writerCoordinatorDidRecording(self, seconds: self.recordingSeconds)
 
                     } else {
                         print("Unable to obtain a pixel buffer from the pool.")
@@ -395,12 +405,6 @@ extension AssetWriterCoordinator {
         audioInput.expectsMediaDataInRealTime = true
 
         return audioInput
-    }
-
-    private func recordingSecondsSubtract(minuend: CMTime, subtrahend: CMTime) -> Float {
-        let diff = CMTimeSubtract(minuend, subtrahend)
-        let seconds = CMTimeGetSeconds(diff)
-        return Float(seconds)
     }
 }
 
