@@ -188,9 +188,6 @@ class AssetWriterCoordinator {
                     let assetWriter = try AVAssetWriter(URL: self.URL, fileType: self.outputFileType)
                     self.assetWriter = assetWriter
 
-                    // Set this to make sure that a functional movie is produced, even if the recording is cut off mid-stream. Only the last second should be lost in that case.
-                    assetWriter.movieFragmentInterval = CMTimeMakeWithSeconds(1.0, 1000)
-
                     if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, videoTrackSettings = self.videoTrackSettings {
 
                         self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
