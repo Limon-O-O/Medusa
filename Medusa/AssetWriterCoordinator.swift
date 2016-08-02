@@ -206,7 +206,11 @@ class AssetWriterCoordinator {
 
                         if let videoInput = self.assetWriterVideoInput {
 
-                            self.assetWriterPixelBufferAdaptor = self.makePixelBufferAdaptor(assetWriterInput: videoInput, videoTrackSettings: videoTrackSettings)
+                            let videoWidth = Int32(videoTrackSettings[AVVideoWidthKey] as! Int)
+                            let videoHeight = Int32(videoTrackSettings[AVVideoHeightKey] as! Int)
+                            let videoDimensions = CMVideoDimensions(width: videoWidth, height: videoHeight)
+
+                            self.assetWriterPixelBufferAdaptor = self.makePixelBufferAdaptor(assetWriterInput: videoInput, videoDimensions: videoDimensions)
 
                             if assetWriter.canAddInput(videoInput) {
                                 assetWriter.addInput(videoInput)
@@ -342,6 +346,8 @@ extension AssetWriterCoordinator {
 
                         success = assetWriterPixelBufferAdaptor.appendPixelBuffer(pixelBuffer, withPresentationTime: timeStamp)
 
+//                        success = self.assetWriterVideoInput?.appendSampleBuffer(sampleBuffer)
+
                         self.delegate?.writerCoordinatorDidRecording(self, seconds: self.recordingSeconds)
 
                     } else {
@@ -366,17 +372,16 @@ extension AssetWriterCoordinator {
         }
     }
 
-    private func makePixelBufferAdaptor(assetWriterInput input: AVAssetWriterInput,videoTrackSettings settings: [String: AnyObject]) -> AVAssetWriterInputPixelBufferAdaptor {
+    private func makePixelBufferAdaptor(assetWriterInput input: AVAssetWriterInput, videoDimensions: CMVideoDimensions) -> AVAssetWriterInputPixelBufferAdaptor {
 
-        let videoWidth = max(settings[AVVideoWidthKey] as! Int, settings[AVVideoHeightKey] as! Int)
-        let videoHeight = min(settings[AVVideoWidthKey] as! Int, settings[AVVideoHeightKey] as! Int)
+        let pixelBufferWidth = max(videoDimensions.height, videoDimensions.width)
+        let pixelBufferHeight = min(videoDimensions.height, videoDimensions.width)
 
         // Use BGRA for the video in order to get realtime encoding.
-
-        let sourcePixelBufferAttributes = [
+        let sourcePixelBufferAttributes: [String: AnyObject] = [
             String(kCVPixelBufferPixelFormatTypeKey): Int(kCVPixelFormatType_32BGRA),
-            String(kCVPixelBufferWidthKey): videoWidth,
-            String(kCVPixelBufferHeightKey): videoHeight,
+            String(kCVPixelBufferWidthKey): Int(pixelBufferWidth),
+            String(kCVPixelBufferHeightKey): Int(pixelBufferHeight),
             String(kCVPixelFormatOpenGLESCompatibility): kCFBooleanTrue
         ]
 
