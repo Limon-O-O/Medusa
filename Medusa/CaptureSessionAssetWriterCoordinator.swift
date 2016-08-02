@@ -43,6 +43,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     public var segmentsTransition = true
 
+    public var presetName = AVAssetExportPresetHighestQuality
+
     private let videoDataOutput: AVCaptureVideoDataOutput
     private let audioDataOutput: AVCaptureAudioDataOutput
 
@@ -235,7 +237,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             videoComposition = nil
         }
 
-        let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: AVAssetExportPresetMediumQuality)
+        let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: presetName)
 
         guard let unwrappedExportSession = assetExportSession else {
             completionHandler(error: NSError(domain: "AVAssetExportSession Error", code: 0, userInfo: nil))
