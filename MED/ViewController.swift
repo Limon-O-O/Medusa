@@ -34,7 +34,7 @@ class ViewController: UIViewController {
 
         let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
 
-        let videoCompressionSettings: [String : AnyObject] = [
+        let videoCompressionSettings: [String: AnyObject] = [
             AVVideoCodecKey: AVVideoCodecH264,
             AVVideoCompressionPropertiesKey: codecSettings,
             AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill
