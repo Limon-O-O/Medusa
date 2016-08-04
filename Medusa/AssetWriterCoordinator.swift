@@ -295,7 +295,7 @@ extension AssetWriterCoordinator {
 
     private func appendSampleBuffer(sampleBuffer: CMSampleBufferRef, ofMediaType mediaType: String) {
 
-        guard let assetWriter = assetWriter else { return }
+        guard let assetWriter = assetWriter where assetWriter.status == .Writing else { return }
 
         if writerStatus.hashValue < WriterStatus.Recording.hashValue {
             print("Not ready to record yet")
