@@ -8,29 +8,6 @@
 
 import AVFoundation
 
-struct TransitionComposition {
-
-    let composition: AVComposition
-
-    let videoComposition: AVVideoComposition
-
-    func makePlayable() -> AVPlayerItem {
-        let playerItem = AVPlayerItem(asset: composition.copy() as! AVAsset)
-        playerItem.videoComposition = self.videoComposition
-        return playerItem
-    }
-
-    func makeExportSession(preset preset: String, outputURL: NSURL, outputFileType: String) -> AVAssetExportSession? {
-        let session = AVAssetExportSession(asset: composition, presetName: preset)
-        session?.outputFileType = outputFileType
-        session?.outputURL = outputURL
-        session?.timeRange = CMTimeRangeMake(kCMTimeZero, composition.duration)
-        session?.videoComposition = videoComposition
-        session?.canPerformMultiplePassesOverSourceMediaData = true
-        return session
-    }
-}
-
 struct TransitionCompositionBuilder {
 
     let assets: [AVAsset]
@@ -41,7 +18,7 @@ struct TransitionCompositionBuilder {
 
     private var compositionVideoTracks = [AVMutableCompositionTrack]()
 
-    init?(assets: [AVAsset], transitionDuration: Float64 = 0.3) {
+    init?(assets: [AVAsset], transitionDuration: Float64 = 0.24) {
 
         guard !assets.isEmpty else { return nil }
 
@@ -49,7 +26,7 @@ struct TransitionCompositionBuilder {
         self.transitionDuration = CMTimeMakeWithSeconds(transitionDuration, 600)
     }
 
-    mutating func buildComposition() -> TransitionComposition {
+    mutating func buildComposition() -> (composition: AVComposition, videoComposition: AVVideoComposition) {
 
         var durations = assets.map { $0.duration }
 
@@ -79,12 +56,11 @@ struct TransitionCompositionBuilder {
             passThroughTimeRanges: timeRanges.passThroughTimeRanges,
             transitionTimeRanges: timeRanges.transitionTimeRanges)
 
-        return TransitionComposition(composition: composition, videoComposition: videoComposition)
+        return (composition: composition, videoComposition: videoComposition)
     }
 
     /// Build the composition tracks
-
-    mutating func buildCompositionTracks(composition composition: AVMutableComposition,
+    private mutating func buildCompositionTracks(composition composition: AVMutableComposition,
                                             transitionDuration: CMTime,
                                             assets: [AVAsset]) {
 
@@ -134,7 +110,7 @@ struct TransitionCompositionBuilder {
     }
 
     /// Calculate both the pass through time and the transition time ranges.
-    func calculateTimeRanges(transitionDuration transitionDuration: CMTime,
+    private func calculateTimeRanges(transitionDuration transitionDuration: CMTime,
                                                 assetsWithVideoTracks: [AVAsset])
         -> (passThroughTimeRanges: [NSValue], transitionTimeRanges: [NSValue]) {
 
@@ -169,7 +145,7 @@ struct TransitionCompositionBuilder {
     }
 
     // Build the video composition and instructions.
-    func buildVideoCompositionAndInstructions(composition composition: AVMutableComposition,
+    private func buildVideoCompositionAndInstructions(composition composition: AVMutableComposition,
                                                           passThroughTimeRanges: [NSValue],
                                                           transitionTimeRanges: [NSValue])
         -> AVMutableVideoComposition {

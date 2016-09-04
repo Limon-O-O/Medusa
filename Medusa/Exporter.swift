@@ -12,7 +12,12 @@ struct Exporter {
 
     static func exportSegmentsAsynchronously(segments: [Segment], to destinationURL: NSURL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (error: NSError?) -> Void) {
 
-        let asset: AVAsset
+        if segments.isEmpty {
+            completionHandler(error:  NSError(domain: "Segment is empty", code: 0, userInfo: nil))
+            return
+        }
+
+        let assetBuffer: AVAsset?
         let videoComposition: AVVideoComposition?
 
         NSFileManager.med_removeExistingFile(byURL: destinationURL)
@@ -21,16 +26,20 @@ struct Exporter {
 
             let videoAssets = segments.map { AVAsset(URL:$0.URL) }
 
-            var builder = TransitionCompositionBuilder(assets: videoAssets)!
+            var builder = TransitionCompositionBuilder(assets: videoAssets)
 
-            let transitionComposition = builder.buildComposition()
-
-            asset = transitionComposition.composition
-            videoComposition = transitionComposition.videoComposition
+            let transitionComposition = builder?.buildComposition()
+            assetBuffer = transitionComposition?.composition
+            videoComposition = transitionComposition?.videoComposition
 
         } else {
-            asset = assetRepresentingSegments(segments)
+            assetBuffer = assetRepresentingSegments(segments)
             videoComposition = nil
+        }
+
+        guard let asset = assetBuffer else {
+            completionHandler(error:  NSError(domain: "asset is nil", code: 0, userInfo: nil))
+            return
         }
 
         let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: presetName)
@@ -100,7 +109,11 @@ struct Exporter {
         return time
     }
 
-    private static func assetRepresentingSegments(segments: [Segment]) -> AVAsset {
+    private static func assetRepresentingSegments(segments: [Segment]) -> AVAsset? {
+
+        if segments.isEmpty {
+            return nil
+        }
 
         if segments.count == 1 {
 
