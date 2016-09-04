@@ -60,8 +60,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private var attributes: Attributes
 
-    private var cyanifier: CyanifyOperation?
-
     public private(set) var recordingStatus: RecordingStatus = .Idle(error: nil) {
 
         didSet(oldStatus) {
@@ -81,7 +79,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 strongSelf.attributes._destinationURL = strongSelf.attributes.destinationURL
 
                 strongSelf.assetWriterCoordinator = nil
-                strongSelf.cyanifier = nil
             }
 
             if case .Idle(let error) = currentStatus where error != nil {
@@ -194,21 +191,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             }
 
         }
-    }
-
-    private func export(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {
-
-        cyanifier = CyanifyOperation(asset: sourceAsset, attributes: attributes)
-
-        cyanifier?.completionBlock = { [weak cyanifier] in
-
-            let result = cyanifier!.result!
-
-            dispatch_async(dispatch_get_main_queue()) {
-                completionHandler(result: result)
-            }
-        }
-        cyanifier?.start()
     }
 
     public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .Back) throws {
