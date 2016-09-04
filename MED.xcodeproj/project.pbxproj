@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1B1235E4B4E9539C498064ED /* Pods_MED.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF9F4EB5F5850AE9E6F9A0CF /* Pods_MED.framework */; };
 		ED0A01581D222F330075A660 /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0A01571D222F330075A660 /* Attributes.swift */; };
+		ED5475DF1D7C182300EDDFE4 /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5475DE1D7C182300EDDFE4 /* Exporter.swift */; };
 		ED6AD9AF1D48F2C4005D0529 /* TransitionComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6AD9AE1D48F2C4005D0529 /* TransitionComposition.swift */; };
 		ED6B75E21D268DE900D50C00 /* Segment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B75E11D268DE900D50C00 /* Segment.swift */; };
 		EDD3D1691D3A269600531DDC /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3D1681D3A269600531DDC /* ProgressView.swift */; };
@@ -60,6 +61,7 @@
 		AF9F4EB5F5850AE9E6F9A0CF /* Pods_MED.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MED.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C109B0BF35AF88764D032A15 /* Pods-MED.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MED.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MED/Pods-MED.debug.xcconfig"; sourceTree = "<group>"; };
 		ED0A01571D222F330075A660 /* Attributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attributes.swift; sourceTree = "<group>"; };
+		ED5475DE1D7C182300EDDFE4 /* Exporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exporter.swift; sourceTree = "<group>"; };
 		ED6AD9AE1D48F2C4005D0529 /* TransitionComposition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionComposition.swift; sourceTree = "<group>"; };
 		ED6B75E11D268DE900D50C00 /* Segment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Segment.swift; sourceTree = "<group>"; };
 		EDD3D1681D3A269600531DDC /* ProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				EDE61F491D1250D90088E42F /* AssetWriterCoordinator.swift */,
 				EDE61F4B1D1250D90088E42F /* CaptureSessionCoordinator.swift */,
 				EDE61F4A1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift */,
+				ED5475DE1D7C182300EDDFE4 /* Exporter.swift */,
 				EDE61F5A1D125C400088E42F /* Utilities.swift */,
 				EDE61F401D1250BA0088E42F /* Info.plist */,
 			);
@@ -379,6 +382,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDE61F4D1D1250D90088E42F /* CaptureSessionAssetWriterCoordinator.swift in Sources */,
+				ED5475DF1D7C182300EDDFE4 /* Exporter.swift in Sources */,
 				ED6B75E21D268DE900D50C00 /* Segment.swift in Sources */,
 				EDE61F4E1D1250D90088E42F /* CaptureSessionCoordinator.swift in Sources */,
 				EDE61F5B1D125C400088E42F /* Utilities.swift in Sources */,

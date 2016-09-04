@@ -118,33 +118,30 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             // Stop Recording
             case (.StoppingRecording, .Idle):
-                dispatch_async(delegateCallbackQueue) {
+                dispatch_async(delegateCallbackQueue) { [weak self] in
                     autoreleasepool {
 
-                        let finish = { [weak self] in
+                        guard let strongSelf = self else { return }
 
-                            guard let strongSelf = self else { return }
-
+                        let finish = {
                             clearAction()
-
                             strongSelf.recordingStatus = .Idle(error: nil)
                             strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: strongSelf.attributes.destinationURL, error: nil)
-
                         }
 
-                        if self.segments.count > 1 {
+                        if strongSelf.segments.count > 1 {
 
-                            self.mergeSegmentsAsynchronously() { error in
+                            self?.exportSegmentsAsynchronously() { error in
                                 if let error = error {
-                                    self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
+                                    strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: nil, error: error)
                                 } else {
                                     finish()
                                 }
                             }
 
-                        } else if self.segments.count == 1 {
+                        } else if strongSelf.segments.count == 1 {
 
-                            NSFileManager.med_moveItem(atURL: self.segments[0].URL, toURL: self.attributes.destinationURL)
+                            NSFileManager.med_moveItem(atURL: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
                             finish()
 
                         } else {
@@ -171,7 +168,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                         } else if strongSelf.segments.count > 1 {
 
-                            self?.mergeSegmentsAsynchronously() { error in
+                            self?.exportSegmentsAsynchronously() { error in
                                 strongSelf.removeSegments()
                                 self?.recordingStatus = .Idle(error: error)
                             }
@@ -197,81 +194,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             }
 
         }
-    }
-
-    private func mergeSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
-
-        let asset: AVAsset
-        let videoComposition: AVVideoComposition?
-
-        NSFileManager.med_removeExistingFile(byURL: self.attributes.destinationURL)
-
-//        let asset = assetRepresentingSegments(self.segments)
-
-//        mergeSegmentsAndExport(asset.copy() as! AVAsset) { result in
-//            switch result {
-//            case .Success:
-//                completionHandler(error: nil)
-//
-//            case .Failure(let error):
-//                completionHandler(error: error as NSError)
-//
-//            case .Cancellation:
-//                completionHandler(error: CyanifyError.Canceled as NSError)
-//            }
-//        }
-
-        if segmentsTransition {
-
-            let videoAssets = segments.map { AVAsset(URL:$0.URL) }
-
-            var builder = TransitionCompositionBuilder(assets: videoAssets)!
-
-            let transitionComposition = builder.buildComposition()
-
-            asset = transitionComposition.composition
-            videoComposition = transitionComposition.videoComposition
-
-        } else {
-            asset = assetRepresentingSegments(segments)
-            videoComposition = nil
-        }
-
-        let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: presetName)
-
-        guard let unwrappedExportSession = assetExportSession else {
-            completionHandler(error: NSError(domain: "AVAssetExportSession Error", code: 0, userInfo: nil))
-            return
-        }
-
-        unwrappedExportSession.outputURL = self.attributes.destinationURL
-        unwrappedExportSession.outputFileType = self.attributes.mediaFormat.fileFormat
-        unwrappedExportSession.canPerformMultiplePassesOverSourceMediaData = true
-
-        if let unwrappedVideoComposition = videoComposition {
-            unwrappedExportSession.videoComposition = unwrappedVideoComposition
-        }
-
-        let sessionWaitSemaphore = dispatch_semaphore_create(0)
-
-        unwrappedExportSession.exportAsynchronouslyWithCompletionHandler({
-            dispatch_semaphore_signal(sessionWaitSemaphore)
-            return
-        })
-
-        dispatch_semaphore_wait(sessionWaitSemaphore, DISPATCH_TIME_FOREVER)
-
-        switch unwrappedExportSession.status {
-        case .Completed:
-            completionHandler(error: nil)
-
-        case .Failed:
-            completionHandler(error: unwrappedExportSession.error)
-
-        default:
-            break
-        }
-
     }
 
     private func export(sourceAsset: AVAsset, completionHandler: (result: CyanifyOperation.Result) -> Void) {
@@ -525,6 +447,10 @@ extension CaptureSessionAssetWriterCoordinator {
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
 
+    }
+
+    private func exportSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
+        Exporter.exportSegmentsAsynchronously(segments, to: attributes.destinationURL, transition: segmentsTransition, presetName: presetName, fileFormat: attributes.mediaFormat.fileFormat, completionHandler: completionHandler)
     }
 
     private func removeSegments() {
