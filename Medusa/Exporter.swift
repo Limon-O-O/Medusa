@@ -13,7 +13,7 @@ struct Exporter {
     static func exportSegmentsAsynchronously(segments: [Segment], to destinationURL: NSURL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (error: NSError?) -> Void) {
 
         if segments.isEmpty {
-            completionHandler(error:  NSError(domain: "Segment is empty", code: 0, userInfo: nil))
+            completionHandler(error:  NSError(domain: "Segments is empty", code: 0, userInfo: nil))
             return
         }
 
@@ -38,7 +38,7 @@ struct Exporter {
         }
 
         guard let asset = assetBuffer else {
-            completionHandler(error:  NSError(domain: "asset is nil", code: 0, userInfo: nil))
+            completionHandler(error:  NSError(domain: "AVAsset is nil", code: 0, userInfo: nil))
             return
         }
 
