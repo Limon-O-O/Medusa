@@ -168,6 +168,26 @@ class ViewController: UIViewController {
 
 extension ViewController: CaptureSessionCoordinatorDelegate {
 
+    func coordinatorVideoDataOutput(didOutputSampleBuffer sampleBuffer: CMSampleBuffer, completionHandler: ((CIImage) -> Void)) {
+
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+        var outputImage = CIImage(CVPixelBuffer: imageBuffer)
+
+        if let filter = filter {
+            filter.setValue(outputImage, forKey: kCIInputImageKey)
+            if let newOutputImage = filter.outputImage {
+                outputImage = newOutputImage
+            }
+        }
+
+        dispatch_sync(dispatch_get_main_queue(), {
+            self.previewView.image = outputImage
+        })
+
+        completionHandler(outputImage)
+    }
+
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
 
     func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, seconds: Float) {
