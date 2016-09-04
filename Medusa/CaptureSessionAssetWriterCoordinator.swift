@@ -475,13 +475,17 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
 
             } else {
 
-                outputVideoFormatDescription = formatDescription;
-
-                if recordingStatus == .Recording {
-                    assetWriterCoordinator?.appendVideoSampleBuffer(sampleBuffer)
-                }
-
+                outputVideoFormatDescription = formatDescription
             }
+
+            delegate?.coordinatorVideoDataOutput(didOutputSampleBuffer: sampleBuffer, completionHandler: { [weak self] image in
+
+                guard let strongSelf = self else { return }
+
+                if strongSelf.recordingStatus == .Recording {
+                    strongSelf.assetWriterCoordinator?.appendVideoSampleBuffer(sampleBuffer, outputImage: image)
+                }
+            })
 
         } else if connection == audioConnection {
 

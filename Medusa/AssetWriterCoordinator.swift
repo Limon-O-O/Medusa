@@ -148,12 +148,12 @@ class AssetWriterCoordinator {
         print("AssetWriterCoordinator Deinit")
     }
 
-    func appendVideoSampleBuffer(sampleBuffer: CMSampleBufferRef) {
-        appendSampleBuffer(sampleBuffer, ofMediaType: AVMediaTypeVideo)
+    func appendVideoSampleBuffer(sampleBuffer: CMSampleBufferRef, outputImage: CIImage) {
+        appendSampleBuffer(sampleBuffer, outputImage: outputImage, ofMediaType: AVMediaTypeVideo)
     }
 
     func appendAudioSampleBuffer(sampleBuffer: CMSampleBufferRef) {
-        appendSampleBuffer(sampleBuffer, ofMediaType: AVMediaTypeAudio)
+        appendSampleBuffer(sampleBuffer, outputImage: nil, ofMediaType: AVMediaTypeAudio)
     }
 
     func addAudioTrackWithSourceFormatDescription(formatDescription: CMFormatDescriptionRef, settings audioSettings: [String: AnyObject]) {
@@ -293,7 +293,7 @@ class AssetWriterCoordinator {
 
 extension AssetWriterCoordinator {
 
-    private func appendSampleBuffer(sampleBuffer: CMSampleBufferRef, ofMediaType mediaType: String) {
+    private func appendSampleBuffer(sampleBuffer: CMSampleBufferRef, outputImage: CIImage?, ofMediaType mediaType: String) {
 
         guard let assetWriter = assetWriter where assetWriter.status == .Writing else { return }
 
@@ -335,12 +335,8 @@ extension AssetWriterCoordinator {
 
                     if let pixelBuffer = outputRenderBuffer where status == 0 {
 
-                        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
-                        let outputImage = CIImage(CVPixelBuffer: imageBuffer)
-
                         // Render 'image' to the given CVPixelBufferRef.
-                        self.context.render(outputImage, toCVPixelBuffer: pixelBuffer, bounds: outputImage.extent, colorSpace: self.genericRGBColorspace)
+                        self.context.render(outputImage!, toCVPixelBuffer: pixelBuffer, bounds: outputImage!.extent, colorSpace: self.genericRGBColorspace)
 
                         self.currentTimeStamp = timeStamp
 
