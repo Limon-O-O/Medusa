@@ -517,11 +517,14 @@ extension CaptureSessionAssetWriterCoordinator {
             unwrappedVideoConnection.preferredVideoStabilizationMode = .Auto
         }
 
+        // Up Orientation
+        unwrappedVideoConnection.videoOrientation = .Portrait
+
         // Flip Horizontal
         if captureDevice.position == .Front && unwrappedVideoConnection.supportsVideoMirroring && unwrappedVideoConnection.supportsVideoOrientation {
             unwrappedVideoConnection.videoMirrored = true
             unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
-            unwrappedVideoConnection.videoOrientation = .LandscapeRight
+            unwrappedVideoConnection.videoOrientation = .Portrait
         }
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)

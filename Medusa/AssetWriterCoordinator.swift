@@ -370,8 +370,8 @@ extension AssetWriterCoordinator {
 
     private func makePixelBufferAdaptor(assetWriterInput input: AVAssetWriterInput, videoDimensions: CMVideoDimensions) -> AVAssetWriterInputPixelBufferAdaptor {
 
-        let pixelBufferWidth = max(videoDimensions.height, videoDimensions.width)
-        let pixelBufferHeight = min(videoDimensions.height, videoDimensions.width)
+        let pixelBufferWidth = min(videoDimensions.height, videoDimensions.width)
+        let pixelBufferHeight = max(videoDimensions.height, videoDimensions.width)
 
         // Use BGRA for the video in order to get realtime encoding.
         let sourcePixelBufferAttributes: [String: AnyObject] = [
@@ -392,8 +392,8 @@ extension AssetWriterCoordinator {
 
         videoInput.expectsMediaDataInRealTime = true
 
-        // portrait orientation
-        videoInput.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
+        // videoConnection.videoOrientation = .Portrait, so videoInput.transform = CGAffineTransformIdentity
+        videoInput.transform = CGAffineTransformIdentity
 
         return videoInput
     }
