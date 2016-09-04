@@ -7,14 +7,17 @@
 //
 import UIKit
 import AVFoundation
-import Medusa
 import AssetsLibrary
-
+import Medusa
+import Picasso
+import Lady
 
 class ViewController: UIViewController {
 
     private let maxTime: Float = 5.0
     private var totalSeconds: Float = 0.0
+
+    private var filter: HighPassSkinSmoothingFilter?
 
     private var captureSessionCoordinator: CaptureSessionAssetWriterCoordinator?
 
@@ -24,13 +27,19 @@ class ViewController: UIViewController {
     @IBOutlet private weak var rollbackButton: UIButton!
     @IBOutlet private weak var saveButton: UIButton!
 
+    @IBOutlet weak var amountSlider: UISlider! {
+        didSet {
+            amountSlider.setThumbImage(UIImage(named: "slider_thumb"), forState: .Normal)
+        }
+    }
+
     private let attributes: Attributes = {
 
         let fileName = "video"
         let mediaFormat = MediaFormat.MP4
         let fileURL = NSFileManager.videoURLWithName(fileName, fileExtension: mediaFormat.filenameExtension)
 
-        let videoDimensions = CMVideoDimensions(width: 480, height: 640)
+        let videoDimensions = CMVideoDimensions(width: 640, height: 480)
 
         let codecSettings = [AVVideoAverageBitRateKey: 2000000, AVVideoMaxKeyFrameIntervalKey: 24]
 
@@ -96,18 +105,30 @@ class ViewController: UIViewController {
 
         guard let captureSessionCoordinator = captureSessionCoordinator else { return }
 
-        previewView.previewLayer = captureSessionCoordinator.previewLayer
-
         previewView.cameraDevice = captureSessionCoordinator.captureDevice
+        previewView.canvasContentMode = .ScaleAspectFill
 
         captureSessionCoordinator.startRunning()
     }
 
-    @IBAction func swapCameraDevicePosition(sender: UIButton) {
+    @IBAction func amountValueChanged(sender: UISlider) {
+        filter?.inputAmount = CGFloat(sender.value)
+        print("amountValue: \(sender.value)")
+    }
+
+    @IBAction private func skinSmooth(sender: UIButton) {
+
+        filter = !sender.selected ? HighPassSkinSmoothingFilter() : nil
+        amountSlider.value = Float(filter?.inputAmount ?? 0.0)
+
+        sender.selected = !sender.selected
+    }
+
+    @IBAction private func swapCameraDevicePosition(sender: UIButton) {
         try! captureSessionCoordinator?.swapCaptureDevicePosition()
     }
 
-    @IBAction func rollbackAction(sender: UIButton) {
+    @IBAction private func rollbackAction(sender: UIButton) {
 
         if sender.selected {
 
@@ -130,7 +151,7 @@ class ViewController: UIViewController {
 
     }
 
-    @IBAction func saveAction(sender: UIButton) {
+    @IBAction private func saveAction(sender: UIButton) {
         resetProgressView()
         captureSessionCoordinator?.stopRecording()
     }

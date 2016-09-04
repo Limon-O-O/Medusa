@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="K0D-AQ-aZ3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="K0D-AQ-aZ3">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -34,7 +34,7 @@
                                 <rect key="frame" x="0.0" y="587" width="157.5" height="60"/>
                                 <subviews>
                                     <button hidden="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kUN-vd-Yix" userLabel="Rollback Button">
-                                        <rect key="frame" x="43.5" y="13" width="69" height="34"/>
+                                        <rect key="frame" x="44" y="13" width="69" height="34"/>
                                         <state key="normal" title="Rollback"/>
                                         <state key="selected" title="Delete"/>
                                         <connections>
@@ -83,25 +83,45 @@
                                     <constraint firstItem="ovP-KA-Hcc" firstAttribute="centerX" secondItem="pWF-JQ-xnv" secondAttribute="centerX" id="h2z-xv-5Qj"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Idr-eH-R57">
+                                <rect key="frame" x="241" y="48" width="54" height="34"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="skinSmooth:" destination="K0D-AQ-aZ3" eventType="touchUpInside" id="uE8-M9-pe7"/>
+                                </connections>
+                            </button>
+                            <slider contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="9Aa-4r-NES" userLabel="Amount Slider">
+                                <rect key="frame" x="18" y="523" width="339" height="31"/>
+                                <color key="minimumTrackTintColor" red="0.66666666666666663" green="0.66666666666666663" blue="0.66666666666666663" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="maximumTrackTintColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <action selector="amountValueChanged:" destination="K0D-AQ-aZ3" eventType="valueChanged" id="IYz-0Z-tDE"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="ocX-sn-sOQ" firstAttribute="height" secondItem="cyR-C2-wcK" secondAttribute="width" multiplier="3:4" id="013-Wq-Tsc"/>
                             <constraint firstAttribute="trailing" secondItem="QXg-Bo-zwl" secondAttribute="trailing" id="3on-KW-sha"/>
+                            <constraint firstItem="QXg-Bo-zwl" firstAttribute="top" secondItem="9Aa-4r-NES" secondAttribute="bottom" constant="20" id="5NS-nx-x0p"/>
                             <constraint firstAttribute="trailing" secondItem="pWF-JQ-xnv" secondAttribute="trailing" id="BGw-JI-jRc"/>
                             <constraint firstItem="YKV-Dm-G75" firstAttribute="top" secondItem="eI6-Tz-132" secondAttribute="bottom" constant="20" id="DaH-nS-tca"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" id="E1e-Fd-s0x"/>
                             <constraint firstItem="ocX-sn-sOQ" firstAttribute="centerY" secondItem="cyR-C2-wcK" secondAttribute="centerY" id="JnY-vh-Bzf"/>
+                            <constraint firstItem="Idr-eH-R57" firstAttribute="centerY" secondItem="YKV-Dm-G75" secondAttribute="centerY" id="Kn4-2n-Rgk"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="centerY" secondItem="iyP-1Q-niC" secondAttribute="centerY" id="KuO-nz-e6x"/>
                             <constraint firstItem="QXg-Bo-zwl" firstAttribute="bottom" secondItem="iyP-1Q-niC" secondAttribute="top" constant="-10" id="MVY-h9-pnd"/>
                             <constraint firstItem="pWF-JQ-xnv" firstAttribute="leading" secondItem="iyP-1Q-niC" secondAttribute="trailing" id="MsE-NJ-Ii0"/>
                             <constraint firstAttribute="trailing" secondItem="YKV-Dm-G75" secondAttribute="trailing" constant="20" id="Nil-Vg-LR4"/>
                             <constraint firstItem="QXg-Bo-zwl" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" id="OZK-2M-3BG"/>
+                            <constraint firstItem="9Aa-4r-NES" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" constant="20" id="QrR-gz-Mve"/>
                             <constraint firstItem="AY1-rZ-HwG" firstAttribute="top" secondItem="iyP-1Q-niC" secondAttribute="bottom" constant="20" id="Udz-pS-6fz"/>
+                            <constraint firstItem="YKV-Dm-G75" firstAttribute="leading" secondItem="Idr-eH-R57" secondAttribute="trailing" constant="10" id="WWt-hN-6fq"/>
                             <constraint firstItem="ocX-sn-sOQ" firstAttribute="centerX" secondItem="cyR-C2-wcK" secondAttribute="centerX" id="Zb3-Gi-9Uw"/>
                             <constraint firstItem="pWF-JQ-xnv" firstAttribute="height" secondItem="KtY-Rx-i9R" secondAttribute="height" id="d9W-yZ-NXm"/>
                             <constraint firstItem="ocX-sn-sOQ" firstAttribute="width" secondItem="cyR-C2-wcK" secondAttribute="width" id="eQG-Xb-Sm0"/>
                             <constraint firstItem="iyP-1Q-niC" firstAttribute="centerX" secondItem="cyR-C2-wcK" secondAttribute="centerX" id="fZC-YP-a0S"/>
+                            <constraint firstAttribute="trailing" secondItem="9Aa-4r-NES" secondAttribute="trailing" constant="20" id="h9J-7E-FBf"/>
                             <constraint firstItem="iyP-1Q-niC" firstAttribute="leading" secondItem="KtY-Rx-i9R" secondAttribute="trailing" id="usA-ZC-yW4"/>
                             <constraint firstItem="pWF-JQ-xnv" firstAttribute="centerY" secondItem="KtY-Rx-i9R" secondAttribute="centerY" id="xKu-Jw-IQG"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="height" secondItem="iyP-1Q-niC" secondAttribute="height" id="yRd-da-snz"/>
@@ -109,6 +129,7 @@
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
+                        <outlet property="amountSlider" destination="9Aa-4r-NES" id="zFy-l8-x06"/>
                         <outlet property="previewView" destination="ocX-sn-sOQ" id="HrA-Nd-I3W"/>
                         <outlet property="progressView" destination="QXg-Bo-zwl" id="TEX-Nh-Y6B"/>
                         <outlet property="ringControl" destination="iyP-1Q-niC" id="be9-Rn-cbv"/>

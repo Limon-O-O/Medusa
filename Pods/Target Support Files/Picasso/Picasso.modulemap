@@ -1,0 +1,6 @@
+framework module Picasso {
+  umbrella header "Picasso-umbrella.h"
+
+  export *
+  module * { export * }
+}

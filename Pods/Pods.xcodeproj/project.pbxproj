@@ -1,0 +1,748 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00DEFCC6D779EF20766C010BA70F31E9 /* HighPassFilter.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = B3A4440C29817F7F33137DC96F65895D /* HighPassFilter.cikernel */; };
+		118CB6D2375A4864EB40EE882EED2576 /* GLKRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC4785523B08C871DEE9BEA5C2676C0 /* GLKRenderer.swift */; };
+		1A188E0E85C8468D9E0D704DA1BDF0C9 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C2D62084F60BBA9391C660C7806C9A /* MetalRenderer.swift */; };
+		253B02CC4F8CD6BBC023DF17B9C460A0 /* RGBToneCurveFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8DEC72C734D57A1568A17D4BDE3F169 /* RGBToneCurveFilter.swift */; };
+		2ED0579E4CCC254DFE6B4F21D7797352 /* HighPassSkinSmoothingMaskGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C13F2B3CC582BB4A09EABA3DBADB423 /* HighPassSkinSmoothingMaskGenerator.swift */; };
+		32DF3E201CF9CDD607CD53C18CA7BE2F /* GreenBlueChannelOverlayBlendFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC969B1F150EE7BC455496862A6716 /* GreenBlueChannelOverlayBlendFilter.swift */; };
+		4D9021A618B8747E04F9250B8D1A4F02 /* Pods-MED-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = D16B4E6321294C6844F4F50280F510FB /* Pods-MED-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		582120FE2A68E51F20727E19D4671090 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC22C73C1608DFA5D5D78BDCB218219 /* Foundation.framework */; };
+		5D8A208F62F98A7A1A3B0364B0175F3D /* HighPassFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C9FD0557A2C211D9DBB9A5744E3643 /* HighPassFilter.swift */; };
+		5FC55217D3557D47D4AFF0581C7E36A8 /* Lady-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 06E067D18C0A644577351B154807AED7 /* Lady-dummy.m */; };
+		6621F5457320DE82BEF76C4DCAD17D19 /* GreenBlueChannelOverlayBlendFilter.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = 599FB821A94A2908E32D71066D72ED94 /* GreenBlueChannelOverlayBlendFilter.cikernel */; };
+		739DED37D83141CB30CFD2AE8ABFB843 /* Lady-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D3A9472E15455D71BD4ED10F3A7EA5D /* Lady-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		838B2E756A6E2D9ABE38EF10248777D2 /* Pods-MED-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BD227D45DC65C1F5602F069D5B0391 /* Pods-MED-dummy.m */; };
+		93D73DEF75BED9131FAD5DD0B0799218 /* HighPassSkinSmoothingMaskBoostFilter.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = CAFE3C080A778DC2A5764806DC8722E4 /* HighPassSkinSmoothingMaskBoostFilter.cikernel */; };
+		977421D1141DE9BB46BD37EED800E6D3 /* Picasso-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 65B23AF0EAE3480C661AC0531F3DED6C /* Picasso-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9F41EBA7DF5EAF721DEB0B02083D83DF /* HighPassSkinSmoothingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F6EBB00754685694D4A064CDC8D76D /* HighPassSkinSmoothingFilter.swift */; };
+		A6B1F24676222924D105D8E2E84C65DA /* Renderable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD89B5413BB1266C1DA6C668521C908 /* Renderable.swift */; };
+		AB0FFF1CE176FF4A85FF44F8D95CE0D1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC22C73C1608DFA5D5D78BDCB218219 /* Foundation.framework */; };
+		B82A039D4345FE2AC1DDD66086542CFB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC22C73C1608DFA5D5D78BDCB218219 /* Foundation.framework */; };
+		BE697E8D3DB4D11AC2410B70DA62C807 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4421687EB1254EC7BAD4877AED718B /* Canvas.swift */; };
+		C4DFB1090BD29221C124402799773751 /* Picasso-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = F923DF7CB38BDAD340AD140F351F0560 /* Picasso-dummy.m */; };
+		D8ACF71B33A1AA81B791FFFFF6E4F621 /* RGBToneCurveFilter.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = D367382E85456E996E5B26E761457955 /* RGBToneCurveFilter.cikernel */; };
+		F9981C200EFCB87B2481E96CCF3DB839 /* HighPassSkinSmoothingMaskBoostFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2589027450B3D294CB8024C614CC69CB /* HighPassSkinSmoothingMaskBoostFilter.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8049F2293BA141BD3DCA8F325A1C65D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FACAF97369C35F0CA0F83893358EE685;
+			remoteInfo = Lady;
+		};
+		E9075D85DB39CCFECB6ECE4353B38182 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64F21B2AEB96C73144B6D91A219A9862;
+			remoteInfo = Picasso;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		06B4E6EF9BCAC96EF8B810E8723FCB56 /* Lady.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Lady.xcconfig; sourceTree = "<group>"; };
+		06E067D18C0A644577351B154807AED7 /* Lady-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Lady-dummy.m"; sourceTree = "<group>"; };
+		096D954465582D70778A45EF81A0AD4A /* Pods-MED-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-MED-frameworks.sh"; sourceTree = "<group>"; };
+		0AC888C86390769929D0DCD72D5F2C79 /* Picasso.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Picasso.xcconfig; sourceTree = "<group>"; };
+		15A2B43C712B560404A3414BA380B3ED /* Pods-MED-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MED-acknowledgements.plist"; sourceTree = "<group>"; };
+		19C2D62084F60BBA9391C660C7806C9A /* MetalRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MetalRenderer.swift; path = Picasso/MetalRenderer.swift; sourceTree = "<group>"; };
+		1A5804B3E72244A7D32B808F5B67E3DA /* Pods-MED-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MED-acknowledgements.markdown"; sourceTree = "<group>"; };
+		2589027450B3D294CB8024C614CC69CB /* HighPassSkinSmoothingMaskBoostFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HighPassSkinSmoothingMaskBoostFilter.swift; path = Lady/HighPassSkinSmoothingMaskBoostFilter.swift; sourceTree = "<group>"; };
+		4C55A115BB032C55FC59E15DA9DBE59D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		53FC4F4960195C254A01E237A4C52730 /* Lady.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = Lady.modulemap; sourceTree = "<group>"; };
+		599FB821A94A2908E32D71066D72ED94 /* GreenBlueChannelOverlayBlendFilter.cikernel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = GreenBlueChannelOverlayBlendFilter.cikernel; path = Lady/Resources/GreenBlueChannelOverlayBlendFilter.cikernel; sourceTree = "<group>"; };
+		5D3A9472E15455D71BD4ED10F3A7EA5D /* Lady-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Lady-umbrella.h"; sourceTree = "<group>"; };
+		5F53B2A1513CE8749B8E43D5F64971E3 /* Picasso-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Picasso-prefix.pch"; sourceTree = "<group>"; };
+		5F6764018A6E972A31F51414B44DE6EE /* Pods-MED.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MED.debug.xcconfig"; sourceTree = "<group>"; };
+		65B23AF0EAE3480C661AC0531F3DED6C /* Picasso-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Picasso-umbrella.h"; sourceTree = "<group>"; };
+		67C5FA1A5B109A0B0EA7A3115458A545 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6C13F2B3CC582BB4A09EABA3DBADB423 /* HighPassSkinSmoothingMaskGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HighPassSkinSmoothingMaskGenerator.swift; path = Lady/HighPassSkinSmoothingMaskGenerator.swift; sourceTree = "<group>"; };
+		756AB072D0EBB791D623496FD6344B02 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		766F78B3CBC6BFEE3DDE7EA755A84939 /* Pods-MED.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MED.release.xcconfig"; sourceTree = "<group>"; };
+		818951EAB994494AD9368DF28079B788 /* Picasso.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = Picasso.modulemap; sourceTree = "<group>"; };
+		894F73C67346FC6DED31385146ACF3A7 /* Pods-MED.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = "Pods-MED.modulemap"; sourceTree = "<group>"; };
+		89F6EBB00754685694D4A064CDC8D76D /* HighPassSkinSmoothingFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HighPassSkinSmoothingFilter.swift; path = Lady/HighPassSkinSmoothingFilter.swift; sourceTree = "<group>"; };
+		8CC4785523B08C871DEE9BEA5C2676C0 /* GLKRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GLKRenderer.swift; path = Picasso/GLKRenderer.swift; sourceTree = "<group>"; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		A3FC969B1F150EE7BC455496862A6716 /* GreenBlueChannelOverlayBlendFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GreenBlueChannelOverlayBlendFilter.swift; path = Lady/GreenBlueChannelOverlayBlendFilter.swift; sourceTree = "<group>"; };
+		AC4421687EB1254EC7BAD4877AED718B /* Canvas.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Canvas.swift; path = Picasso/Canvas.swift; sourceTree = "<group>"; };
+		B3A4440C29817F7F33137DC96F65895D /* HighPassFilter.cikernel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = HighPassFilter.cikernel; path = Lady/Resources/HighPassFilter.cikernel; sourceTree = "<group>"; };
+		BAD89B5413BB1266C1DA6C668521C908 /* Renderable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Renderable.swift; path = Picasso/Renderable.swift; sourceTree = "<group>"; };
+		C0C167D5139B63C20C403E436552588E /* Pods_MED.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MED.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8DEC72C734D57A1568A17D4BDE3F169 /* RGBToneCurveFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RGBToneCurveFilter.swift; path = Lady/RGBToneCurveFilter.swift; sourceTree = "<group>"; };
+		CAFE3C080A778DC2A5764806DC8722E4 /* HighPassSkinSmoothingMaskBoostFilter.cikernel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = HighPassSkinSmoothingMaskBoostFilter.cikernel; path = Lady/Resources/HighPassSkinSmoothingMaskBoostFilter.cikernel; sourceTree = "<group>"; };
+		CEC22C73C1608DFA5D5D78BDCB218219 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		D16B4E6321294C6844F4F50280F510FB /* Pods-MED-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-MED-umbrella.h"; sourceTree = "<group>"; };
+		D367382E85456E996E5B26E761457955 /* RGBToneCurveFilter.cikernel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RGBToneCurveFilter.cikernel; path = Lady/Resources/RGBToneCurveFilter.cikernel; sourceTree = "<group>"; };
+		D4C9FD0557A2C211D9DBB9A5744E3643 /* HighPassFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HighPassFilter.swift; path = Lady/HighPassFilter.swift; sourceTree = "<group>"; };
+		E76E463C8A4FD48EFB80F239C3ACC77E /* Lady-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Lady-prefix.pch"; sourceTree = "<group>"; };
+		E78A5B991B004CBCE42673F8304DF35F /* Picasso.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Picasso.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9BD227D45DC65C1F5602F069D5B0391 /* Pods-MED-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MED-dummy.m"; sourceTree = "<group>"; };
+		ECD0584B5CF7CD11248F2050C9DF642D /* Lady.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Lady.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F853291AD6109FBD932B16260FEE1DD5 /* Pods-MED-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-MED-resources.sh"; sourceTree = "<group>"; };
+		F923DF7CB38BDAD340AD140F351F0560 /* Picasso-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Picasso-dummy.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B55CD01706BA32F598D37DA35DB448CA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B82A039D4345FE2AC1DDD66086542CFB /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F456E1BD8B36B7B78CD16D4A249ACB57 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB0FFF1CE176FF4A85FF44F8D95CE0D1 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FDE157D88C2EAA5E1378F2BB9131DF8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				582120FE2A68E51F20727E19D4671090 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		04813260657660FFB10EF2FB83B241AE /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				4C55A115BB032C55FC59E15DA9DBE59D /* Info.plist */,
+				53FC4F4960195C254A01E237A4C52730 /* Lady.modulemap */,
+				06B4E6EF9BCAC96EF8B810E8723FCB56 /* Lady.xcconfig */,
+				06E067D18C0A644577351B154807AED7 /* Lady-dummy.m */,
+				E76E463C8A4FD48EFB80F239C3ACC77E /* Lady-prefix.pch */,
+				5D3A9472E15455D71BD4ED10F3A7EA5D /* Lady-umbrella.h */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/Lady";
+			sourceTree = "<group>";
+		};
+		0D818B33088B8D7961B0593E7F0018F5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				ECD0584B5CF7CD11248F2050C9DF642D /* Lady.framework */,
+				E78A5B991B004CBCE42673F8304DF35F /* Picasso.framework */,
+				C0C167D5139B63C20C403E436552588E /* Pods_MED.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		31C9894E16868E66E0E725A3424D0854 /* Picasso */ = {
+			isa = PBXGroup;
+			children = (
+				AC4421687EB1254EC7BAD4877AED718B /* Canvas.swift */,
+				8CC4785523B08C871DEE9BEA5C2676C0 /* GLKRenderer.swift */,
+				19C2D62084F60BBA9391C660C7806C9A /* MetalRenderer.swift */,
+				BAD89B5413BB1266C1DA6C668521C908 /* Renderable.swift */,
+				7543DF735253C36FCB7EC57555F5D529 /* Support Files */,
+			);
+			path = Picasso;
+			sourceTree = "<group>";
+		};
+		39768CCF0CB697253AD1FD659C05E8BC /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				A86A2D5E00EDFF2BEA6115F115D24AFE /* Pods-MED */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		3DCAB2B7CDE207B3958B6CB957FCC758 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				CEC22C73C1608DFA5D5D78BDCB218219 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		7543DF735253C36FCB7EC57555F5D529 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				756AB072D0EBB791D623496FD6344B02 /* Info.plist */,
+				818951EAB994494AD9368DF28079B788 /* Picasso.modulemap */,
+				0AC888C86390769929D0DCD72D5F2C79 /* Picasso.xcconfig */,
+				F923DF7CB38BDAD340AD140F351F0560 /* Picasso-dummy.m */,
+				5F53B2A1513CE8749B8E43D5F64971E3 /* Picasso-prefix.pch */,
+				65B23AF0EAE3480C661AC0531F3DED6C /* Picasso-umbrella.h */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/Picasso";
+			sourceTree = "<group>";
+		};
+		7DB346D0F39D3F0E887471402A8071AB = {
+			isa = PBXGroup;
+			children = (
+				93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */,
+				BC3CA7F9E30CC8F7E2DD044DD34432FC /* Frameworks */,
+				F09DA98CE0947540BEDD650F45186838 /* Pods */,
+				0D818B33088B8D7961B0593E7F0018F5 /* Products */,
+				39768CCF0CB697253AD1FD659C05E8BC /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		8D09286B3F5637C3E800E9F491B3EDA3 /* Lady */ = {
+			isa = PBXGroup;
+			children = (
+				A3FC969B1F150EE7BC455496862A6716 /* GreenBlueChannelOverlayBlendFilter.swift */,
+				D4C9FD0557A2C211D9DBB9A5744E3643 /* HighPassFilter.swift */,
+				89F6EBB00754685694D4A064CDC8D76D /* HighPassSkinSmoothingFilter.swift */,
+				2589027450B3D294CB8024C614CC69CB /* HighPassSkinSmoothingMaskBoostFilter.swift */,
+				6C13F2B3CC582BB4A09EABA3DBADB423 /* HighPassSkinSmoothingMaskGenerator.swift */,
+				C8DEC72C734D57A1568A17D4BDE3F169 /* RGBToneCurveFilter.swift */,
+				F0118BDEF407FCF866E310F786BABC90 /* Resources */,
+				04813260657660FFB10EF2FB83B241AE /* Support Files */,
+			);
+			path = Lady;
+			sourceTree = "<group>";
+		};
+		A86A2D5E00EDFF2BEA6115F115D24AFE /* Pods-MED */ = {
+			isa = PBXGroup;
+			children = (
+				67C5FA1A5B109A0B0EA7A3115458A545 /* Info.plist */,
+				894F73C67346FC6DED31385146ACF3A7 /* Pods-MED.modulemap */,
+				1A5804B3E72244A7D32B808F5B67E3DA /* Pods-MED-acknowledgements.markdown */,
+				15A2B43C712B560404A3414BA380B3ED /* Pods-MED-acknowledgements.plist */,
+				E9BD227D45DC65C1F5602F069D5B0391 /* Pods-MED-dummy.m */,
+				096D954465582D70778A45EF81A0AD4A /* Pods-MED-frameworks.sh */,
+				F853291AD6109FBD932B16260FEE1DD5 /* Pods-MED-resources.sh */,
+				D16B4E6321294C6844F4F50280F510FB /* Pods-MED-umbrella.h */,
+				5F6764018A6E972A31F51414B44DE6EE /* Pods-MED.debug.xcconfig */,
+				766F78B3CBC6BFEE3DDE7EA755A84939 /* Pods-MED.release.xcconfig */,
+			);
+			name = "Pods-MED";
+			path = "Target Support Files/Pods-MED";
+			sourceTree = "<group>";
+		};
+		BC3CA7F9E30CC8F7E2DD044DD34432FC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3DCAB2B7CDE207B3958B6CB957FCC758 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F0118BDEF407FCF866E310F786BABC90 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				599FB821A94A2908E32D71066D72ED94 /* GreenBlueChannelOverlayBlendFilter.cikernel */,
+				B3A4440C29817F7F33137DC96F65895D /* HighPassFilter.cikernel */,
+				CAFE3C080A778DC2A5764806DC8722E4 /* HighPassSkinSmoothingMaskBoostFilter.cikernel */,
+				D367382E85456E996E5B26E761457955 /* RGBToneCurveFilter.cikernel */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		F09DA98CE0947540BEDD650F45186838 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8D09286B3F5637C3E800E9F491B3EDA3 /* Lady */,
+				31C9894E16868E66E0E725A3424D0854 /* Picasso */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		0A6B5F54FFD23F412FA9CE21BC8309CF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				739DED37D83141CB30CFD2AE8ABFB843 /* Lady-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6440710B49372363893282A9D2F73E53 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				977421D1141DE9BB46BD37EED800E6D3 /* Picasso-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C892EDB532DEB4D8B3B79B2E7118275D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4D9021A618B8747E04F9250B8D1A4F02 /* Pods-MED-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4E3BE8C1C90E096A4453CEFC125BA4FC /* Pods-MED */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4BB505CEEF2E254DCC4980DA43350977 /* Build configuration list for PBXNativeTarget "Pods-MED" */;
+			buildPhases = (
+				FE9C985F893C12033B27CA0EB8ED81E4 /* Sources */,
+				F456E1BD8B36B7B78CD16D4A249ACB57 /* Frameworks */,
+				C892EDB532DEB4D8B3B79B2E7118275D /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				45EB355781C709334D2D46D652A4D96E /* PBXTargetDependency */,
+				339483687687A119E355874671FB1752 /* PBXTargetDependency */,
+			);
+			name = "Pods-MED";
+			productName = "Pods-MED";
+			productReference = C0C167D5139B63C20C403E436552588E /* Pods_MED.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		64F21B2AEB96C73144B6D91A219A9862 /* Picasso */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A708B24E66273AE2664E63ED0523C955 /* Build configuration list for PBXNativeTarget "Picasso" */;
+			buildPhases = (
+				D1A12D9DA9520228AAFA6ACA6238AF2F /* Sources */,
+				FDE157D88C2EAA5E1378F2BB9131DF8A /* Frameworks */,
+				6440710B49372363893282A9D2F73E53 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Picasso;
+			productName = Picasso;
+			productReference = E78A5B991B004CBCE42673F8304DF35F /* Picasso.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		FACAF97369C35F0CA0F83893358EE685 /* Lady */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0595B692F1EAB829719FC99DD5D8D41B /* Build configuration list for PBXNativeTarget "Lady" */;
+			buildPhases = (
+				B6BEE635638057A5477989E21BDA2AA2 /* Sources */,
+				B55CD01706BA32F598D37DA35DB448CA /* Frameworks */,
+				2D077AC2CCBE7CA7E58481A127BE1777 /* Resources */,
+				0A6B5F54FFD23F412FA9CE21BC8309CF /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Lady;
+			productName = Lady;
+			productReference = ECD0584B5CF7CD11248F2050C9DF642D /* Lady.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41D8CD98F00B204E9800998ECF8427E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0700;
+			};
+			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
+			productRefGroup = 0D818B33088B8D7961B0593E7F0018F5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FACAF97369C35F0CA0F83893358EE685 /* Lady */,
+				64F21B2AEB96C73144B6D91A219A9862 /* Picasso */,
+				4E3BE8C1C90E096A4453CEFC125BA4FC /* Pods-MED */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2D077AC2CCBE7CA7E58481A127BE1777 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6621F5457320DE82BEF76C4DCAD17D19 /* GreenBlueChannelOverlayBlendFilter.cikernel in Resources */,
+				00DEFCC6D779EF20766C010BA70F31E9 /* HighPassFilter.cikernel in Resources */,
+				93D73DEF75BED9131FAD5DD0B0799218 /* HighPassSkinSmoothingMaskBoostFilter.cikernel in Resources */,
+				D8ACF71B33A1AA81B791FFFFF6E4F621 /* RGBToneCurveFilter.cikernel in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B6BEE635638057A5477989E21BDA2AA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32DF3E201CF9CDD607CD53C18CA7BE2F /* GreenBlueChannelOverlayBlendFilter.swift in Sources */,
+				5D8A208F62F98A7A1A3B0364B0175F3D /* HighPassFilter.swift in Sources */,
+				9F41EBA7DF5EAF721DEB0B02083D83DF /* HighPassSkinSmoothingFilter.swift in Sources */,
+				F9981C200EFCB87B2481E96CCF3DB839 /* HighPassSkinSmoothingMaskBoostFilter.swift in Sources */,
+				2ED0579E4CCC254DFE6B4F21D7797352 /* HighPassSkinSmoothingMaskGenerator.swift in Sources */,
+				5FC55217D3557D47D4AFF0581C7E36A8 /* Lady-dummy.m in Sources */,
+				253B02CC4F8CD6BBC023DF17B9C460A0 /* RGBToneCurveFilter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D1A12D9DA9520228AAFA6ACA6238AF2F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE697E8D3DB4D11AC2410B70DA62C807 /* Canvas.swift in Sources */,
+				118CB6D2375A4864EB40EE882EED2576 /* GLKRenderer.swift in Sources */,
+				1A188E0E85C8468D9E0D704DA1BDF0C9 /* MetalRenderer.swift in Sources */,
+				C4DFB1090BD29221C124402799773751 /* Picasso-dummy.m in Sources */,
+				A6B1F24676222924D105D8E2E84C65DA /* Renderable.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE9C985F893C12033B27CA0EB8ED81E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				838B2E756A6E2D9ABE38EF10248777D2 /* Pods-MED-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		339483687687A119E355874671FB1752 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Picasso;
+			target = 64F21B2AEB96C73144B6D91A219A9862 /* Picasso */;
+			targetProxy = E9075D85DB39CCFECB6ECE4353B38182 /* PBXContainerItemProxy */;
+		};
+		45EB355781C709334D2D46D652A4D96E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Lady;
+			target = FACAF97369C35F0CA0F83893358EE685 /* Lady */;
+			targetProxy = 8049F2293BA141BD3DCA8F325A1C65D6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1C69D3677E709190C705C2B4421E15FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5F6764018A6E972A31F51414B44DE6EE /* Pods-MED.debug.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-MED/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-MED/Pods-MED.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_MED;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		42D71254E50803D5EB2A5702B88731BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 766F78B3CBC6BFEE3DDE7EA755A84939 /* Pods-MED.release.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-MED/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-MED/Pods-MED.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_MED;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		47BEF9D903506B003EA5C2B249729489 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				ONLY_ACTIVE_ARCH = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		5D7A896F56927BFB919287BCA0797ABA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0AC888C86390769929D0DCD72D5F2C79 /* Picasso.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Picasso/Picasso-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Picasso/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Picasso/Picasso.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = Picasso;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A4A263EA1E99FFD3C155EF0D818326F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 06B4E6EF9BCAC96EF8B810E8723FCB56 /* Lady.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Lady/Lady-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Lady/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Lady/Lady.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = Lady;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		AAF678CED40D3499169D10F63CA0719E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C0BBEB076B37A0E2E77CA3911FBE54D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 06B4E6EF9BCAC96EF8B810E8723FCB56 /* Lady.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Lady/Lady-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Lady/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Lady/Lady.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = Lady;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		F21C6C29CA38319760E7DE9981A6DB46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0AC888C86390769929D0DCD72D5F2C79 /* Picasso.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Picasso/Picasso-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Picasso/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Picasso/Picasso.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = Picasso;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0595B692F1EAB829719FC99DD5D8D41B /* Build configuration list for PBXNativeTarget "Lady" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0BBEB076B37A0E2E77CA3911FBE54D3 /* Debug */,
+				A4A263EA1E99FFD3C155EF0D818326F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47BEF9D903506B003EA5C2B249729489 /* Debug */,
+				AAF678CED40D3499169D10F63CA0719E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4BB505CEEF2E254DCC4980DA43350977 /* Build configuration list for PBXNativeTarget "Pods-MED" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1C69D3677E709190C705C2B4421E15FE /* Debug */,
+				42D71254E50803D5EB2A5702B88731BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A708B24E66273AE2664E63ED0523C955 /* Build configuration list for PBXNativeTarget "Picasso" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F21C6C29CA38319760E7DE9981A6DB46 /* Debug */,
+				5D7A896F56927BFB919287BCA0797ABA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+}

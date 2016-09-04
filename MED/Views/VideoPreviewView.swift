@@ -9,17 +9,11 @@
 import UIKit
 import Medusa
 import AVFoundation
+import Picasso
 
-class VideoPreviewView: UIView {
+class VideoPreviewView: Canvas {
 
     var cameraDevice: AVCaptureDevice?
-
-    var previewLayer: AVCaptureVideoPreviewLayer? {
-        willSet {
-            (layer as? AVCaptureVideoPreviewLayer)?.videoGravity = AVLayerVideoGravityResizeAspectFill
-            (layer as? AVCaptureVideoPreviewLayer)?.session = newValue?.session
-        }
-    }
 
     private let focusView = FocusOverlay(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
 
@@ -33,10 +27,6 @@ class VideoPreviewView: UIView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configure()
-    }
-
-    override class func layerClass() -> AnyClass {
-        return AVCaptureVideoPreviewLayer.self
     }
 
     private func configure() {
