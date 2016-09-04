@@ -15,6 +15,8 @@ public enum MedusaError: ErrorType {
 
 public protocol CaptureSessionCoordinatorDelegate: class {
 
+    func coordinatorVideoDataOutput(didOutputSampleBuffer sampleBuffer: CMSampleBuffer, completionHandler: ((CIImage) -> Void))
+
     func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator)
 
     func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
@@ -88,12 +90,14 @@ public class CaptureSessionCoordinator: NSObject {
 extension CaptureSessionCoordinator {
 
     public func startRunning() {
+        if captureSession.running { return }
         dispatch_sync(sessionQueue) {
             self.captureSession.startRunning()
         }
     }
 
     public func stopRunning() {
+        if !captureSession.running { return }
         dispatch_sync(sessionQueue) {
             self.captureSession.stopRunning()
         }

@@ -79,7 +79,7 @@ class AssetWriterCoordinator {
     private var didStartedSession = false
 
     private lazy var context: CIContext = {
-        let eaglContext = EAGLContext(API: EAGLRenderingAPI.OpenGLES2)
+        let eaglContext = EAGLContext(API: .OpenGLES2)
         let options = [kCIContextWorkingColorSpace: NSNull()]
         return CIContext(EAGLContext: eaglContext, options: options)
     }()
