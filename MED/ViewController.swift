@@ -141,6 +141,9 @@ class ViewController: UIViewController {
                 saveButton.hidden = true
             }
 
+            // delete the lastest video
+            captureSessionCoordinator?.removeLastSegment()
+
         } else {
 
             progressView.trackViews.last?.backgroundColor = UIColor.brownColor()

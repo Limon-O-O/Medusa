@@ -393,16 +393,12 @@ extension CaptureSessionAssetWriterCoordinator {
         }
     }
 
-    private func makeNewFileURL() -> NSURL {
-
-        let suffix = "-medusa_segment\(segments.count)"
-
-        let destinationPath = String(attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
-
-        let newAbsoluteString = destinationPath + suffix + attributes.mediaFormat.filenameExtension
-
-        return  NSURL(string: newAbsoluteString)!
+    public func removeLastSegment() {
+        guard let lastSegment = segments.last else { return }
+        NSFileManager.med_removeExistingFile(byURL: lastSegment.URL)
+        segments.removeLast()
     }
+
 }
 
 // MARK: - AssetWriterCoordinatorDelegate
@@ -537,6 +533,17 @@ extension CaptureSessionAssetWriterCoordinator {
         }
 
         segments.removeAll()
+    }
+
+    private func makeNewFileURL() -> NSURL {
+
+        let suffix = "-medusa_segment\(segments.count)"
+
+        let destinationPath = String(attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
+
+        let newAbsoluteString = destinationPath + suffix + attributes.mediaFormat.filenameExtension
+
+        return  NSURL(string: newAbsoluteString)!
     }
 }
 
