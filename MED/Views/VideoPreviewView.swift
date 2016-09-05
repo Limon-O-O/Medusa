@@ -15,7 +15,7 @@ class VideoPreviewView: Canvas {
 
     var cameraDevice: AVCaptureDevice?
 
-    private let focusView = FocusOverlay(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
+    private let focusView = FocusOverlay(frame: CGRect(x: 0.0, y: 0.0, width: 80.0, height: 80.0))
 
     override init(frame: CGRect) {
 
@@ -71,26 +71,26 @@ class VideoPreviewView: Canvas {
     @objc private func focus(gesture: UITapGestureRecognizer) {
 
         let point = gesture.locationInView(self)
-        let focusPoint = CGPointMake(point.y / bounds.size.height, 1 - point.x / bounds.size.width);
+        let focusPoint = CGPointMake(point.y / bounds.size.height, 1.0 - point.x / bounds.size.width);
 
         guard focusCamera(to: focusPoint) else { return }
 
         focusView.hidden = false
         focusView.center = point
-        focusView.alpha = 0
+        focusView.alpha = 0.0
         focusView.transform = CGAffineTransformMakeScale(1.2, 1.2)
 
         bringSubviewToFront(focusView)
 
-        UIView.animateKeyframesWithDuration(0.8, delay: 0, options: UIViewKeyframeAnimationOptions(), animations: {
+        UIView.animateKeyframesWithDuration(0.8, delay: 0.0, options: UIViewKeyframeAnimationOptions(), animations: {
 
-            UIView.addKeyframeWithRelativeStartTime(0, relativeDuration: 0.15, animations: { () -> Void in
-                self.focusView.alpha = 1
+            UIView.addKeyframeWithRelativeStartTime(0.0, relativeDuration: 0.15, animations: { () -> Void in
+                self.focusView.alpha = 1.0
                 self.focusView.transform = CGAffineTransformIdentity
             })
 
             UIView.addKeyframeWithRelativeStartTime(0.80, relativeDuration: 0.20, animations: { () -> Void in
-                self.focusView.alpha = 0
+                self.focusView.alpha = 0.0
                 self.focusView.transform = CGAffineTransformMakeScale(0.8, 0.8)
             })
 
