@@ -29,6 +29,7 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var amountSlider: UISlider! {
         didSet {
+            amountSlider.hidden = true
             amountSlider.setThumbImage(UIImage(named: "slider_thumb"), forState: .Normal)
         }
     }
@@ -121,6 +122,7 @@ class ViewController: UIViewController {
         filter = !sender.selected ? HighPassSkinSmoothingFilter() : nil
         amountSlider.value = Float(filter?.inputAmount ?? 0.0)
 
+        amountSlider.hidden = !amountSlider.hidden
         sender.selected = !sender.selected
     }
 
