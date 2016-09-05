@@ -49,10 +49,7 @@ public struct Attributes {
     public let videoCompressionSettings: [String: AnyObject]
     public let audioCompressionSettings: [String: AnyObject]
 
-    public let videoDecompressionSettings: [String: AnyObject]
-    public let audioDecompressionSettings: [String: AnyObject]
-
-    public init(destinationURL: NSURL, videoDimensions: CMVideoDimensions, mediaFormat: MediaFormat = .MOV, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil, videoDecompressionSettings: [String: AnyObject]? = nil, audioDecompressionSettings: [String: AnyObject]? = nil) {
+    public init(destinationURL: NSURL, videoDimensions: CMVideoDimensions, mediaFormat: MediaFormat = .MOV, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil) {
 
         if !destinationURL.absoluteString.lowercaseString.containsString(mediaFormat.filenameExtension) {
             fatalError("DestinationURL is Invalid, must need filename extension.")
@@ -77,18 +74,7 @@ public struct Attributes {
             AVEncoderBitRateKey: 128000
         ]
 
-        // Decompress source video to 32ARGB.
-        let defaultVideoDecompressionSettings: [String: AnyObject] = [
-            String(kCVPixelBufferPixelFormatTypeKey): NSNumber(unsignedInt: kCVPixelFormatType_32ARGB),
-            String(kCVPixelBufferIOSurfacePropertiesKey): [:]
-        ]
-
-        let defaultAudioDecompressionSettings: [String: AnyObject] = [AVFormatIDKey: NSNumber(unsignedInt: kAudioFormatLinearPCM)]
-
         self.audioCompressionSettings = audioCompressionSettings ?? defaultAudioCompressionSettings
-
-        self.audioDecompressionSettings = audioDecompressionSettings ?? defaultAudioDecompressionSettings
-        self.videoDecompressionSettings = videoDecompressionSettings ?? defaultVideoDecompressionSettings
     }
 
 }
