@@ -16,7 +16,7 @@ Swift 2.0
 ### CocoaPods
 
 ```ruby
-pod 'Medusa', '~> 0.2'
+pod 'Medusa', '~> 0.3'
 ```
 
 
@@ -26,3 +26,5 @@ Contact me on [Twitter](https://twitter.com/Limon______) or [Weibo](http://weibo
 
 ## License
 Medusa is available under the MIT license. See the LICENSE file for more info.
+
+
