@@ -71,8 +71,9 @@ class VideoPreviewView: Canvas {
     @objc private func focus(gesture: UITapGestureRecognizer) {
 
         let point = gesture.locationInView(self)
+        let focusPoint = CGPointMake(point.y / bounds.size.height, 1 - point.x / bounds.size.width);
 
-        guard focusCamera(point) else { return }
+        guard focusCamera(to: focusPoint) else { return }
 
         focusView.hidden = false
         focusView.center = point
@@ -98,11 +99,9 @@ class VideoPreviewView: Canvas {
         })
     }
 
-    private func focusCamera(toPoint: CGPoint) -> Bool {
+    private func focusCamera(to point: CGPoint) -> Bool {
 
         guard let device = cameraDevice else { return false }
-
-        guard let focusPoint = (layer as? AVCaptureVideoPreviewLayer)?.captureDevicePointOfInterestForPoint(toPoint) else { return false }
 
         do {
             try device.lockForConfiguration()
@@ -115,7 +114,7 @@ class VideoPreviewView: Canvas {
         }
 
         if device.focusPointOfInterestSupported {
-            device.focusPointOfInterest = focusPoint
+            device.focusPointOfInterest = point
         }
 
         if device.isExposureModeSupported(.ContinuousAutoExposure) {
@@ -123,7 +122,7 @@ class VideoPreviewView: Canvas {
         }
         
         if device.exposurePointOfInterestSupported {
-            device.exposurePointOfInterest = focusPoint
+            device.exposurePointOfInterest = point
         }
         
         device.unlockForConfiguration()
