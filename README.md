@@ -16,7 +16,7 @@ Swift 2.0
 ### CocoaPods
 
 ```ruby
-pod 'Medusa', '~> 0.3'
+pod 'Medusa', '~> 0.3.1'
 ```
 
 
