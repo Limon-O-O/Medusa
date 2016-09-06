@@ -201,12 +201,12 @@
 		8D09286B3F5637C3E800E9F491B3EDA3 /* Lady */ = {
 			isa = PBXGroup;
 			children = (
-				A3FC969B1F150EE7BC455496862A6716 /* GreenBlueChannelOverlayBlendFilter.swift */,
 				D4C9FD0557A2C211D9DBB9A5744E3643 /* HighPassFilter.swift */,
+				C8DEC72C734D57A1568A17D4BDE3F169 /* RGBToneCurveFilter.swift */,
 				89F6EBB00754685694D4A064CDC8D76D /* HighPassSkinSmoothingFilter.swift */,
 				2589027450B3D294CB8024C614CC69CB /* HighPassSkinSmoothingMaskBoostFilter.swift */,
 				6C13F2B3CC582BB4A09EABA3DBADB423 /* HighPassSkinSmoothingMaskGenerator.swift */,
-				C8DEC72C734D57A1568A17D4BDE3F169 /* RGBToneCurveFilter.swift */,
+				A3FC969B1F150EE7BC455496862A6716 /* GreenBlueChannelOverlayBlendFilter.swift */,
 				F0118BDEF407FCF866E310F786BABC90 /* Resources */,
 				04813260657660FFB10EF2FB83B241AE /* Support Files */,
 			);

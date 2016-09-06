@@ -112,14 +112,15 @@ class ViewController: UIViewController {
     }
 
     @IBAction func amountValueChanged(sender: UISlider) {
-        filter?.inputAmount = CGFloat(sender.value)
+        filter?.inputAmount = sender.value
         print("amountValue: \(sender.value)")
     }
 
     @IBAction private func skinSmooth(sender: UIButton) {
 
         filter = !sender.selected ? HighPassSkinSmoothingFilter() : nil
-        amountSlider.value = Float(filter?.inputAmount ?? 0.0)
+        amountSlider.value = amountSlider.value == 0.0 ? Float(filter?.inputAmount ?? 0.0) : amountSlider.value
+        filter?.inputAmount = amountSlider.value
 
         amountSlider.hidden = !amountSlider.hidden
         sender.selected = !sender.selected
@@ -182,7 +183,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
         var outputImage = CIImage(CVPixelBuffer: imageBuffer)
 
         if let filter = filter {
-            filter.setValue(outputImage, forKey: kCIInputImageKey)
+            filter.inputImage = outputImage
             if let newOutputImage = filter.outputImage {
                 outputImage = newOutputImage
             }
