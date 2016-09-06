@@ -78,14 +78,13 @@ class ViewController: UIViewController {
             switch status {
 
             case .Began:
-                break
+                captureSessionCoordinator.startRecording()
 
             case .End:
                 captureSessionCoordinator.pause()
 
             case .Press:
-                captureSessionCoordinator.startRecording()
-
+                break
             }
 
         }
@@ -136,11 +135,14 @@ class ViewController: UIViewController {
 
             let delta = progressView.rollback()
 
-            totalSeconds -= (maxTime * delta)
+            totalSeconds = max(totalSeconds - (maxTime * delta), 0.0)
+
+            print("totalSeconds \(totalSeconds) (maxTime * delta) \((maxTime * delta))")
 
             if progressView.trackViews.isEmpty {
                 rollbackButton.hidden = true
                 saveButton.hidden = true
+                totalSeconds = 0.0
             }
 
             // delete the lastest video
