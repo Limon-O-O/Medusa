@@ -432,7 +432,7 @@ extension CaptureSessionAssetWriterCoordinator {
     }
 
     private func exportSegmentsAsynchronously(completionHandler: (error: NSError?) -> Void) {
-        Exporter.exportSegmentsAsynchronously(segments, to: attributes.destinationURL, transition: segmentsTransition, presetName: presetName, fileFormat: attributes.mediaFormat.fileFormat, completionHandler: completionHandler)
+        Exporter.shareInstance.exportSegmentsAsynchronously(segments, to: attributes.destinationURL, transition: segmentsTransition, presetName: presetName, fileFormat: attributes.mediaFormat.fileFormat, completionHandler: completionHandler)
     }
 
     private func removeSegments() {

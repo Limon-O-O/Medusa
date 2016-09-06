@@ -10,7 +10,11 @@ import AVFoundation
 
 struct Exporter {
 
-    static func exportSegmentsAsynchronously(segments: [Segment], to destinationURL: NSURL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (error: NSError?) -> Void) {
+    static let shareInstance = Exporter()
+
+    private init() {}
+
+    func exportSegmentsAsynchronously(segments: [Segment], to destinationURL: NSURL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (error: NSError?) -> Void) {
 
         if segments.isEmpty {
             completionHandler(error:  NSError(domain: "Segments is empty", code: 0, userInfo: nil))
@@ -76,10 +80,9 @@ struct Exporter {
         default:
             break
         }
-        
     }
 
-    private static func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
+    private func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
 
         var timeRange = track.timeRange
         let time = CMTimeAdd(time, timeRange.start)
@@ -109,7 +112,7 @@ struct Exporter {
         return time
     }
 
-    private static func assetRepresentingSegments(segments: [Segment]) -> AVAsset? {
+    private func assetRepresentingSegments(segments: [Segment]) -> AVAsset? {
 
         if segments.isEmpty {
             return nil
@@ -129,7 +132,7 @@ struct Exporter {
         }
     }
 
-    private static func appendSegmentsToComposition(composition: AVMutableComposition, segments: [Segment]) {
+    private func appendSegmentsToComposition(composition: AVMutableComposition, segments: [Segment]) {
 
         var audioTrack: AVMutableCompositionTrack? = nil
         var videoTrack: AVMutableCompositionTrack? = nil
