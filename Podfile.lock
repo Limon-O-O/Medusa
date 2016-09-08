@@ -1,31 +1,31 @@
 PODS:
-  - Lady (0.1)
-  - Picasso (0.2)
+  - Lady (0.2.1)
+  - Picasso (0.3)
 
 DEPENDENCIES:
-  - Lady (from `https://github.com/Limon-O-O/Lady.git`, branch `master`)
-  - Picasso (from `https://github.com/Limon-O-O/Picasso.git`, branch `master`)
+  - Lady (from `https://github.com/Limon-O-O/Lady.git`, branch `swift3`)
+  - Picasso (from `https://github.com/Limon-O-O/Picasso.git`, branch `swift3`)
 
 EXTERNAL SOURCES:
   Lady:
-    :branch: master
+    :branch: swift3
     :git: https://github.com/Limon-O-O/Lady.git
   Picasso:
-    :branch: master
+    :branch: swift3
     :git: https://github.com/Limon-O-O/Picasso.git
 
 CHECKOUT OPTIONS:
   Lady:
-    :commit: 3691b7981e49cff8253176c44e64e9894840e2c7
+    :commit: c64555e98ba9e577e1b72b8c3f5732da4c9896b9
     :git: https://github.com/Limon-O-O/Lady.git
   Picasso:
-    :commit: c447ad43af0643ff2cac2dd666cd0e299eeefe8a
+    :commit: fe760336110016184e1fd102ec02fe2db2ea1720
     :git: https://github.com/Limon-O-O/Picasso.git
 
 SPEC CHECKSUMS:
-  Lady: 74c94316431378f4f9fbfe198ba31f6621e18500
-  Picasso: 74dba5024d8e96d10388e0e11fcab3ad8dc017f2
+  Lady: 91a4b33663356b7085031dffbcc3e442da371b57
+  Picasso: 10b1bccdc2b431d9550bb03ecfd4996ce4bdd193
 
-PODFILE CHECKSUM: f8b194b6347d31466153fdc0df5154a35bc38264
+PODFILE CHECKSUM: ba1dfee9dc21072f027a710263bdeba08f3664c0
 
 COCOAPODS: 1.0.1

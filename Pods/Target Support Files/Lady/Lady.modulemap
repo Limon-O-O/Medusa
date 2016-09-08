@@ -1,6 +1,0 @@
-framework module Lady {
-  umbrella header "Lady-umbrella.h"
-
-  export *
-  module * { export * }
-}

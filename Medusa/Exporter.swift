@@ -12,23 +12,23 @@ struct Exporter {
 
     static let shareInstance = Exporter()
 
-    private init() {}
+    fileprivate init() {}
 
-    func exportSegmentsAsynchronously(segments: [Segment], to destinationURL: NSURL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (error: NSError?) -> Void) {
+    func exportSegmentsAsynchronously(_ segments: [Segment], to destinationURL: Foundation.URL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (_ error: NSError?) -> Void) {
 
         if segments.isEmpty {
-            completionHandler(error:  NSError(domain: "Segments is empty", code: 0, userInfo: nil))
+            completionHandler(NSError(domain: "Segments is empty", code: 0, userInfo: nil))
             return
         }
 
         let assetBuffer: AVAsset?
         let videoComposition: AVVideoComposition?
 
-        NSFileManager.med_removeExistingFile(byURL: destinationURL)
+        FileManager.med_removeExistingFile(at: destinationURL)
 
         if transition {
 
-            let videoAssets = segments.map { AVAsset(URL:$0.URL) }
+            let videoAssets = segments.map { AVAsset(url:$0.URL as Foundation.URL) }
 
             var builder = TransitionCompositionBuilder(assets: videoAssets)
 
@@ -42,14 +42,14 @@ struct Exporter {
         }
 
         guard let asset = assetBuffer else {
-            completionHandler(error:  NSError(domain: "AVAsset is nil", code: 0, userInfo: nil))
+            completionHandler(NSError(domain: "AVAsset is nil", code: 0, userInfo: nil))
             return
         }
 
         let assetExportSession = AVAssetExportSession(asset: asset.copy() as! AVAsset, presetName: presetName)
 
         guard let unwrappedExportSession = assetExportSession else {
-            completionHandler(error: NSError(domain: "AVAssetExportSession Error", code: 0, userInfo: nil))
+            completionHandler(NSError(domain: "AVAssetExportSession Error", code: 0, userInfo: nil))
             return
         }
 
@@ -61,28 +61,28 @@ struct Exporter {
             unwrappedExportSession.videoComposition = unwrappedVideoComposition
         }
 
-        let sessionWaitSemaphore = dispatch_semaphore_create(0)
+        let sessionWaitSemaphore = DispatchSemaphore(value: 0)
 
-        unwrappedExportSession.exportAsynchronouslyWithCompletionHandler() {
-            dispatch_semaphore_signal(sessionWaitSemaphore)
+        unwrappedExportSession.exportAsynchronously() {
+            sessionWaitSemaphore.signal()
             return
         }
 
-        dispatch_semaphore_wait(sessionWaitSemaphore, DISPATCH_TIME_FOREVER)
+        sessionWaitSemaphore.wait(timeout: DispatchTime.distantFuture)
 
         switch unwrappedExportSession.status {
-        case .Completed:
-            completionHandler(error: nil)
+        case .completed:
+            completionHandler(nil)
             
-        case .Failed:
-            completionHandler(error: unwrappedExportSession.error)
+        case .failed:
+            completionHandler(unwrappedExportSession.error as NSError?)
             
         default:
             break
         }
     }
 
-    private func appendTrack(track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
+    fileprivate func appendTrack(_ track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
 
         var timeRange = track.timeRange
         let time = CMTimeAdd(time, timeRange.start)
@@ -98,7 +98,7 @@ struct Exporter {
         if timeRange.duration > kCMTimeZero {
 
             do {
-                try compositionTrack.insertTimeRange(timeRange, ofTrack: track, atTime: time)
+                try compositionTrack.insertTimeRange(timeRange, of: track, at: time)
                 //            print("Inserted %@ at %fs (%fs -> %fs)", track.mediaType, CMTimeGetSeconds(time), CMTimeGetSeconds(timeRange.start), CMTimeGetSeconds(timeRange.duration))
 
             } catch let error as NSError {
@@ -112,7 +112,7 @@ struct Exporter {
         return time
     }
 
-    private func assetRepresentingSegments(segments: [Segment]) -> AVAsset? {
+    fileprivate func assetRepresentingSegments(_ segments: [Segment]) -> AVAsset? {
 
         if segments.isEmpty {
             return nil
@@ -121,7 +121,7 @@ struct Exporter {
         if segments.count == 1 {
 
             let segment = segments.first!
-            return AVAsset(URL: segment.URL)
+            return AVAsset(url: segment.URL as Foundation.URL)
 
         } else {
 
@@ -132,36 +132,36 @@ struct Exporter {
         }
     }
 
-    private func appendSegmentsToComposition(composition: AVMutableComposition, segments: [Segment]) {
+    fileprivate func appendSegmentsToComposition(_ composition: AVMutableComposition, segments: [Segment]) {
 
         var audioTrack: AVMutableCompositionTrack? = nil
         var videoTrack: AVMutableCompositionTrack? = nil
 
         var currentTime = composition.duration
 
-        for (_, segment) in segments.enumerate() {
+        for (_, segment) in segments.enumerated() {
 
-            let asset = AVAsset(URL: segment.URL)
+            let asset = AVAsset(url: segment.URL as Foundation.URL)
 
-            let audioAssetTracks = asset.tracksWithMediaType(AVMediaTypeAudio)
-            let videoAssetTracks = asset.tracksWithMediaType(AVMediaTypeVideo)
+            let audioAssetTracks = asset.tracks(withMediaType: AVMediaTypeAudio)
+            let videoAssetTracks = asset.tracks(withMediaType: AVMediaTypeVideo)
 
             var maxBounds = kCMTimeInvalid
 
             var videoTime = currentTime
 
-            for (_, videoAssetTrack) in videoAssetTracks.enumerate() {
+            for (_, videoAssetTrack) in videoAssetTracks.enumerated() {
 
                 if (videoTrack == nil) {
 
-                    let videoTracks = composition.tracksWithMediaType(AVMediaTypeVideo)
+                    let videoTracks = composition.tracks(withMediaType: AVMediaTypeVideo)
 
                     if (videoTracks.count > 0) {
                         videoTrack = videoTracks.first
 
                     } else {
 
-                        videoTrack = composition.addMutableTrackWithMediaType(AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+                        videoTrack = composition.addMutableTrack(withMediaType: AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
                         videoTrack?.preferredTransform = videoAssetTrack.preferredTransform
                     }
                 }
@@ -172,17 +172,17 @@ struct Exporter {
 
             var audioTime = currentTime
 
-            for (_, audioAssetTrack) in audioAssetTracks.enumerate() {
+            for (_, audioAssetTrack) in audioAssetTracks.enumerated() {
 
                 if audioTrack == nil {
                     
-                    let audioTracks = composition.tracksWithMediaType(AVMediaTypeAudio)
+                    let audioTracks = composition.tracks(withMediaType: AVMediaTypeAudio)
                     
                     if (audioTracks.count > 0) {
                         audioTrack = audioTracks.first
                     } else {
                         
-                        audioTrack = composition.addMutableTrackWithMediaType(AVMediaTypeAudio, preferredTrackID: kCMPersistentTrackID_Invalid)
+                        audioTrack = composition.addMutableTrack(withMediaType: AVMediaTypeAudio, preferredTrackID: kCMPersistentTrackID_Invalid)
                     }
                     
                     audioTime = appendTrack(audioAssetTrack, toCompositionTrack: audioTrack!, atTime: audioTime, withBounds: maxBounds)

@@ -73,7 +73,7 @@ class ViewController: UIViewController {
 
         ringControl.toucheActions = { [weak self] status in
 
-            guard let strongSelf = self, captureSessionCoordinator = strongSelf.captureSessionCoordinator else { return }
+            guard let strongSelf = self, let captureSessionCoordinator = strongSelf.captureSessionCoordinator else { return }
 
             switch status {
 

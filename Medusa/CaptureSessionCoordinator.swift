@@ -8,63 +8,63 @@
 
 import AVFoundation
 
-public enum MedusaError: ErrorType {
-    case CaptureDeviceError
-    case AudioDeviceError
+public enum MedusaError: Error {
+    case captureDeviceError
+    case audioDeviceError
 }
 
 public protocol CaptureSessionCoordinatorDelegate: class {
 
     func coordinatorVideoDataOutput(didOutputSampleBuffer sampleBuffer: CMSampleBuffer, completionHandler: ((CIImage) -> Void))
 
-    func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator)
+    func coordinatorWillBeginRecording(_ coordinator: CaptureSessionCoordinator)
 
-    func coordinatorDidBeginRecording(coordinator: CaptureSessionCoordinator)
+    func coordinatorDidBeginRecording(_ coordinator: CaptureSessionCoordinator)
 
-    func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator)
+    func coordinatorWillPauseRecording(_ coordinator: CaptureSessionCoordinator)
 
-    func coordinatorDidPauseRecording(coordinator: CaptureSessionCoordinator, segments: [Segment])
+    func coordinatorDidPauseRecording(_ coordinator: CaptureSessionCoordinator, segments: [Segment])
 
-    func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator)
+    func coordinatorWillDidFinishRecording(_ coordinator: CaptureSessionCoordinator)
 
-    func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, seconds: Float)
+    func coordinatorDidRecording(_ coordinator: CaptureSessionCoordinator, seconds: Float)
 
-    func coordinator(coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: NSURL?, error: NSError?)
+    func coordinator(_ coordinator: CaptureSessionCoordinator, didFinishRecordingToOutputFileURL outputFileURL: URL?, error: NSError?)
 }
 
 public extension CaptureSessionCoordinatorDelegate {
 
-    public func coordinatorWillBeginRecording(coordinator: CaptureSessionCoordinator) {}
+    public func coordinatorWillBeginRecording(_ coordinator: CaptureSessionCoordinator) {}
 
-    public func coordinatorWillPauseRecording(coordinator: CaptureSessionCoordinator) {}
+    public func coordinatorWillPauseRecording(_ coordinator: CaptureSessionCoordinator) {}
 
-    public func coordinatorDidPauseRecording(coordinator: CaptureSessionCoordinator, segments: [Segment]) {}
+    public func coordinatorDidPauseRecording(_ coordinator: CaptureSessionCoordinator, segments: [Segment]) {}
 
-    public func coordinatorDidRecording(coordinator: CaptureSessionCoordinator, seconds: Float) {}
+    public func coordinatorDidRecording(_ coordinator: CaptureSessionCoordinator, seconds: Float) {}
 
-    public func coordinatorWillDidFinishRecording(coordinator: CaptureSessionCoordinator) {}
+    public func coordinatorWillDidFinishRecording(_ coordinator: CaptureSessionCoordinator) {}
 }
 
-public class CaptureSessionCoordinator: NSObject {
+open class CaptureSessionCoordinator: NSObject {
 
-    public var captureDevice: AVCaptureDevice
+    open var captureDevice: AVCaptureDevice
 
-    public let captureSession: AVCaptureSession
+    open let captureSession: AVCaptureSession
 
-    public let previewLayer: AVCaptureVideoPreviewLayer
+    open let previewLayer: AVCaptureVideoPreviewLayer
 
-    private let sessionQueue: dispatch_queue_t
+    fileprivate let sessionQueue: DispatchQueue
 
-    public weak var delegate: CaptureSessionCoordinatorDelegate?
+    open weak var delegate: CaptureSessionCoordinatorDelegate?
 
-    private var captureDeviceInput: AVCaptureDeviceInput
+    fileprivate var captureDeviceInput: AVCaptureDeviceInput
 
-    private var audioDeviceInput: AVCaptureDeviceInput
+    fileprivate var audioDeviceInput: AVCaptureDeviceInput
 
 
-    public init(sessionPreset: String, position: AVCaptureDevicePosition = .Back) throws {
+    public init(sessionPreset: String, position: AVCaptureDevicePosition = .back) throws {
 
-        captureDeviceInput = try AVCaptureDeviceInput.med_captureDeviceInput(byPosition: position)
+        captureDeviceInput = try AVCaptureDeviceInput.med_captureDeviceInput(withPosition: position)
 
         audioDeviceInput = try AVCaptureDeviceInput.med_audioDeviceInput()
 
@@ -75,7 +75,7 @@ public class CaptureSessionCoordinator: NSObject {
 
         self.captureSession  = captureSession
         self.captureDevice   = captureDeviceInput.device
-        self.sessionQueue    = dispatch_queue_create("top.limon.capturepipeline.session", DISPATCH_QUEUE_SERIAL)
+        self.sessionQueue    = DispatchQueue(label: "top.limon.capturepipeline.session", attributes: [])
         self.previewLayer    = AVCaptureVideoPreviewLayer(session: captureSession)
 
         super.init()
@@ -90,24 +90,24 @@ public class CaptureSessionCoordinator: NSObject {
 extension CaptureSessionCoordinator {
 
     public func startRunning() {
-        if captureSession.running { return }
-        dispatch_sync(sessionQueue) {
+        if captureSession.isRunning { return }
+        sessionQueue.sync {
             self.captureSession.startRunning()
         }
     }
 
     public func stopRunning() {
-        if !captureSession.running { return }
-        dispatch_sync(sessionQueue) {
+        if !captureSession.isRunning { return }
+        sessionQueue.sync {
             self.captureSession.stopRunning()
         }
     }
 
     public func swapCaptureDevicePosition() throws {
 
-        let newPosition = captureDevice.position == .Back ? AVCaptureDevicePosition.Front : .Back
+        let newPosition = captureDevice.position == .back ? AVCaptureDevicePosition.front : .back
 
-        let newCaptureDeviceInput = try AVCaptureDeviceInput.med_captureDeviceInput(byPosition: newPosition)
+        let newCaptureDeviceInput = try AVCaptureDeviceInput.med_captureDeviceInput(withPosition: newPosition)
         let newAudioDeviceInput = try AVCaptureDeviceInput.med_audioDeviceInput()
 
         captureSession.beginConfiguration()
@@ -125,13 +125,13 @@ extension CaptureSessionCoordinator {
         captureDevice = captureDeviceInput.device
     }
 
-    public func addOutput(output: AVCaptureOutput, toCaptureSession captureSession: AVCaptureSession) throws {
-        guard captureSession.canAddOutput(output) else { throw MedusaError.CaptureDeviceError }
+    public func addOutput(_ output: AVCaptureOutput, toCaptureSession captureSession: AVCaptureSession) throws {
+        guard captureSession.canAddOutput(output) else { throw MedusaError.captureDeviceError }
         captureSession.addOutput(output)
     }
 
-    public func addInput(input: AVCaptureDeviceInput, toCaptureSession captureSession: AVCaptureSession) throws {
-        guard captureSession.canAddInput(input) else { throw MedusaError.CaptureDeviceError }
+    public func addInput(_ input: AVCaptureDeviceInput, toCaptureSession captureSession: AVCaptureSession) throws {
+        guard captureSession.canAddInput(input) else { throw MedusaError.captureDeviceError }
         captureSession.addInput(input)
     }
 }

@@ -9,28 +9,28 @@
 import AVFoundation.AVMediaFormat
 
 public enum MediaFormat {
-    case MOV
-    case MP4
-    case M4V
+    case mov
+    case mp4
+    case m4V
 
     public var filenameExtension: String {
         switch self {
-        case .MOV:
+        case .mov:
             return ".mov"
-        case .MP4:
+        case .mp4:
             return ".mp4"
-        case .M4V:
+        case .m4V:
             return ".m4v"
         }
     }
 
     public var fileFormat: String {
         switch self {
-        case .MOV:
+        case .mov:
             return AVFileTypeQuickTimeMovie
-        case .MP4:
+        case .mp4:
             return AVFileTypeMPEG4
-        case .M4V:
+        case .m4V:
             return AVFileTypeAppleM4V
         }
     }
@@ -38,9 +38,9 @@ public enum MediaFormat {
 
 public struct Attributes {
 
-    var _destinationURL: NSURL
+    var _destinationURL: Foundation.URL
 
-    public let destinationURL: NSURL
+    public let destinationURL: Foundation.URL
 
     public let mediaFormat: MediaFormat
 
@@ -49,17 +49,17 @@ public struct Attributes {
     public let videoCompressionSettings: [String: AnyObject]
     public let audioCompressionSettings: [String: AnyObject]
 
-    public init(destinationURL: NSURL, videoDimensions: CMVideoDimensions, mediaFormat: MediaFormat = .MOV, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil) {
+    public init(destinationURL: Foundation.URL, videoDimensions: CMVideoDimensions, mediaFormat: MediaFormat = .mov, videoCompressionSettings: [String: AnyObject], audioCompressionSettings: [String: AnyObject]? = nil) {
 
-        if !destinationURL.absoluteString.lowercaseString.containsString(mediaFormat.filenameExtension) {
+        if !destinationURL.absoluteString.lowercased().contains(mediaFormat.filenameExtension) {
             fatalError("DestinationURL is Invalid, must need filename extension.")
         }
 
         var videoCompressionSettingsBuffer = videoCompressionSettings
-        videoCompressionSettingsBuffer[AVVideoWidthKey] = Int(videoDimensions.width)
-        videoCompressionSettingsBuffer[AVVideoHeightKey] = Int(videoDimensions.height)
-        videoCompressionSettingsBuffer[AVVideoCodecKey] = videoCompressionSettings[AVVideoCodecKey] ?? AVVideoCodecH264
-        videoCompressionSettingsBuffer[AVVideoScalingModeKey] = videoCompressionSettings[AVVideoScalingModeKey] ?? AVVideoScalingModeResizeAspectFill
+        videoCompressionSettingsBuffer[AVVideoWidthKey] = Int(videoDimensions.width) as AnyObject
+        videoCompressionSettingsBuffer[AVVideoHeightKey] = Int(videoDimensions.height) as AnyObject
+        videoCompressionSettingsBuffer[AVVideoCodecKey] = videoCompressionSettings[AVVideoCodecKey] ?? AVVideoCodecH264 as AnyObject
+        videoCompressionSettingsBuffer[AVVideoScalingModeKey] = videoCompressionSettings[AVVideoScalingModeKey] ?? AVVideoScalingModeResizeAspectFill as AnyObject
 
         self.mediaFormat = mediaFormat
         self.destinationURL = destinationURL
@@ -68,10 +68,10 @@ public struct Attributes {
         self.videoCompressionSettings = videoCompressionSettingsBuffer
 
         let defaultAudioCompressionSettings: [String: AnyObject] = [
-            AVFormatIDKey: NSNumber(unsignedInt: kAudioFormatMPEG4AAC),
-            AVNumberOfChannelsKey: 1,
-            AVSampleRateKey: 44100,
-            AVEncoderBitRateKey: 128000
+            AVFormatIDKey: NSNumber(value: kAudioFormatMPEG4AAC as UInt32),
+            AVNumberOfChannelsKey: 1 as AnyObject,
+            AVSampleRateKey: 44100 as AnyObject,
+            AVEncoderBitRateKey: 128000 as AnyObject
         ]
 
         self.audioCompressionSettings = audioCompressionSettings ?? defaultAudioCompressionSettings

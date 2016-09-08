@@ -9,6 +9,6 @@
 import AVFoundation
 
 public struct Segment {
-    public let URL: NSURL
+    public let URL: Foundation.URL
     public internal(set) var seconds: Float
 }
