@@ -9,14 +9,14 @@
 
 iOS 8.0
 
-Swift 2.0
+Swift 3.0
 
 ## Installation
 
 ### CocoaPods
 
 ```ruby
-pod 'Medusa', '~> 0.3.1'
+pod 'Medusa', '~> 0.4.0'
 ```
 
 
