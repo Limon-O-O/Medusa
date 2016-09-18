@@ -20,7 +20,7 @@ class FocusOverlay: UIView {
     let lineWidth: CGFloat = 1
 
     init() {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         createLines()
     }
 
@@ -60,8 +60,8 @@ class FocusOverlay: UIView {
                 horizontalFrame = CGRect(x: bounds.width + cornerDepth - cornerWidth, y:  bounds.height, width:  cornerWidth, height:  cornerDepth)
                 break
             default:
-                verticalFrame = CGRectZero
-                horizontalFrame = CGRectZero
+                verticalFrame = CGRect.zero
+                horizontalFrame = CGRect.zero
                 break
             }
 
@@ -77,12 +77,12 @@ class FocusOverlay: UIView {
         bottomLeftCornerLines = [createLine(), createLine()]
         bottomRightCornerLines = [createLine(), createLine()]
 
-        userInteractionEnabled = false
+        isUserInteractionEnabled = false
     }
 
     func createLine() -> UIView {
         let line = UIView()
-        line.backgroundColor = UIColor.whiteColor()
+        line.backgroundColor = UIColor.white
         addSubview(line)
         return line
     }

@@ -1,31 +1,15 @@
 PODS:
-  - Lady (0.2.1)
-  - Picasso (0.3)
+  - Lady (0.3)
+  - Picasso (0.4.1)
 
 DEPENDENCIES:
-  - Lady (from `https://github.com/Limon-O-O/Lady.git`, branch `swift3`)
-  - Picasso (from `https://github.com/Limon-O-O/Picasso.git`, branch `swift3`)
-
-EXTERNAL SOURCES:
-  Lady:
-    :branch: swift3
-    :git: https://github.com/Limon-O-O/Lady.git
-  Picasso:
-    :branch: swift3
-    :git: https://github.com/Limon-O-O/Picasso.git
-
-CHECKOUT OPTIONS:
-  Lady:
-    :commit: c64555e98ba9e577e1b72b8c3f5732da4c9896b9
-    :git: https://github.com/Limon-O-O/Lady.git
-  Picasso:
-    :commit: fe760336110016184e1fd102ec02fe2db2ea1720
-    :git: https://github.com/Limon-O-O/Picasso.git
+  - Lady
+  - Picasso
 
 SPEC CHECKSUMS:
-  Lady: 91a4b33663356b7085031dffbcc3e442da371b57
-  Picasso: 10b1bccdc2b431d9550bb03ecfd4996ce4bdd193
+  Lady: 441241baadc945e9c5d2e90651b1600d1255ebe2
+  Picasso: 4413b8ebff07e120c54e95da3f43dec941d62924
 
-PODFILE CHECKSUM: ba1dfee9dc21072f027a710263bdeba08f3664c0
+PODFILE CHECKSUM: 7838f9805c8c25a8f164d843f4f247926f112b51
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.1.0.rc.2

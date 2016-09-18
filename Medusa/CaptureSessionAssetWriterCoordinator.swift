@@ -224,8 +224,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         let videoDataOutputQueue = DispatchQueue(label: "top.limon.capturesession.videodata", attributes: [])
         let audioDataOutputQueue = DispatchQueue(label: "top.limon.capturesession.audiodata", attributes: [])
 
-        videoDataOutputQueue.setTarget(queue: DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.high))
-
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
         audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
     }
@@ -448,15 +446,15 @@ extension CaptureSessionAssetWriterCoordinator {
         segments.removeAll()
     }
 
-    fileprivate func makeNewFileURL() -> URL {
+    fileprivate func makeNewFileURL() -> Foundation.URL {
 
         let suffix = "-medusa_segment\(segments.count)"
 
-        let destinationPath = String(describing: attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
+        let destinationPath = String(attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
 
         let newAbsoluteString = destinationPath + suffix + attributes.mediaFormat.filenameExtension
 
-        return  URL(string: newAbsoluteString)!
+        return Foundation.URL(string: newAbsoluteString)!
     }
 }
 

@@ -12,23 +12,23 @@ import UIKit
 class RingControl: UIControl {
 
     enum TouchStatus {
-        case Began
-        case Press
-        case End
+        case began
+        case press
+        case end
     }
 
-    var toucheActions: ((status: TouchStatus) -> Void)?
+    var toucheActions: ((_ status: TouchStatus) -> Void)?
 
-    private var touchStatus: TouchStatus = .End {
+    fileprivate var touchStatus: TouchStatus = .end {
         willSet {
             guard touchStatus != newValue else { return }
-            toucheActions?(status: newValue)
+            toucheActions?(newValue)
         }
     }
 
-    private let innerRing = UIView()
+    fileprivate let innerRing = UIView()
 
-    private var previousTimestamp: NSTimeInterval = 0.0
+    fileprivate var previousTimestamp: TimeInterval = 0.0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,25 +46,25 @@ class RingControl: UIControl {
         addTargetForAnimation()
     }
 
-    private func addViews() {
+    fileprivate func addViews() {
 
-        backgroundColor = UIColor.clearColor()
+        backgroundColor = UIColor.clear
 
-        let circlePath = UIBezierPath(ovalInRect: CGRect(origin: CGPointZero, size: frame.size))
+        let circlePath = UIBezierPath(ovalIn: CGRect(origin: CGPoint.zero, size: frame.size))
         let outerRing = CAShapeLayer()
-        outerRing.path = circlePath.CGPath
-        outerRing.fillColor = UIColor.clearColor().CGColor
-        outerRing.strokeColor = UIColor.whiteColor().CGColor
+        outerRing.path = circlePath.cgPath
+        outerRing.fillColor = UIColor.clear.cgColor
+        outerRing.strokeColor = UIColor.white.cgColor
         outerRing.lineWidth = 4.0
 
         let ringSpace: CGFloat = 12.0
         let innerRingWH: CGFloat = frame.width - ringSpace
 
-        innerRing.userInteractionEnabled = false
+        innerRing.isUserInteractionEnabled = false
         innerRing.frame.size = CGSize(width: innerRingWH, height: innerRingWH)
         innerRing.center = CGPoint(x: frame.width/2, y: frame.width/2)
 
-        innerRing.backgroundColor = UIColor.redColor()
+        innerRing.backgroundColor = UIColor.red
         innerRing.layer.masksToBounds = true
         innerRing.layer.cornerRadius = innerRingWH / 2.0
 
@@ -79,17 +79,17 @@ class RingControl: UIControl {
 
 extension RingControl {
 
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesBegan(touches, withEvent: event)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
 
         guard let touch = touches.first else { return }
 
-        touchStatus = .Began
+        touchStatus = .began
         previousTimestamp = touch.timestamp
     }
 
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesMoved(touches, withEvent: event)
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesMoved(touches, with: event)
 
         guard let touch = touches.first else { return }
 
@@ -97,27 +97,27 @@ extension RingControl {
 
         let validFrame = CGRect(x: -frame.size.width/2, y: -frame.size.height/2, width: frame.size.width*2, height: frame.size.width*2)
 
-        let location = touch.locationInView(self)
+        let location = touch.location(in: self)
 
-        if CGRectContainsPoint(validFrame, location) {
+        if validFrame.contains(location) {
 
             if currentTimestamp - previousTimestamp > 0.14 {
-                touchStatus = .Press
+                touchStatus = .press
             }
 
         } else {
-            touchStatus = .End
+            touchStatus = .end
         }
     }
 
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesEnded(touches, withEvent: event)
-        touchStatus = .End
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        touchStatus = .end
     }
 
-    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
-        super.touchesCancelled(touches, withEvent: event)
-        touchStatus = .End
+    override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
+        super.touchesCancelled(touches!, with: event)
+        touchStatus = .end
     }
 }
 
@@ -128,33 +128,33 @@ extension RingControl {
     @nonobjc static let eye_scaleToDefault = "scaleToDefault"
 
     func removeAnimatedTarget() {
-        removeTarget(self, action: Selector(RingControl.eye_scaleToSmall), forControlEvents: .TouchDown)
-        removeTarget(self, action: Selector(RingControl.eye_scaleAnimationWithSpring), forControlEvents: .TouchUpInside)
-        removeTarget(self, action: Selector(RingControl.eye_scaleToDefault), forControlEvents: .TouchDragExit)
+        removeTarget(self, action: Selector(RingControl.eye_scaleToSmall), for: .touchDown)
+        removeTarget(self, action: Selector(RingControl.eye_scaleAnimationWithSpring), for: .touchUpInside)
+        removeTarget(self, action: Selector(RingControl.eye_scaleToDefault), for: .touchDragExit)
     }
 
     func addTargetForAnimation() {
-        addTarget(self, action: Selector(RingControl.eye_scaleToSmall), forControlEvents: .TouchDown)
-        addTarget(self, action: Selector(RingControl.eye_scaleAnimationWithSpring), forControlEvents: .TouchUpInside)
-        addTarget(self, action: Selector(RingControl.eye_scaleToDefault), forControlEvents: .TouchDragExit)
+        addTarget(self, action: Selector(RingControl.eye_scaleToSmall), for: .touchDown)
+        addTarget(self, action: Selector(RingControl.eye_scaleAnimationWithSpring), for: .touchUpInside)
+        addTarget(self, action: Selector(RingControl.eye_scaleToDefault), for: .touchDragExit)
     }
 
-    @objc private func scaleToSmall() {
+    @objc fileprivate func scaleToSmall() {
 
-        UIView.animateWithDuration(0.2) {
-            self.innerRing.transform = CGAffineTransformMakeScale(0.8, 0.8)
-        }
+        UIView.animate(withDuration: 0.2, animations: {
+            self.innerRing.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        }) 
     }
 
-    @objc private func scaleAnimationWithSpring() {
-        UIView.animateWithDuration(0.26, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: .CurveEaseInOut, animations: {
-            self.innerRing.transform = CGAffineTransformIdentity
+    @objc fileprivate func scaleAnimationWithSpring() {
+        UIView.animate(withDuration: 0.26, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: UIViewAnimationOptions(), animations: {
+            self.innerRing.transform = CGAffineTransform.identity
         }, completion: nil)
     }
 
-    @objc private func scaleToDefault() {
-        UIView.animateWithDuration(0.2, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            self.innerRing.transform = CGAffineTransformIdentity
+    @objc fileprivate func scaleToDefault() {
+        UIView.animate(withDuration: 0.2, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: UIViewAnimationOptions(), animations: {
+            self.innerRing.transform = CGAffineTransform.identity
         }, completion: nil)
     }
 }

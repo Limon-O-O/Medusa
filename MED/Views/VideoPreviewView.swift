@@ -15,7 +15,7 @@ class VideoPreviewView: Canvas {
 
     var cameraDevice: AVCaptureDevice?
 
-    private let focusView = FocusOverlay(frame: CGRect(x: 0.0, y: 0.0, width: 80.0, height: 80.0))
+    fileprivate let focusView = FocusOverlay(frame: CGRect(x: 0.0, y: 0.0, width: 80.0, height: 80.0))
 
     override init(frame: CGRect) {
 
@@ -29,7 +29,7 @@ class VideoPreviewView: Canvas {
         configure()
     }
 
-    private func configure() {
+    fileprivate func configure() {
 
         if let gestureRecognizers = gestureRecognizers {
             gestureRecognizers.forEach({ removeGestureRecognizer($0) })
@@ -38,18 +38,18 @@ class VideoPreviewView: Canvas {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(focus(_:)))
         tapGesture.numberOfTapsRequired = 1
         addGestureRecognizer(tapGesture)
-        userInteractionEnabled = true
+        isUserInteractionEnabled = true
 
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(changeVideoZoomFactor(_:)))
         doubleTap.numberOfTapsRequired = 2
         addGestureRecognizer(doubleTap)
-        tapGesture.requireGestureRecognizerToFail(doubleTap)
+        tapGesture.require(toFail: doubleTap)
 
         addSubview(focusView)
-        focusView.hidden = true
+        focusView.isHidden = true
     }
 
-    @objc private func changeVideoZoomFactor(gesture: UITapGestureRecognizer) {
+    @objc fileprivate func changeVideoZoomFactor(_ gesture: UITapGestureRecognizer) {
 
         guard let device = cameraDevice else { return }
 
@@ -60,46 +60,46 @@ class VideoPreviewView: Canvas {
         }
 
         if device.videoZoomFactor == 1.0 {
-            device.rampToVideoZoomFactor(1.8, withRate: 10.0)
+            device.ramp(toVideoZoomFactor: 1.8, withRate: 10.0)
         } else {
-            device.rampToVideoZoomFactor(1.0, withRate: 10.0)
+            device.ramp(toVideoZoomFactor: 1.0, withRate: 10.0)
         }
 
         device.unlockForConfiguration()
     }
 
-    @objc private func focus(gesture: UITapGestureRecognizer) {
+    @objc fileprivate func focus(_ gesture: UITapGestureRecognizer) {
 
-        let point = gesture.locationInView(self)
-        let focusPoint = CGPointMake(point.y / bounds.size.height, 1.0 - point.x / bounds.size.width);
+        let point = gesture.location(in: self)
+        let focusPoint = CGPoint(x: point.y / bounds.size.height, y: 1.0 - point.x / bounds.size.width);
 
         guard focusCamera(to: focusPoint) else { return }
 
-        focusView.hidden = false
+        focusView.isHidden = false
         focusView.center = point
         focusView.alpha = 0.0
-        focusView.transform = CGAffineTransformMakeScale(1.2, 1.2)
+        focusView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
 
-        bringSubviewToFront(focusView)
+        bringSubview(toFront: focusView)
 
-        UIView.animateKeyframesWithDuration(0.8, delay: 0.0, options: UIViewKeyframeAnimationOptions(), animations: {
+        UIView.animateKeyframes(withDuration: 0.8, delay: 0.0, options: UIViewKeyframeAnimationOptions(), animations: {
 
-            UIView.addKeyframeWithRelativeStartTime(0.0, relativeDuration: 0.15, animations: { () -> Void in
+            UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.15, animations: { () -> Void in
                 self.focusView.alpha = 1.0
-                self.focusView.transform = CGAffineTransformIdentity
+                self.focusView.transform = CGAffineTransform.identity
             })
 
-            UIView.addKeyframeWithRelativeStartTime(0.80, relativeDuration: 0.20, animations: { () -> Void in
+            UIView.addKeyframe(withRelativeStartTime: 0.80, relativeDuration: 0.20, animations: { () -> Void in
                 self.focusView.alpha = 0.0
-                self.focusView.transform = CGAffineTransformMakeScale(0.8, 0.8)
+                self.focusView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
             })
 
         }, completion: { _ in
-            self.focusView.hidden = true
+            self.focusView.isHidden = true
         })
     }
 
-    private func focusCamera(to point: CGPoint) -> Bool {
+    fileprivate func focusCamera(to point: CGPoint) -> Bool {
 
         guard let device = cameraDevice else { return false }
 
@@ -109,19 +109,19 @@ class VideoPreviewView: Canvas {
             return false
         }
 
-        if device.isFocusModeSupported(.ContinuousAutoFocus) {
-            device.focusMode = .ContinuousAutoFocus
+        if device.isFocusModeSupported(.continuousAutoFocus) {
+            device.focusMode = .continuousAutoFocus
         }
 
-        if device.focusPointOfInterestSupported {
+        if device.isFocusPointOfInterestSupported {
             device.focusPointOfInterest = point
         }
 
-        if device.isExposureModeSupported(.ContinuousAutoExposure) {
-            device.exposureMode = .ContinuousAutoExposure
+        if device.isExposureModeSupported(.continuousAutoExposure) {
+            device.exposureMode = .continuousAutoExposure
         }
         
-        if device.exposurePointOfInterestSupported {
+        if device.isExposurePointOfInterestSupported {
             device.exposurePointOfInterest = point
         }
         

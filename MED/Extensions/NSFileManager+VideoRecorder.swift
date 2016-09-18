@@ -8,18 +8,18 @@
 
 import Foundation
 
-extension NSFileManager {
+extension FileManager {
 
-    class func videoCachesURL() -> NSURL? {
+    class func videoCachesURL() -> URL? {
 
-        guard let cacheURL = try? NSFileManager.defaultManager().URLForDirectory(.CachesDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: false) else { return nil }
+        guard let cacheURL = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false) else { return nil }
 
-        let fileManager = NSFileManager.defaultManager()
+        let fileManager = FileManager.default
 
-        let messageCachesURL = cacheURL.URLByAppendingPathComponent("video_caches", isDirectory: true)
+        let messageCachesURL = cacheURL.appendingPathComponent("video_caches", isDirectory: true)
 
         do {
-            try fileManager.createDirectoryAtURL(messageCachesURL, withIntermediateDirectories: true, attributes: nil)
+            try fileManager.createDirectory(at: messageCachesURL, withIntermediateDirectories: true, attributes: nil)
             return messageCachesURL
 
         } catch _ {}
@@ -27,24 +27,24 @@ extension NSFileManager {
         return nil
     }
 
-    class func videoURLWithName(name: String, fileExtension: String) -> NSURL? {
+    class func videoURLWithName(_ name: String, fileExtension: String) -> URL? {
 
         let fileName = name + fileExtension
         if let videoCachesURL = videoCachesURL() {
-            return videoCachesURL.URLByAppendingPathComponent("\(fileName)")
+            return videoCachesURL.appendingPathComponent("\(fileName)")
         }
 
         return nil
     }
 
-    class func removeVideoFileWithFileURL(fileURL: NSURL) {
+    class func removeVideoFileWithFileURL(_ fileURL: URL) {
 
         do {
 
-            let fileManager = NSFileManager.defaultManager()
-
-            if let outputPath = fileURL.path where fileManager.fileExistsAtPath(outputPath) {
-                try fileManager.removeItemAtURL(fileURL)
+            let fileManager = FileManager.default
+            let outputPath = fileURL.path
+            if fileManager.fileExists(atPath: outputPath) {
+                try fileManager.removeItem(at: fileURL)
             }
             
         } catch let error {

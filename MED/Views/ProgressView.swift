@@ -14,15 +14,15 @@ private let headerViewWidth: CGFloat = 2.0
 class ProgressView: UIView {
 
     enum Status {
-        case Idle
-        case Progressing
-        case Pause
+        case idle
+        case progressing
+        case pause
     }
 
-    var status = Status.Idle {
+    var status = Status.idle {
         willSet {
             switch newValue {
-            case .Idle:
+            case .idle:
                 currentTrackView = nil
                 trackViews.forEach {
                     $0.removeFromSuperview()
@@ -41,23 +41,23 @@ class ProgressView: UIView {
 
             guard newValue <= 1.0 && progress != newValue else { return }
 
-            if status == .Idle {
-                status = .Progressing
+            if status == .idle {
+                status = .progressing
             }
 
-            guard status == .Progressing else { return }
+            guard status == .progressing else { return }
 
             _progress = newValue
         }
     }
 
-    var progressTintColor: UIColor = UIColor.yellowColor() {
+    var progressTintColor: UIColor = UIColor.yellow {
         willSet {
             currentTrackView.backgroundColor = progressTintColor
         }
     }
 
-    private var _progress: Float = 0.0 {
+    fileprivate var _progress: Float = 0.0 {
         willSet {
             let totalWidth: CGFloat = currentTrackView.frame.origin.x
             let deltaWidth: CGFloat = frame.size.width * CGFloat(newValue) - totalWidth
@@ -65,9 +65,9 @@ class ProgressView: UIView {
         }
     }
 
-    private(set) var trackViews = [TrackView]()
+    fileprivate(set) var trackViews = [TrackView]()
     
-    private var currentTrackView: TrackView!
+    fileprivate var currentTrackView: TrackView!
 
     override init(frame: CGRect) {
 
@@ -81,7 +81,7 @@ class ProgressView: UIView {
         appendTrackView()
     }
 
-    private func appendTrackView() {
+    fileprivate func appendTrackView() {
         currentTrackView = makeTrackView()
         trackViews.append(currentTrackView)
         addSubview(currentTrackView)
@@ -89,19 +89,19 @@ class ProgressView: UIView {
 
     func pause() {
 
-        guard status == .Progressing else { return }
+        guard status == .progressing else { return }
 
-        status = .Pause
+        status = .pause
     }
 
     func resume() {
 
-        guard status == .Pause else { return }
-        status = .Progressing
+        guard status == .pause else { return }
+        status = .progressing
 
         appendTrackView()
 
-        trackViews.last?.headerView.hidden = false
+        trackViews.last?.headerView.isHidden = false
     }
 
     func rollback() -> Float {
@@ -117,16 +117,16 @@ class ProgressView: UIView {
         return delta
     }
 
-    private func makeTrackView() -> TrackView {
+    fileprivate func makeTrackView() -> TrackView {
 
         let trackViewX: CGFloat = trackViews.isEmpty ? 0.0 : trackViews.last!.frame.origin.x + trackViews.last!.frame.size.width
 
         let trackViewWidth: CGFloat = trackViews.isEmpty ? 0.0 : headerViewWidth
         let trackView = TrackView(frame: CGRect(x: trackViewX, y: 0.0, width: trackViewWidth, height: frame.size.height))
-        trackView.headerView.hidden = true
+        trackView.headerView.isHidden = true
         trackView.headerView.backgroundColor = backgroundColor
 
-        trackView.backgroundColor = trackViews.isEmpty ? progressTintColor : UIColor.clearColor()
+        trackView.backgroundColor = trackViews.isEmpty ? progressTintColor : UIColor.clear
 
         return trackView
     }

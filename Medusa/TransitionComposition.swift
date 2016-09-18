@@ -164,7 +164,7 @@ struct TransitionCompositionBuilder {
 
             let transform: CGAffineTransform
 
-            let videoAngleInDegree  = atan2(videoTracks[0].preferredTransform.b, videoTracks[0].preferredTransform.a) * 180 / CGFloat(M_PI)
+            let videoAngleInDegree = atan2(videoTracks[0].preferredTransform.b, videoTracks[0].preferredTransform.a) * 180 / CGFloat(M_PI)
 
             if videoAngleInDegree == 90 {
 

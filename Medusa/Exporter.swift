@@ -12,7 +12,7 @@ struct Exporter {
 
     static let shareInstance = Exporter()
 
-    fileprivate init() {}
+    private init() {}
 
     func exportSegmentsAsynchronously(_ segments: [Segment], to destinationURL: Foundation.URL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (_ error: NSError?) -> Void) {
 
@@ -68,7 +68,7 @@ struct Exporter {
             return
         }
 
-        sessionWaitSemaphore.wait(timeout: DispatchTime.distantFuture)
+        let _ = sessionWaitSemaphore.wait(timeout: DispatchTime.distantFuture)
 
         switch unwrappedExportSession.status {
         case .completed:

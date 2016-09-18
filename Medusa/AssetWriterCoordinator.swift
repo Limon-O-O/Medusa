@@ -59,7 +59,7 @@ class AssetWriterCoordinator {
 
     weak var delegate: AssetWriterCoordinatorDelegate?
 
-    fileprivate let outputFileType: String
+    private let outputFileType: String
 
     fileprivate let writingQueue: DispatchQueue
 
@@ -67,14 +67,14 @@ class AssetWriterCoordinator {
 
     fileprivate var assetWriterPixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
 
-    fileprivate var videoTrackSettings: [String: AnyObject]?
-    fileprivate var audioTrackSettings: [String: AnyObject]?
+    private var videoTrackSettings: [String: AnyObject]?
+    private var audioTrackSettings: [String: AnyObject]?
 
     fileprivate var assetWriterVideoInput: AVAssetWriterInput?
     fileprivate var assetWriterAudioInput: AVAssetWriterInput?
 
-    fileprivate weak var videoTrackSourceFormatDescription: CMFormatDescription?
-    fileprivate weak var audioTrackSourceFormatDescription: CMFormatDescription?
+    private weak var videoTrackSourceFormatDescription: CMFormatDescription?
+    private weak var audioTrackSourceFormatDescription: CMFormatDescription?
 
     fileprivate var didStartedSession = false
 
@@ -189,7 +189,7 @@ class AssetWriterCoordinator {
         writerStatus = .preparingToRecord
         objc_sync_exit(self)
 
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.low).async {
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
             autoreleasepool {
 
                 do {
