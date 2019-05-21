@@ -14,7 +14,7 @@ struct Exporter {
 
     private init() {}
 
-    func exportSegmentsAsynchronously(_ segments: [Segment], to destinationURL: Foundation.URL, transition: Bool, presetName: String, fileFormat: String, completionHandler: (_ error: NSError?) -> Void) {
+    func exportSegmentsAsynchronously(_ segments: [Segment], to destinationURL: Foundation.URL, transition: Bool, presetName: String, fileFormat: AVFileType, completionHandler: (_ error: Error?) -> Void) {
 
         if segments.isEmpty {
             completionHandler(NSError(domain: "Segments is empty", code: 0, userInfo: nil))
@@ -24,7 +24,7 @@ struct Exporter {
         let assetBuffer: AVAsset?
         let videoComposition: AVVideoComposition?
 
-        FileManager.med_removeExistingFile(at: destinationURL)
+        FileManager.med.removeExistingFile(at: destinationURL)
 
         if transition {
 
@@ -75,14 +75,14 @@ struct Exporter {
             completionHandler(nil)
             
         case .failed:
-            completionHandler(unwrappedExportSession.error as NSError?)
+            completionHandler(unwrappedExportSession.error)
             
         default:
             break
         }
     }
 
-    fileprivate func appendTrack(_ track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
+    private func appendTrack(_ track: AVAssetTrack, toCompositionTrack compositionTrack: AVMutableCompositionTrack, atTime time: CMTime, withBounds bounds: CMTime) -> CMTime {
 
         var timeRange = track.timeRange
         let time = CMTimeAdd(time, timeRange.start)
@@ -91,20 +91,18 @@ struct Exporter {
             let currentBounds = CMTimeAdd(time, timeRange.duration)
 
             if (currentBounds > bounds) {
-                timeRange = CMTimeRangeMake(timeRange.start, CMTimeSubtract(timeRange.duration, CMTimeSubtract(currentBounds, bounds)));
+                timeRange = CMTimeRangeMake(start: timeRange.start, duration: CMTimeSubtract(timeRange.duration, CMTimeSubtract(currentBounds, bounds)));
             }
         }
 
-        if timeRange.duration > kCMTimeZero {
+        if timeRange.duration > CMTime.zero {
 
             do {
                 try compositionTrack.insertTimeRange(timeRange, of: track, at: time)
                 //            print("Inserted %@ at %fs (%fs -> %fs)", track.mediaType, CMTimeGetSeconds(time), CMTimeGetSeconds(timeRange.start), CMTimeGetSeconds(timeRange.duration))
 
-            } catch let error as NSError {
-
-                print("Failed to insert append \(compositionTrack.mediaType) track: \(error.localizedDescription)")
-
+            } catch {
+                med_print("Failed to insert append \(compositionTrack.mediaType) track: \(error.localizedDescription)")
             }
             return CMTimeAdd(time, timeRange.duration);
         }
@@ -112,7 +110,7 @@ struct Exporter {
         return time
     }
 
-    fileprivate func assetRepresentingSegments(_ segments: [Segment]) -> AVAsset? {
+    private func assetRepresentingSegments(_ segments: [Segment]) -> AVAsset? {
 
         if segments.isEmpty {
             return nil
@@ -132,7 +130,7 @@ struct Exporter {
         }
     }
 
-    fileprivate func appendSegmentsToComposition(_ composition: AVMutableComposition, segments: [Segment]) {
+    private func appendSegmentsToComposition(_ composition: AVMutableComposition, segments: [Segment]) {
 
         var audioTrack: AVMutableCompositionTrack? = nil
         var videoTrack: AVMutableCompositionTrack? = nil
@@ -143,10 +141,10 @@ struct Exporter {
 
             let asset = AVAsset(url: segment.URL as Foundation.URL)
 
-            let audioAssetTracks = asset.tracks(withMediaType: AVMediaTypeAudio)
-            let videoAssetTracks = asset.tracks(withMediaType: AVMediaTypeVideo)
+            let audioAssetTracks = asset.tracks(withMediaType: AVMediaType.audio)
+            let videoAssetTracks = asset.tracks(withMediaType: AVMediaType.video)
 
-            var maxBounds = kCMTimeInvalid
+            var maxBounds = CMTime.invalid
 
             var videoTime = currentTime
 
@@ -154,14 +152,14 @@ struct Exporter {
 
                 if (videoTrack == nil) {
 
-                    let videoTracks = composition.tracks(withMediaType: AVMediaTypeVideo)
+                    let videoTracks = composition.tracks(withMediaType: AVMediaType.video)
 
                     if (videoTracks.count > 0) {
                         videoTrack = videoTracks.first
 
                     } else {
 
-                        videoTrack = composition.addMutableTrack(withMediaType: AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+                        videoTrack = composition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
                         videoTrack?.preferredTransform = videoAssetTrack.preferredTransform
                     }
                 }
@@ -176,13 +174,13 @@ struct Exporter {
 
                 if audioTrack == nil {
                     
-                    let audioTracks = composition.tracks(withMediaType: AVMediaTypeAudio)
+                    let audioTracks = composition.tracks(withMediaType: AVMediaType.audio)
                     
                     if (audioTracks.count > 0) {
                         audioTrack = audioTracks.first
                     } else {
                         
-                        audioTrack = composition.addMutableTrack(withMediaType: AVMediaTypeAudio, preferredTrackID: kCMPersistentTrackID_Invalid)
+                        audioTrack = composition.addMutableTrack(withMediaType: AVMediaType.audio, preferredTrackID: kCMPersistentTrackID_Invalid)
                     }
                     
                     audioTime = appendTrack(audioAssetTrack, toCompositionTrack: audioTrack!, atTime: audioTime, withBounds: maxBounds)

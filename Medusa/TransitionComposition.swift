@@ -12,16 +12,16 @@ struct TransitionCompositionBuilder {
 
     let assets: [AVAsset]
 
-    fileprivate var transitionDuration: CMTime
+    private var transitionDuration: CMTime
 
-    fileprivate var composition = AVMutableComposition()
+    private var composition = AVMutableComposition()
 
     init?(assets: [AVAsset], transitionDuration: Float64 = 0.24) {
 
         guard !assets.isEmpty else { return nil }
 
         self.assets = assets
-        self.transitionDuration = CMTimeMakeWithSeconds(transitionDuration, 600)
+        self.transitionDuration = CMTimeMakeWithSeconds(transitionDuration, preferredTimescale: 600)
     }
 
     mutating func buildComposition() -> (composition: AVComposition, videoComposition: AVVideoComposition) {
@@ -59,26 +59,28 @@ struct TransitionCompositionBuilder {
     }
 
     /// Build the composition tracks
-    fileprivate func buildCompositionTracks(by composition: AVMutableComposition,
+    private func buildCompositionTracks(by composition: AVMutableComposition,
                                             transitionDuration: CMTime,
                                             assets: [AVAsset]) -> (compositionVideoTracks: [AVMutableCompositionTrack], compositionAudioTracks: [AVMutableCompositionTrack]) {
 
-        let compositionVideoTrackA = composition.addMutableTrack(withMediaType: AVMediaTypeVideo,
-                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid))
+        guard
+            let compositionVideoTrackA = composition.addMutableTrack(withMediaType: AVMediaType.video,
+                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid)),
 
-        let compositionVideoTrackB = composition.addMutableTrack(withMediaType: AVMediaTypeVideo,
-                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid))
+            let compositionVideoTrackB = composition.addMutableTrack(withMediaType: AVMediaType.video,
+                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid)),
 
-        let compositionAudioTrackA = composition.addMutableTrack(withMediaType: AVMediaTypeAudio,
-                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid))
+            let compositionAudioTrackA = composition.addMutableTrack(withMediaType: AVMediaType.audio,
+                                                                              preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid)),
 
-        let compositionAudioTrackB = composition.addMutableTrack(withMediaType: AVMediaTypeAudio,
+            let compositionAudioTrackB = composition.addMutableTrack(withMediaType: AVMediaType.audio,
                                                                               preferredTrackID: CMPersistentTrackID(kCMPersistentTrackID_Invalid))
+            else { return (compositionVideoTracks: [], compositionAudioTracks: []) }
 
         let compositionVideoTracks = [compositionVideoTrackA, compositionVideoTrackB]
         let compositionAudioTracks = [compositionAudioTrackA, compositionAudioTrackB]
 
-        var cursorTime = kCMTimeZero
+        var cursorTime = CMTime.zero
 
         for i in 0..<assets.count {
 
@@ -87,18 +89,18 @@ struct TransitionCompositionBuilder {
             let currentVideoTrack = compositionVideoTracks[trackIndex]
             let currentAudioTrack = compositionAudioTracks[trackIndex]
 
-            if let assetVideoTrack = assets[i].tracks(withMediaType: AVMediaTypeVideo).first,
-                let assetAudioTrack = assets[i].tracks(withMediaType: AVMediaTypeAudio).first {
+            if let assetVideoTrack = assets[i].tracks(withMediaType: AVMediaType.video).first,
+                let assetAudioTrack = assets[i].tracks(withMediaType: AVMediaType.audio).first {
 
                 currentVideoTrack.preferredTransform = assetVideoTrack.preferredTransform
 
-                let timeRange = CMTimeRangeMake(kCMTimeZero, assets[i].duration)
+                let timeRange = CMTimeRangeMake(start: CMTime.zero, duration: assets[i].duration)
 
                 do {
                     try currentVideoTrack.insertTimeRange(timeRange, of: assetVideoTrack, at: cursorTime)
                     try currentAudioTrack.insertTimeRange(timeRange, of: assetAudioTrack, at: cursorTime)
 
-                } catch let error as NSError {
+                } catch {
                     print("Failed to insert append track: \(error.localizedDescription)")
                 }
 
@@ -112,18 +114,18 @@ struct TransitionCompositionBuilder {
     }
 
     /// Calculate both the pass through time and the transition time ranges.
-    fileprivate func calculateTimeRanges(by transitionDuration: CMTime,
+    private func calculateTimeRanges(by transitionDuration: CMTime,
                                                 assetsWithVideoTracks: [AVAsset])
         -> (passThroughTimeRanges: [NSValue], transitionTimeRanges: [NSValue]) {
 
             var passThroughTimeRanges = [NSValue]()
             var transitionTimeRanges = [NSValue]()
-            var cursorTime = kCMTimeZero
+            var cursorTime = CMTime.zero
 
             for i in 0..<assetsWithVideoTracks.count {
 
                 let asset = assetsWithVideoTracks[i]
-                var timeRange = CMTimeRangeMake(cursorTime, asset.duration)
+                var timeRange = CMTimeRangeMake(start: cursorTime, duration: asset.duration)
 
                 if i > 0 {
                     timeRange.start = CMTimeAdd(timeRange.start, transitionDuration)
@@ -139,7 +141,7 @@ struct TransitionCompositionBuilder {
                 cursorTime = CMTimeSubtract(cursorTime, transitionDuration)
 
                 if i + 1 < assetsWithVideoTracks.count {
-                    timeRange = CMTimeRangeMake(cursorTime, transitionDuration)
+                    timeRange = CMTimeRangeMake(start: cursorTime, duration: transitionDuration)
                     transitionTimeRanges.append(NSValue(timeRange: timeRange))
                 }
             }
@@ -147,7 +149,7 @@ struct TransitionCompositionBuilder {
     }
 
     // Build the video composition and instructions.
-    fileprivate func buildVideoCompositionAndInstructions(by composition: AVMutableComposition, compositionVideoTracks: [AVMutableCompositionTrack],
+    private func buildVideoCompositionAndInstructions(by composition: AVMutableComposition, compositionVideoTracks: [AVMutableCompositionTrack],
                                                           passThroughTimeRanges: [NSValue],
                                                           transitionTimeRanges: [NSValue])
         -> AVMutableVideoComposition {
@@ -164,7 +166,7 @@ struct TransitionCompositionBuilder {
 
             let transform: CGAffineTransform
 
-            let videoAngleInDegree = atan2(videoTracks[0].preferredTransform.b, videoTracks[0].preferredTransform.a) * 180 / CGFloat(M_PI)
+            let videoAngleInDegree = atan2(videoTracks[0].preferredTransform.b, videoTracks[0].preferredTransform.a) * 180 / CGFloat(Double.pi)
 
             if videoAngleInDegree == 90 {
 
@@ -190,7 +192,7 @@ struct TransitionCompositionBuilder {
 
                 let passThroughLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: currentVideoTrack)
 
-                passThroughLayerInstruction.setTransform(transform, at: kCMTimeZero)
+                passThroughLayerInstruction.setTransform(transform, at: CMTime.zero)
 
                 // You can use it to debug.
 //                passThroughLayerInstruction.setTransformRampFromStartTransform(CGAffineTransformIdentity, toEndTransform: transform, timeRange: passThroughTimeRanges[i].CMTimeRangeValue)
@@ -209,13 +211,13 @@ struct TransitionCompositionBuilder {
                     let toTrack = videoTracks[1 - trackIndex]
 
                     let fromLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: fromTrack)
-                    fromLayerInstruction.setTransform(transform, at: kCMTimeZero)
+                    fromLayerInstruction.setTransform(transform, at: CMTime.zero)
 
                     // Make the opacity ramp and apply it to the from layer instruction.
                     fromLayerInstruction.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity:0.0, timeRange: transitionInstruction.timeRange)
 
                     let toLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: toTrack)
-                    toLayerInstruction.setTransform(transform, at: kCMTimeZero)
+                    toLayerInstruction.setTransform(transform, at: CMTime.zero)
 
                     transitionInstruction.layerInstructions = [fromLayerInstruction, toLayerInstruction]
 
@@ -225,7 +227,7 @@ struct TransitionCompositionBuilder {
             }
 
             videoComposition.instructions = instructions
-            videoComposition.frameDuration = CMTimeMake(1, 30)
+            videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
             videoComposition.renderSize = CGSize(width: videoWidth, height: videoHeight)
 
             return videoComposition

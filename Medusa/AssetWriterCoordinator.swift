@@ -16,21 +16,17 @@ protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidRecording(_ coordinator: AssetWriterCoordinator, seconds: Float)
 
-    func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: NSError?)
+    func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: Error?)
 }
 
-func ==(lhs: WriterStatus, rhs: WriterStatus) -> Bool {
-    return lhs.hashValue == rhs.hashValue
-}
-
-enum WriterStatus: Hashable {
+enum WriterStatus: Equatable {
     case idle
     case preparingToRecord
     case recording
     case finishingRecordingPart1    // waiting for inflight buffers to be appended
     case finishingRecordingPart2    // calling finish writing on the asset writer
     case finished                   // terminal state
-    case failed(error: NSError?)     // terminal state
+    case failed(error: Error?)     // terminal state
 
     var hashValue: Int {
         switch self {
@@ -48,8 +44,11 @@ enum WriterStatus: Hashable {
             return 60000
         case .failed:
             return 70000
-
         }
+    }
+
+    static func ==(lhs: WriterStatus, rhs: WriterStatus) -> Bool {
+        return lhs.hashValue == rhs.hashValue
     }
 }
 
@@ -59,44 +58,44 @@ class AssetWriterCoordinator {
 
     weak var delegate: AssetWriterCoordinatorDelegate?
 
-    private let outputFileType: String
+    private let outputFileType: AVFileType
 
-    fileprivate let writingQueue: DispatchQueue
+    private let writingQueue: DispatchQueue
 
-    fileprivate var assetWriter: AVAssetWriter?
+    private var assetWriter: AVAssetWriter?
 
-    fileprivate var assetWriterPixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
+    private var assetWriterPixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
 
-    private var videoTrackSettings: [String: AnyObject]?
-    private var audioTrackSettings: [String: AnyObject]?
+    private var videoTrackSettings: [String: Any]?
+    private var audioTrackSettings: [String: Any]?
 
-    fileprivate var assetWriterVideoInput: AVAssetWriterInput?
-    fileprivate var assetWriterAudioInput: AVAssetWriterInput?
+    private var assetWriterVideoInput: AVAssetWriterInput?
+    private var assetWriterAudioInput: AVAssetWriterInput?
 
     private weak var videoTrackSourceFormatDescription: CMFormatDescription?
     private weak var audioTrackSourceFormatDescription: CMFormatDescription?
 
-    fileprivate var didStartedSession = false
+    private var didStartedSession = false
 
-    fileprivate lazy var context: CIContext = {
+    private lazy var context: CIContext = {
         let eaglContext = EAGLContext(api: .openGLES2)
-        let options = [kCIContextWorkingColorSpace: NSNull()]
+        let options = [CIContextOption.workingColorSpace: NSNull()]
         return CIContext(eaglContext: eaglContext!, options: options)
     }()
 
-    fileprivate let genericRGBColorspace = CGColorSpaceCreateDeviceRGB()
+    private let genericRGBColorspace = CGColorSpaceCreateDeviceRGB()
 
-    fileprivate var currentTimeStamp: CMTime = kCMTimeZero
+    private var currentTimeStamp: CMTime = CMTime.zero
 
-    fileprivate var wrtingStartTime: CMTime = kCMTimeZero
+    private var wrtingStartTime: CMTime = CMTime.zero
 
-    fileprivate var recordingSeconds: Float {
+    private var recordingSeconds: Float {
         let diff = CMTimeSubtract(currentTimeStamp, wrtingStartTime)
         let seconds = CMTimeGetSeconds(diff)
         return Float(seconds)
     }
 
-    fileprivate var writerStatus: WriterStatus = .idle {
+    private var writerStatus: WriterStatus = .idle {
 
         willSet(newStatus) {
 
@@ -118,7 +117,7 @@ class AssetWriterCoordinator {
                     case .failed(let error):
 
                         clearAction()
-                        FileManager.med_removeExistingFile(at: self.URL)
+                        FileManager.med.removeExistingFile(at: self.URL)
 
                         self.delegate?.writerCoordinator(self, didFailWithError: error)
 
@@ -138,25 +137,25 @@ class AssetWriterCoordinator {
         }
     }
 
-    init(URL: Foundation.URL, fileType outputFileType: String) {
+    init(URL: Foundation.URL, fileType outputFileType: AVFileType) {
         self.URL = URL
         self.writingQueue = DispatchQueue(label: "top.limon.assetwriter.writing", attributes: [])
         self.outputFileType = outputFileType
     }
 
     deinit {
-        print("AssetWriterCoordinator Deinit")
+        med_print("AssetWriterCoordinator Deinit")
     }
 
-    func appendVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage) {
-        appendSampleBuffer(sampleBuffer, outputImage: outputImage, ofMediaType: AVMediaTypeVideo)
+    func appendVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage?) {
+        appendSampleBuffer(sampleBuffer, outputImage: outputImage, ofMediaType: AVMediaType.video)
     }
 
     func appendAudioSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
-        appendSampleBuffer(sampleBuffer, outputImage: nil, ofMediaType: AVMediaTypeAudio)
+        appendSampleBuffer(sampleBuffer, outputImage: nil, ofMediaType: AVMediaType.audio)
     }
 
-    func addAudioTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings audioSettings: [String: AnyObject]) {
+    func addAudioTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings audioSettings: [String: Any]) {
 
         objc_sync_enter(self)
 
@@ -169,7 +168,7 @@ class AssetWriterCoordinator {
         objc_sync_exit(self)
     }
 
-    func addVideoTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings videoSettings: [String: AnyObject]) {
+    func addVideoTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings videoSettings: [String: Any]) {
 
         objc_sync_enter(self)
 
@@ -182,7 +181,7 @@ class AssetWriterCoordinator {
         objc_sync_exit(self)
     }
 
-    func prepareToRecord() {
+    func prepareToRecord(deviceOrientation: UIDeviceOrientation = .portrait) {
 
         objc_sync_enter(self)
         guard writerStatus == .idle else { return }
@@ -195,14 +194,14 @@ class AssetWriterCoordinator {
                 do {
 
                     // Remove file if necessary. AVAssetWriter will not overwrite an existing file.
-                    FileManager.med_removeExistingFile(at: self.URL)
+                    FileManager.med.removeExistingFile(at: self.URL)
 
                     let assetWriter = try AVAssetWriter(outputURL: self.URL, fileType: self.outputFileType)
                     self.assetWriter = assetWriter
 
                     if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, let videoTrackSettings = self.videoTrackSettings {
 
-                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings)
+                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings, deviceOrientation: deviceOrientation)
 
                         if let videoInput = self.assetWriterVideoInput {
 
@@ -215,8 +214,9 @@ class AssetWriterCoordinator {
                             if assetWriter.canAdd(videoInput) {
                                 assetWriter.add(videoInput)
                             }
+                        } else {
+                            throw MedusaError.generateAssetWriterInputfailed
                         }
-
                     }
 
                     if let audioTrackSourceFormatDescription = self.audioTrackSourceFormatDescription, let audioTrackSettings = self.audioTrackSettings {
@@ -231,14 +231,14 @@ class AssetWriterCoordinator {
 
                     guard assetWriter.startWriting() else {
                         // `error` is non-nil when startWriting returns false.
-                        throw assetWriter.error!
+                        throw assetWriter.error ?? MedusaError.startWritingfailed
                     }
 
                     objc_sync_enter(self)
                     self.writerStatus = .recording
                     objc_sync_exit(self)
 
-                } catch let error as NSError {
+                } catch {
                     objc_sync_enter(self)
                     self.writerStatus = .failed(error: error)
                     objc_sync_exit(self)
@@ -250,41 +250,40 @@ class AssetWriterCoordinator {
     func finishRecording() {
 
         objc_sync_enter(self)
-        guard writerStatus == .recording else { return }
+        guard let _ = assetWriter, writerStatus == .recording else { return }
         writerStatus = .finishingRecordingPart1
         objc_sync_exit(self)
 
-        writingQueue.async {
+        writingQueue.async { [weak self] in
+            guard let sSelf = self else { return }
 
-            autoreleasepool {
+            autoreleasepool { [weak sSelf] in
 
-                objc_sync_enter(self)
+                guard let ssSelf = sSelf else { return }
+
+                objc_sync_enter(ssSelf)
                 // We may have transitioned to an error state as we appended inflight buffers. In that case there is nothing to do now.
-                guard self.writerStatus == .finishingRecordingPart1 else { return }
+                guard ssSelf.writerStatus == .finishingRecordingPart1 else { return }
 
                 // It is not safe to call -[AVAssetWriter finishWriting*] concurrently with -[AVAssetWriterInput appendSampleBuffer:]
                 // We transition to MovieRecorderStatusFinishingRecordingPart2 while on _writingQueue, which guarantees that no more buffers will be appended.
-                self.writerStatus = .finishingRecordingPart2
-                objc_sync_exit(self)
+                ssSelf.writerStatus = .finishingRecordingPart2
+                objc_sync_exit(ssSelf)
 
-                self.assetWriter?.finishWriting {
+                ssSelf.assetWriter?.finishWriting { [weak ssSelf] in
+                    guard let sssSelf = ssSelf else { return }
+                    objc_sync_enter(sssSelf)
 
-                    objc_sync_enter(self)
-
-                    if let error = self.assetWriter?.error {
-                        print(error)
-                        self.writerStatus = .failed(error: error as NSError?)
+                    if let error = sssSelf.assetWriter?.error {
+                        sssSelf.writerStatus = .failed(error: error)
                     } else {
-                        self.writerStatus = .finished
+                        sssSelf.writerStatus = .finished
                     }
 
-                    objc_sync_exit(self)
+                    objc_sync_exit(sssSelf)
                 }
-
             }
-
         }
-
     }
 
 }
@@ -293,116 +292,139 @@ class AssetWriterCoordinator {
 
 extension AssetWriterCoordinator {
 
-    fileprivate func appendSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage?, ofMediaType mediaType: String) {
+    private func appendSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage?, ofMediaType mediaType: AVMediaType) {
 
         guard let assetWriter = assetWriter, assetWriter.status == .writing else { return }
 
         if writerStatus.hashValue < WriterStatus.recording.hashValue {
-            print("Not ready to record yet")
+            med_print("Not ready to record yet")
             return
         }
 
-        writingQueue.async {
+        writingQueue.async { [weak self] in
+            guard let sSelf = self else { return }
 
-            autoreleasepool {
+            autoreleasepool { [weak sSelf] in
+
+                guard let ssSelf = sSelf else { return }
 
                 // From the client's perspective the movie recorder can asynchronously transition to an error state as the result of an append.
                 // Because of this we are lenient when samples are appended and we are no longer recording.
                 // Instead of throwing an exception we just release the sample buffers and return.
-                if self.writerStatus.hashValue > WriterStatus.finishingRecordingPart1.hashValue {
+                if ssSelf.writerStatus.hashValue > WriterStatus.finishingRecordingPart1.hashValue {
                     return
                 }
 
                 var success: Bool?
 
-                if mediaType == AVMediaTypeVideo {
-
-                    guard let assetWriterPixelBufferAdaptor = self.assetWriterPixelBufferAdaptor, let pixelBufferPool = assetWriterPixelBufferAdaptor.pixelBufferPool, assetWriterPixelBufferAdaptor.assetWriterInput.isReadyForMoreMediaData else { return }
+                if mediaType == AVMediaType.video {
 
                     let timeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
 
-                    if !self.didStartedSession {
+                    if !ssSelf.didStartedSession {
                         assetWriter.startSession(atSourceTime: timeStamp)
-                        self.didStartedSession = true
-                        self.wrtingStartTime = timeStamp
+                        ssSelf.didStartedSession = true
+                        ssSelf.wrtingStartTime = timeStamp
                     }
 
-                    guard self.didStartedSession else { return }
+                    guard ssSelf.didStartedSession else { return }
 
-                    var outputRenderBuffer: CVPixelBuffer?
+                    if let image = outputImage,
+                        let assetWriterPixelBufferAdaptor = ssSelf.assetWriterPixelBufferAdaptor,
+                        let pixelBufferPool = assetWriterPixelBufferAdaptor.pixelBufferPool, assetWriterPixelBufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
 
-                    let status = CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &outputRenderBuffer)
+                        var outputRenderBuffer: CVPixelBuffer?
 
-                    if let pixelBuffer = outputRenderBuffer, status == 0 {
+                        let status = CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &outputRenderBuffer)
 
-                        // Render 'image' to the given CVPixelBufferRef.
-                        self.context.render(outputImage!, to: pixelBuffer, bounds: outputImage!.extent, colorSpace: self.genericRGBColorspace)
+                        if let pixelBuffer = outputRenderBuffer, status == 0 {
 
-                        self.currentTimeStamp = timeStamp
+                            // Render 'image' to the given CVPixelBufferRef.
+                            ssSelf.context.render(image, to: pixelBuffer, bounds: image.extent, colorSpace: ssSelf.genericRGBColorspace)
 
-                        success = assetWriterPixelBufferAdaptor.append(pixelBuffer, withPresentationTime: timeStamp)
+                            ssSelf.currentTimeStamp = timeStamp
 
-//                        success = self.assetWriterVideoInput?.appendSampleBuffer(sampleBuffer)
+                            success = assetWriterPixelBufferAdaptor.append(pixelBuffer, withPresentationTime: timeStamp)
 
-                        self.delegate?.writerCoordinatorDidRecording(self, seconds: self.recordingSeconds)
+                            ssSelf.delegate?.writerCoordinatorDidRecording(ssSelf, seconds: ssSelf.recordingSeconds)
 
+                        } else {
+                            med_print("Unable to obtain a pixel buffer from the pool.")
+                        }
+                    } else if let assetWriterVideoInput = ssSelf.assetWriterVideoInput {
+                        ssSelf.currentTimeStamp = timeStamp
+                        success = assetWriterVideoInput.append(sampleBuffer)
+                        ssSelf.delegate?.writerCoordinatorDidRecording(ssSelf, seconds: ssSelf.recordingSeconds)
                     } else {
-                        print("Unable to obtain a pixel buffer from the pool.")
+                        med_print("append buffer failed.")
                     }
 
-                } else if mediaType == AVMediaTypeAudio && self.didStartedSession {
+                } else if mediaType == AVMediaType.audio && ssSelf.didStartedSession {
 
-                    guard let assetWriterAudioInput = self.assetWriterAudioInput, assetWriterAudioInput.isReadyForMoreMediaData else { return }
+                    guard let assetWriterAudioInput = ssSelf.assetWriterAudioInput, assetWriterAudioInput.isReadyForMoreMediaData else { return }
 
                     success = assetWriterAudioInput.append(sampleBuffer)
                 }
 
-                objc_sync_enter(self)
+                objc_sync_enter(ssSelf)
                 if let unwrappedSuccess = success, !unwrappedSuccess {
-                    self.writerStatus = .failed(error: assetWriter.error as NSError?)
-                    print(assetWriter.error)
+                    ssSelf.writerStatus = .failed(error: assetWriter.error)
                 }
-                objc_sync_exit(self)
-
+                objc_sync_exit(ssSelf)
             }
         }
     }
 
-    fileprivate func makePixelBufferAdaptor(assetWriterInput input: AVAssetWriterInput, videoDimensions: CMVideoDimensions) -> AVAssetWriterInputPixelBufferAdaptor {
+    private func makePixelBufferAdaptor(assetWriterInput input: AVAssetWriterInput, videoDimensions: CMVideoDimensions) -> AVAssetWriterInputPixelBufferAdaptor {
 
         let pixelBufferWidth = min(videoDimensions.height, videoDimensions.width)
         let pixelBufferHeight = max(videoDimensions.height, videoDimensions.width)
 
         // Use BGRA for the video in order to get realtime encoding.
-        let sourcePixelBufferAttributes: [String: AnyObject] = [
-            String(kCVPixelBufferPixelFormatTypeKey): Int(kCVPixelFormatType_32BGRA) as AnyObject,
-            String(kCVPixelBufferWidthKey): Int(pixelBufferWidth) as AnyObject,
-            String(kCVPixelBufferHeightKey): Int(pixelBufferHeight) as AnyObject,
+        let sourcePixelBufferAttributes: [String: Any] = [
+            String(kCVPixelBufferPixelFormatTypeKey): Int(kCVPixelFormatType_32BGRA),
+            String(kCVPixelBufferWidthKey): Int(pixelBufferWidth),
+            String(kCVPixelBufferHeightKey): Int(pixelBufferHeight),
             String(kCVPixelFormatOpenGLESCompatibility): kCFBooleanTrue
         ]
 
         return AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: sourcePixelBufferAttributes)
     }
 
-    fileprivate func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescription, settings videoSettings: [String: AnyObject]) -> AVAssetWriterInput? {
+    private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescription, settings videoSettings: [String: Any], deviceOrientation: UIDeviceOrientation) -> AVAssetWriterInput? {
 
-        guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: videoSettings, forMediaType: AVMediaTypeVideo) else { return nil }
+        guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: videoSettings, forMediaType: AVMediaType.video) else { return nil }
 
-        let videoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
+        let videoInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
 
         videoInput.expectsMediaDataInRealTime = true
 
         // videoConnection.videoOrientation = .Portrait, so videoInput.transform = CGAffineTransformIdentity
-        videoInput.transform = CGAffineTransform.identity
+
+        var angle: CGFloat = 0.0
+
+        // 横屏拍摄的时候，保证写入的视频和预览的时候一致，调整 assetWriterInput.transform 保证横屏显示
+        switch deviceOrientation {
+        case .landscapeLeft:
+            angle = -90.0
+        case .landscapeRight:
+            angle = 90.0
+        default:
+            break
+        }
+
+        let radians = angle / 180.0 * CGFloat.pi
+        let rotation = CGAffineTransform.identity.rotated(by: radians)
+        videoInput.transform = rotation
 
         return videoInput
     }
 
-    fileprivate func makeAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescription, settings audioSettings: [String: AnyObject]) -> AVAssetWriterInput? {
+    private func makeAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescription, settings audioSettings: [String: Any]) -> AVAssetWriterInput? {
 
-        guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: audioSettings, forMediaType: AVMediaTypeAudio) else { return nil }
+        guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: audioSettings, forMediaType: AVMediaType.audio) else { return nil }
 
-        let audioInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
+        let audioInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
         audioInput.expectsMediaDataInRealTime = true
 
         return audioInput

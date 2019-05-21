@@ -8,20 +8,16 @@
 
 import AVFoundation
 
-public func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
-    return lhs.hashValue == rhs.hashValue
-}
+public enum RecordingStatus: Equatable {
 
-public enum RecordingStatus: Hashable {
-
-    case idle(error: NSError?)
+    case idle(error: Error?)
     case startingRecording
     case recording
     case pause
     case pausing
     case stoppingRecording
 
-    public var hashValue: Int {
+    private var hashValue: Int {
         switch self {
         case .idle:
             return 10000
@@ -37,6 +33,10 @@ public enum RecordingStatus: Hashable {
             return 60000
         }
     }
+
+    public static func ==(lhs: RecordingStatus, rhs: RecordingStatus) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
 }
 
 public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinator {
@@ -45,22 +45,26 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     public var presetName = AVAssetExportPresetHighestQuality
 
-    fileprivate let videoDataOutput: AVCaptureVideoDataOutput
-    fileprivate let audioDataOutput: AVCaptureAudioDataOutput
+    public var captureVideoOrientation: AVCaptureVideoOrientation {
+        return videoConnection?.videoOrientation ?? .portrait
+    }
 
-    fileprivate var videoConnection: AVCaptureConnection!
-    fileprivate var audioConnection: AVCaptureConnection!
+    private let videoDataOutput: AVCaptureVideoDataOutput
+    private let audioDataOutput: AVCaptureAudioDataOutput
 
-    fileprivate var outputVideoFormatDescription: CMFormatDescription?
-    fileprivate var outputAudioFormatDescription: CMFormatDescription?
+    private var videoConnection: AVCaptureConnection!
+    private var audioConnection: AVCaptureConnection!
 
-    fileprivate var assetWriterCoordinator: AssetWriterCoordinator?
+    private var outputVideoFormatDescription: CMFormatDescription?
+    private var outputAudioFormatDescription: CMFormatDescription?
 
-    fileprivate var segments = [Segment]()
+    private var assetWriterCoordinator: AssetWriterCoordinator?
 
-    fileprivate var attributes: Attributes
+    private var segments = [Segment]()
 
-    public fileprivate(set) var recordingStatus: RecordingStatus = .idle(error: nil) {
+    private var attributes: Attributes
+
+    public private(set) var recordingStatus: RecordingStatus = .idle(error: nil) {
 
         didSet(oldStatus) {
 
@@ -138,7 +142,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                         } else if strongSelf.segments.count == 1 {
 
-                            FileManager.med_moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
+                            FileManager.med.moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
                             finish()
 
                         } else {
@@ -158,7 +162,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
                         if strongSelf.segments.count == 1 {
 
-                            FileManager.med_moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
+                            FileManager.med.moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
                             strongSelf.segments.removeAll()
 
                             self?.recordingStatus = .idle(error: nil)
@@ -187,13 +191,13 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
                 }
 
             default:
-                print("Unknow RecordingStatus: \(oldStatus) -> \(currentStatus)")
+                med_print("Unknow RecordingStatus: \(oldStatus) -> \(currentStatus)")
             }
 
         }
     }
 
-    public init(sessionPreset: String, attributes: Attributes, position: AVCaptureDevicePosition = .back) throws {
+    public init(sessionPreset: AVCaptureSession.Preset, attributes: Attributes, position: AVCaptureDevice.Position = .back, videoOrientation: AVCaptureVideoOrientation = .portrait) throws {
 
         videoDataOutput = {
 
@@ -216,7 +220,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         try addOutput(videoDataOutput, toCaptureSession: captureSession)
         try addOutput(audioDataOutput, toCaptureSession: captureSession)
 
-        let (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
+        let (videoConnection, audioConnection) = try fetchConnections(from: captureDevice, fromVideoDataOutput: videoDataOutput, videoOrientation: videoOrientation, andAudioDataOutput: audioDataOutput)
 
         self.videoConnection = videoConnection
         self.audioConnection = audioConnection
@@ -227,15 +231,54 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
         audioDataOutput.setSampleBufferDelegate(self, queue: audioDataOutputQueue)
     }
+
+    public override func swapCaptureDevicePosition() throws {
+        try super.swapCaptureDevicePosition()
+
+        // reset
+        do {
+            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
+
+            let (videoConnection, audioConnection) = try fetchConnections(from: captureDevice, fromVideoDataOutput: videoDataOutput, videoOrientation: self.videoConnection.videoOrientation, andAudioDataOutput: audioDataOutput)
+            self.videoConnection = videoConnection
+            self.audioConnection = audioConnection
+        }
+    }
+
+    public func configureVideoOrientation(by deviceOrientation: UIDeviceOrientation) throws {
+
+        let videoOrientation: AVCaptureVideoOrientation
+
+        switch deviceOrientation {
+        case .landscapeLeft:
+            videoOrientation = .landscapeLeft
+        case .landscapeRight:
+            videoOrientation = .landscapeRight
+        default:
+            videoOrientation = .portrait
+        }
+
+        // reset
+        do {
+            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
+            let (videoConnection, audioConnection) = try fetchConnections(from: captureDevice, fromVideoDataOutput: videoDataOutput, videoOrientation: videoOrientation, andAudioDataOutput: audioDataOutput)
+            self.videoConnection = videoConnection
+            self.audioConnection = audioConnection
+        }
+    }
 }
 
 // MARK: - Public Methods
 
 extension CaptureSessionAssetWriterCoordinator {
 
-    public func startRecording() {
+    public func startRecording(videoDimensions: CMVideoDimensions? = nil, deviceOrientation: UIDeviceOrientation = .portrait) {
 
         objc_sync_enter(self)
+
+        if let videoDimensions = videoDimensions {
+            attributes.videoDimensions = videoDimensions
+        }
 
         switch recordingStatus {
         case .idle, .pausing:
@@ -264,7 +307,7 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.delegate = self
 
         // asynchronous, will call us back with recorderDidFinishPreparing: or recorder:didFailWithError: when done
-        assetWriterCoordinator?.prepareToRecord()
+        assetWriterCoordinator?.prepareToRecord(deviceOrientation: deviceOrientation)
     }
 
     public func stopRecording() {
@@ -287,22 +330,9 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.finishRecording()
     }
 
-    public override func swapCaptureDevicePosition() throws {
-
-        try super.swapCaptureDevicePosition()
-
-        // reset
-        do {
-            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
-            let (videoConnection, audioConnection) = try fetchConnections(fromVideoDataOutput: videoDataOutput, andAudioDataOutput: audioDataOutput)
-            self.videoConnection = videoConnection
-            self.audioConnection = audioConnection
-        }
-    }
-
     public func removeLastSegment() {
         guard let lastSegment = segments.last else { return }
-        FileManager.med_removeExistingFile(at: lastSegment.URL)
+        FileManager.med.removeExistingFile(at: lastSegment.URL)
         segments.removeLast()
     }
 
@@ -320,7 +350,7 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         objc_sync_exit(self)
     }
 
-    func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: NSError?) {
+    func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: Error?) {
 
         objc_sync_enter(self)
         recordingStatus = .idle(error: error)
@@ -360,7 +390,7 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
 extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
 
-    public func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+    public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
 
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
 
@@ -381,12 +411,12 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
                 outputVideoFormatDescription = formatDescription
             }
 
-            delegate?.coordinatorVideoDataOutput(didOutputSampleBuffer: sampleBuffer, completionHandler: { [weak self] image in
+            delegate?.coordinatorVideoDataOutput(didOutputSampleBuffer: sampleBuffer, completionHandler: { [weak self] buffer, image in
 
                 guard let strongSelf = self else { return }
 
                 if strongSelf.recordingStatus == .recording {
-                    strongSelf.assetWriterCoordinator?.appendVideoSampleBuffer(sampleBuffer, outputImage: image)
+                    strongSelf.assetWriterCoordinator?.appendVideoSampleBuffer(buffer, outputImage: image)
                 }
             })
 
@@ -406,13 +436,13 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
 
 extension CaptureSessionAssetWriterCoordinator {
 
-    fileprivate func fetchConnections(fromVideoDataOutput videoDataOutput: AVCaptureVideoDataOutput, andAudioDataOutput audioDataOutput: AVCaptureAudioDataOutput) throws -> (videoConnection: AVCaptureConnection, audioConnection: AVCaptureConnection) {
+    private func fetchConnections(from captureDevice: AVCaptureDevice, fromVideoDataOutput videoDataOutput: AVCaptureVideoDataOutput, videoOrientation: AVCaptureVideoOrientation, andAudioDataOutput audioDataOutput: AVCaptureAudioDataOutput) throws -> (videoConnection: AVCaptureConnection, audioConnection: AVCaptureConnection) {
 
-        guard let unwrappedVideoConnection = videoDataOutput.connection(withMediaType: AVMediaTypeVideo) else {
+        guard let unwrappedVideoConnection = videoDataOutput.connection(with: AVMediaType.video) else {
             throw MedusaError.captureDeviceError
         }
 
-        guard let unwrappedAudioConnection = audioDataOutput.connection(withMediaType: AVMediaTypeAudio) else {
+        guard let unwrappedAudioConnection = audioDataOutput.connection(with: AVMediaType.audio) else {
             throw MedusaError.audioDeviceError
         }
 
@@ -421,36 +451,36 @@ extension CaptureSessionAssetWriterCoordinator {
         }
 
         // Up Orientation
-        unwrappedVideoConnection.videoOrientation = .portrait
+        unwrappedVideoConnection.videoOrientation = videoOrientation
 
         // Flip Horizontal
         if captureDevice.position == .front && unwrappedVideoConnection.isVideoMirroringSupported && unwrappedVideoConnection.isVideoOrientationSupported {
             unwrappedVideoConnection.isVideoMirrored = true
-            unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
-            unwrappedVideoConnection.videoOrientation = .portrait
+//            unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
+            unwrappedVideoConnection.videoOrientation = videoOrientation
         }
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
 
     }
 
-    fileprivate func exportSegmentsAsynchronously(_ completionHandler: (_ error: NSError?) -> Void) {
+    private func exportSegmentsAsynchronously(_ completionHandler: (_ error: Error?) -> Void) {
         Exporter.shareInstance.exportSegmentsAsynchronously(segments, to: attributes.destinationURL, transition: segmentsTransition, presetName: presetName, fileFormat: attributes.mediaFormat.fileFormat, completionHandler: completionHandler)
     }
 
-    fileprivate func removeSegments() {
+    private func removeSegments() {
         segments.forEach {
-            FileManager.med_removeExistingFile(at: $0.URL)
+            FileManager.med.removeExistingFile(at: $0.URL)
         }
 
         segments.removeAll()
     }
 
-    fileprivate func makeNewFileURL() -> Foundation.URL {
+    private func makeNewFileURL() -> Foundation.URL {
 
         let suffix = "-medusa_segment\(segments.count)"
 
-        let destinationPath = String(attributes.destinationURL.absoluteString.characters.dropLast(attributes.mediaFormat.filenameExtension.characters.count))
+        let destinationPath = String(attributes.destinationURL.absoluteString.dropLast(attributes.mediaFormat.filenameExtension.count))
 
         let newAbsoluteString = destinationPath + suffix + attributes.mediaFormat.filenameExtension
 

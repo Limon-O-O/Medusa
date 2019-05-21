@@ -1,15 +1,16 @@
 PODS:
-  - Lady (0.3)
-  - Picasso (0.4.1)
+  - Picasso (0.4.2)
 
 DEPENDENCIES:
-  - Lady
-  - Picasso
+  - Picasso (from `../Picasso`)
+
+EXTERNAL SOURCES:
+  Picasso:
+    :path: "../Picasso"
 
 SPEC CHECKSUMS:
-  Lady: 441241baadc945e9c5d2e90651b1600d1255ebe2
-  Picasso: 4413b8ebff07e120c54e95da3f43dec941d62924
+  Picasso: 4b59aaf3c79c02401099cd8779aa606b351084b2
 
-PODFILE CHECKSUM: 7838f9805c8c25a8f164d843f4f247926f112b51
+PODFILE CHECKSUM: 4f0a310ad8d1ef1f2d935728eb16cf2929652e3e
 
-COCOAPODS: 1.1.0.rc.2
+COCOAPODS: 1.6.1

@@ -19,7 +19,7 @@ class RingControl: UIControl {
 
     var toucheActions: ((_ status: TouchStatus) -> Void)?
 
-    fileprivate var touchStatus: TouchStatus = .end {
+    var touchStatus: TouchStatus = .end {
         willSet {
             guard touchStatus != newValue else { return }
             toucheActions?(newValue)
@@ -84,7 +84,7 @@ extension RingControl {
 
         guard let touch = touches.first else { return }
 
-        touchStatus = .began
+//        touchStatus = .began
         previousTimestamp = touch.timestamp
     }
 
@@ -102,22 +102,22 @@ extension RingControl {
         if validFrame.contains(location) {
 
             if currentTimestamp - previousTimestamp > 0.14 {
-                touchStatus = .press
+//                touchStatus = .press
             }
 
         } else {
-            touchStatus = .end
+//            touchStatus = .end
         }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        touchStatus = .end
+//        touchStatus = .end
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
         super.touchesCancelled(touches!, with: event)
-        touchStatus = .end
+//        touchStatus = .end
     }
 }
 
@@ -147,13 +147,20 @@ extension RingControl {
     }
 
     @objc fileprivate func scaleAnimationWithSpring() {
-        UIView.animate(withDuration: 0.26, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: UIViewAnimationOptions(), animations: {
+
+        if touchStatus == .began {
+            touchStatus = .end
+        } else {
+            touchStatus = .began
+        }
+
+        UIView.animate(withDuration: 0.26, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: UIView.AnimationOptions(), animations: {
             self.innerRing.transform = CGAffineTransform.identity
         }, completion: nil)
     }
 
     @objc fileprivate func scaleToDefault() {
-        UIView.animate(withDuration: 0.2, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: UIViewAnimationOptions(), animations: {
+        UIView.animate(withDuration: 0.2, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: UIView.AnimationOptions(), animations: {
             self.innerRing.transform = CGAffineTransform.identity
         }, completion: nil)
     }

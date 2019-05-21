@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="K0D-AQ-aZ3">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="K0D-AQ-aZ3">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -19,12 +22,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ocX-sn-sOQ" customClass="VideoPreviewView" customModule="MED" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="193" width="375" height="281.5"/>
-                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="frame" x="0.0" y="146" width="375" height="375"/>
+                                <color key="backgroundColor" red="0.66666668653488159" green="0.66666668653488159" blue="0.66666668653488159" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" secondItem="ocX-sn-sOQ" secondAttribute="width" multiplier="1:1" id="pcM-Sh-tVD"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iyP-1Q-niC" customClass="RingControl" customModule="MED" customModuleProvider="target">
-                                <rect key="frame" x="157" y="587" width="60" height="60"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="frame" x="157.5" y="587" width="60" height="60"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="Q3t-K3-u2V"/>
                                     <constraint firstAttribute="width" constant="60" id="pOy-mW-WFN"/>
@@ -34,7 +40,7 @@
                                 <rect key="frame" x="0.0" y="587" width="157.5" height="60"/>
                                 <subviews>
                                     <button hidden="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kUN-vd-Yix" userLabel="Rollback Button">
-                                        <rect key="frame" x="44" y="13" width="69" height="34"/>
+                                        <rect key="frame" x="44.5" y="13" width="69" height="34"/>
                                         <state key="normal" title="Rollback"/>
                                         <state key="selected" title="Delete"/>
                                         <connections>
@@ -42,7 +48,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstItem="kUN-vd-Yix" firstAttribute="centerX" secondItem="KtY-Rx-i9R" secondAttribute="centerX" id="I6G-wR-bmh"/>
                                     <constraint firstItem="kUN-vd-Yix" firstAttribute="centerY" secondItem="KtY-Rx-i9R" secondAttribute="centerY" id="tOJ-94-Txb"/>
@@ -50,7 +56,7 @@
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QXg-Bo-zwl" userLabel="Progress View" customClass="ProgressView" customModule="MED" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="573" width="375" height="4"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="4" id="XOt-ef-FkF"/>
                                 </constraints>
@@ -67,7 +73,7 @@
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pWF-JQ-xnv" userLabel="Container View">
-                                <rect key="frame" x="217" y="587" width="157.5" height="60"/>
+                                <rect key="frame" x="217.5" y="587" width="157.5" height="60"/>
                                 <subviews>
                                     <button hidden="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ovP-KA-Hcc" userLabel="Save Button">
                                         <rect key="frame" x="59" y="13" width="40" height="34"/>
@@ -77,37 +83,37 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstItem="ovP-KA-Hcc" firstAttribute="centerY" secondItem="pWF-JQ-xnv" secondAttribute="centerY" id="0F1-ew-9tq"/>
                                     <constraint firstItem="ovP-KA-Hcc" firstAttribute="centerX" secondItem="pWF-JQ-xnv" secondAttribute="centerX" id="h2z-xv-5Qj"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Idr-eH-R57">
-                                <rect key="frame" x="241" y="48" width="54" height="34"/>
-                                <state key="normal" title="Button"/>
+                                <rect key="frame" x="260" y="48" width="35" height="34"/>
+                                <state key="normal" title="Skin"/>
                                 <connections>
                                     <action selector="skinSmooth:" destination="K0D-AQ-aZ3" eventType="touchUpInside" id="uE8-M9-pe7"/>
                                 </connections>
                             </button>
                             <slider contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="9Aa-4r-NES" userLabel="Amount Slider">
                                 <rect key="frame" x="18" y="523" width="339" height="31"/>
-                                <color key="minimumTrackTintColor" red="0.66666666666666663" green="0.66666666666666663" blue="0.66666666666666663" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="maximumTrackTintColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="minimumTrackTintColor" red="0.66666666666666663" green="0.66666666666666663" blue="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="maximumTrackTintColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <action selector="amountValueChanged:" destination="K0D-AQ-aZ3" eventType="valueChanged" id="IYz-0Z-tDE"/>
                                 </connections>
                             </slider>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="height" secondItem="cyR-C2-wcK" secondAttribute="width" multiplier="3:4" id="013-Wq-Tsc"/>
+                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="centerY" secondItem="cyR-C2-wcK" secondAttribute="centerY" id="2lf-G5-cFj"/>
                             <constraint firstAttribute="trailing" secondItem="QXg-Bo-zwl" secondAttribute="trailing" id="3on-KW-sha"/>
                             <constraint firstItem="QXg-Bo-zwl" firstAttribute="top" secondItem="9Aa-4r-NES" secondAttribute="bottom" constant="20" id="5NS-nx-x0p"/>
                             <constraint firstAttribute="trailing" secondItem="pWF-JQ-xnv" secondAttribute="trailing" id="BGw-JI-jRc"/>
                             <constraint firstItem="YKV-Dm-G75" firstAttribute="top" secondItem="eI6-Tz-132" secondAttribute="bottom" constant="20" id="DaH-nS-tca"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" id="E1e-Fd-s0x"/>
-                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="centerY" secondItem="cyR-C2-wcK" secondAttribute="centerY" id="JnY-vh-Bzf"/>
+                            <constraint firstItem="Idr-eH-R57" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="cyR-C2-wcK" secondAttribute="leading" constant="20" symbolic="YES" id="FuC-Yl-Udr"/>
                             <constraint firstItem="Idr-eH-R57" firstAttribute="centerY" secondItem="YKV-Dm-G75" secondAttribute="centerY" id="Kn4-2n-Rgk"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="centerY" secondItem="iyP-1Q-niC" secondAttribute="centerY" id="KuO-nz-e6x"/>
                             <constraint firstItem="QXg-Bo-zwl" firstAttribute="bottom" secondItem="iyP-1Q-niC" secondAttribute="top" constant="-10" id="MVY-h9-pnd"/>
@@ -117,19 +123,19 @@
                             <constraint firstItem="9Aa-4r-NES" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" constant="20" id="QrR-gz-Mve"/>
                             <constraint firstItem="AY1-rZ-HwG" firstAttribute="top" secondItem="iyP-1Q-niC" secondAttribute="bottom" constant="20" id="Udz-pS-6fz"/>
                             <constraint firstItem="YKV-Dm-G75" firstAttribute="leading" secondItem="Idr-eH-R57" secondAttribute="trailing" constant="10" id="WWt-hN-6fq"/>
-                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="centerX" secondItem="cyR-C2-wcK" secondAttribute="centerX" id="Zb3-Gi-9Uw"/>
                             <constraint firstItem="pWF-JQ-xnv" firstAttribute="height" secondItem="KtY-Rx-i9R" secondAttribute="height" id="d9W-yZ-NXm"/>
-                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="width" secondItem="cyR-C2-wcK" secondAttribute="width" id="eQG-Xb-Sm0"/>
                             <constraint firstItem="iyP-1Q-niC" firstAttribute="centerX" secondItem="cyR-C2-wcK" secondAttribute="centerX" id="fZC-YP-a0S"/>
                             <constraint firstAttribute="trailing" secondItem="9Aa-4r-NES" secondAttribute="trailing" constant="20" id="h9J-7E-FBf"/>
+                            <constraint firstAttribute="trailing" secondItem="ocX-sn-sOQ" secondAttribute="trailing" id="tTw-dN-rag"/>
                             <constraint firstItem="iyP-1Q-niC" firstAttribute="leading" secondItem="KtY-Rx-i9R" secondAttribute="trailing" id="usA-ZC-yW4"/>
                             <constraint firstItem="pWF-JQ-xnv" firstAttribute="centerY" secondItem="KtY-Rx-i9R" secondAttribute="centerY" id="xKu-Jw-IQG"/>
                             <constraint firstItem="KtY-Rx-i9R" firstAttribute="height" secondItem="iyP-1Q-niC" secondAttribute="height" id="yRd-da-snz"/>
+                            <constraint firstItem="ocX-sn-sOQ" firstAttribute="leading" secondItem="cyR-C2-wcK" secondAttribute="leading" id="ykX-tf-EJ8"/>
                         </constraints>
                     </view>
-                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
                         <outlet property="amountSlider" destination="9Aa-4r-NES" id="zFy-l8-x06"/>
+                        <outlet property="previewConstraintRatioHeight" destination="pcM-Sh-tVD" id="cca-gd-v2Q"/>
                         <outlet property="previewView" destination="ocX-sn-sOQ" id="HrA-Nd-I3W"/>
                         <outlet property="progressView" destination="QXg-Bo-zwl" id="TEX-Nh-Y6B"/>
                         <outlet property="ringControl" destination="iyP-1Q-niC" id="be9-Rn-cbv"/>
@@ -143,6 +149,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="camera" width="28" height="22"/>
+        <image name="camera" width="28.5" height="22.5"/>
     </resources>
 </document>

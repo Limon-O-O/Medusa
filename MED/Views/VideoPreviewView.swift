@@ -15,12 +15,10 @@ class VideoPreviewView: Canvas {
 
     var cameraDevice: AVCaptureDevice?
 
-    fileprivate let focusView = FocusOverlay(frame: CGRect(x: 0.0, y: 0.0, width: 80.0, height: 80.0))
+    private let focusView = FocusOverlay(frame: CGRect(x: 0.0, y: 0.0, width: 80.0, height: 80.0))
 
     override init(frame: CGRect) {
-
         super.init(frame: frame)
-
         configure()
     }
 
@@ -29,7 +27,7 @@ class VideoPreviewView: Canvas {
         configure()
     }
 
-    fileprivate func configure() {
+    private func configure() {
 
         if let gestureRecognizers = gestureRecognizers {
             gestureRecognizers.forEach({ removeGestureRecognizer($0) })
@@ -49,7 +47,7 @@ class VideoPreviewView: Canvas {
         focusView.isHidden = true
     }
 
-    @objc fileprivate func changeVideoZoomFactor(_ gesture: UITapGestureRecognizer) {
+    @objc private func changeVideoZoomFactor(_ gesture: UITapGestureRecognizer) {
 
         guard let device = cameraDevice else { return }
 
@@ -68,7 +66,7 @@ class VideoPreviewView: Canvas {
         device.unlockForConfiguration()
     }
 
-    @objc fileprivate func focus(_ gesture: UITapGestureRecognizer) {
+    @objc private func focus(_ gesture: UITapGestureRecognizer) {
 
         let point = gesture.location(in: self)
         let focusPoint = CGPoint(x: point.y / bounds.size.height, y: 1.0 - point.x / bounds.size.width);
@@ -80,9 +78,9 @@ class VideoPreviewView: Canvas {
         focusView.alpha = 0.0
         focusView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
 
-        bringSubview(toFront: focusView)
+        bringSubviewToFront(focusView)
 
-        UIView.animateKeyframes(withDuration: 0.8, delay: 0.0, options: UIViewKeyframeAnimationOptions(), animations: {
+        UIView.animateKeyframes(withDuration: 0.8, delay: 0.0, options: UIView.KeyframeAnimationOptions(), animations: {
 
             UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.15, animations: { () -> Void in
                 self.focusView.alpha = 1.0
@@ -99,7 +97,7 @@ class VideoPreviewView: Canvas {
         })
     }
 
-    fileprivate func focusCamera(to point: CGPoint) -> Bool {
+    private func focusCamera(to point: CGPoint) -> Bool {
 
         guard let device = cameraDevice else { return false }
 
