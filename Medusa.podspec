@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name        = "Medusa"
-  s.version     = "0.4.0"
+  s.version     = "0.4.1"
   s.summary     = "Video recorder."
 
   s.description = <<-DESC
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.authors           = { "Limon" => "fengninglong@gmail.com" }
   s.social_media_url  = "https://twitter.com/Limon______"
 
-  s.ios.deployment_target   = "8.0"
+  s.ios.deployment_target   = "10.0"
   # s.osx.deployment_target = "10.7"
 
   s.source          = { :git => "https://github.com/Limon-O-O/Medusa.git", :tag => s.version }
