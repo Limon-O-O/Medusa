@@ -64,6 +64,8 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
     private var attributes: Attributes
 
+    private var isCancelRecording: Bool = false
+
     public private(set) var recordingStatus: RecordingStatus = .idle(error: nil) {
 
         didSet(oldStatus) {
@@ -87,10 +89,14 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             if case .idle(let error) = currentStatus, error != nil {
 
-                delegateCallbackQueue.async {
-                    autoreleasepool {
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    autoreleasepool { [weak sSelf] in
+                        guard let ssSelf = sSelf else { return }
                         clearAction()
-                        self.delegate?.coordinator(self, didFinishRecordingToOutputFileURL: nil, error: error)
+                        if !ssSelf.isCancelRecording {
+                            ssSelf.delegate?.coordinator(ssSelf, didFinishRecordingToOutputFileURL: nil, error: error)
+                        }
                     }
                 }
 
@@ -101,77 +107,89 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             // Click Record Action
             case (.idle, .startingRecording):
-                delegateCallbackQueue.async {
-                    self.delegate?.coordinatorWillBeginRecording(self)
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    sSelf.delegate?.coordinatorWillBeginRecording(sSelf)
                 }
 
             // Click Stop Record Action
             case (.recording, .stoppingRecording):
-                delegateCallbackQueue.async {
-                    self.delegate?.coordinatorWillDidFinishRecording(self)
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    sSelf.delegate?.coordinatorWillDidFinishRecording(sSelf)
                 }
 
             // Start Recording
             case (.startingRecording, .recording):
-                delegateCallbackQueue.async {
-                    self.delegate?.coordinatorDidBeginRecording(self)
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    sSelf.delegate?.coordinatorDidBeginRecording(sSelf)
                 }
 
             // Stop Recording
             case (.stoppingRecording, .idle):
                 delegateCallbackQueue.async { [weak self] in
-                    autoreleasepool {
+                    guard let sSelf = self else { return }
+                    autoreleasepool { [weak sSelf] in
 
-                        guard let strongSelf = self else { return }
+                        guard let ssSelf = sSelf else { return }
 
-                        let finish = {
+                        let finish: () -> Void = { [weak ssSelf] in
+                            guard let sssSelf = ssSelf else { return }
                             clearAction()
-                            strongSelf.recordingStatus = .idle(error: nil)
-                            strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: strongSelf.attributes.destinationURL, error: nil)
+                            sssSelf.recordingStatus = .idle(error: nil)
+                            if !sssSelf.isCancelRecording {
+                                sssSelf.delegate?.coordinator(sssSelf, didFinishRecordingToOutputFileURL: sssSelf.attributes.destinationURL, error: nil)
+                            }
                         }
 
-                        if strongSelf.segments.count > 1 {
+                        if ssSelf.isCancelRecording {
+                            finish()
+                            return
+                        }
 
-                            self?.exportSegmentsAsynchronously() { error in
+                        if ssSelf.segments.count > 1 {
+                            ssSelf.exportSegmentsAsynchronously() { [weak ssSelf] error in
+                                guard let sssSelf = ssSelf else { return }
                                 if let error = error {
-                                    strongSelf.delegate?.coordinator(strongSelf, didFinishRecordingToOutputFileURL: nil, error: error)
+                                    sssSelf.delegate?.coordinator(sssSelf, didFinishRecordingToOutputFileURL: nil, error: error)
                                 } else {
                                     finish()
                                 }
                             }
 
-                        } else if strongSelf.segments.count == 1 {
-
-                            FileManager.med.moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
+                        } else if ssSelf.segments.count == 1 {
+                            FileManager.med.moveItem(at: ssSelf.segments[0].URL, toURL: ssSelf.attributes.destinationURL)
                             finish()
-
                         } else {
                             finish()
                         }
-
                     }
                 }
 
             // Pausing -> StoppingRecording
             case (.pausing, .stoppingRecording):
-                delegateCallbackQueue.async {
+                delegateCallbackQueue.async { [weak self] in
 
-                    autoreleasepool { [weak self] in
+                    guard let sSelf = self else { return }
 
-                        guard let strongSelf = self else { return }
+                    autoreleasepool { [weak sSelf] in
 
-                        if strongSelf.segments.count == 1 {
+                        guard let ssSelf = sSelf else { return }
 
-                            FileManager.med.moveItem(at: strongSelf.segments[0].URL, toURL: strongSelf.attributes.destinationURL)
-                            strongSelf.segments.removeAll()
+                        if ssSelf.segments.count == 1 {
 
-                            self?.recordingStatus = .idle(error: nil)
+                            FileManager.med.moveItem(at: ssSelf.segments[0].URL, toURL: ssSelf.attributes.destinationURL)
+                            ssSelf.segments.removeAll()
 
-                        } else if strongSelf.segments.count > 1 {
+                            ssSelf.recordingStatus = .idle(error: nil)
 
-                            self?.exportSegmentsAsynchronously() { error in
-                                strongSelf.removeSegments()
-                                self?.recordingStatus = .idle(error: error)
+                        } else if ssSelf.segments.count > 1 {
+
+                            ssSelf.exportSegmentsAsynchronously() { [weak ssSelf] error in
+                                guard let sssSelf = ssSelf else { return }
+                                sssSelf.removeSegments()
+                                sssSelf.recordingStatus = .idle(error: error)
                             }
                         }
                     }
@@ -179,15 +197,17 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
             // Click Pause
             case (.recording, .pause):
-                delegateCallbackQueue.async {
-                    self.delegate?.coordinatorWillPauseRecording(self)
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    sSelf.delegate?.coordinatorWillPauseRecording(sSelf)
                 }
 
             // Did Pause
             case (.pause, .pausing):
-                delegateCallbackQueue.async {
-                    self.delegate?.coordinatorDidPauseRecording(self, segments: self.segments)
-                    self.assetWriterCoordinator = nil
+                delegateCallbackQueue.async { [weak self] in
+                    guard let sSelf = self else { return }
+                    sSelf.delegate?.coordinatorDidPauseRecording(sSelf, segments: sSelf.segments)
+                    sSelf.assetWriterCoordinator = nil
                 }
 
             default:
@@ -266,6 +286,10 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
             self.audioConnection = audioConnection
         }
     }
+
+    deinit {
+        med_print("CaptureSessionAssetWriterCoordinator Deinit")
+    }
 }
 
 // MARK: - Public Methods
@@ -310,10 +334,11 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.prepareToRecord(deviceOrientation: deviceOrientation)
     }
 
-    public func stopRecording() {
+    public func stopRecording(isCancel: Bool) {
 
         objc_sync_enter(self)
         guard recordingStatus == .pausing || recordingStatus == .recording else { return }
+        isCancelRecording = isCancel
         recordingStatus = .stoppingRecording
         objc_sync_exit(self)
 
@@ -447,7 +472,7 @@ extension CaptureSessionAssetWriterCoordinator {
         }
 
         if unwrappedVideoConnection.isVideoStabilizationSupported {
-            unwrappedVideoConnection.preferredVideoStabilizationMode = .auto
+            unwrappedVideoConnection.preferredVideoStabilizationMode = .standard
         }
 
         // Up Orientation

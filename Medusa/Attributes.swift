@@ -8,10 +8,10 @@
 
 import AVFoundation.AVMediaFormat
 
-public enum MediaFormat {
+public enum MediaFormat: String {
     case mov
     case mp4
-    case m4V
+    case m4v
 
     public var filenameExtension: String {
         switch self {
@@ -19,7 +19,7 @@ public enum MediaFormat {
             return ".mov"
         case .mp4:
             return ".mp4"
-        case .m4V:
+        case .m4v:
             return ".m4v"
         }
     }
@@ -30,7 +30,7 @@ public enum MediaFormat {
             return AVFileType.mov
         case .mp4:
             return AVFileType.mp4
-        case .m4V:
+        case .m4v:
             return AVFileType.m4v
         }
     }

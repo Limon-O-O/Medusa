@@ -229,7 +229,7 @@ class ViewController: UIViewController {
 
     @IBAction fileprivate func saveAction(_ sender: UIButton) {
         resetProgressView()
-        captureSessionCoordinator?.stopRecording()
+        captureSessionCoordinator?.stopRecording(isCancel: false)
     }
 
     fileprivate func resetProgressView() {
@@ -277,7 +277,7 @@ extension ViewController: CaptureSessionCoordinatorDelegate {
         let totalTimeBuffer = totalSeconds + seconds
 
         if totalTimeBuffer > maxTime {
-            self.captureSessionCoordinator?.stopRecording()
+            self.captureSessionCoordinator?.stopRecording(isCancel: false)
             resetProgressView()
             return
         }
