@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name        = "Medusa"
-  s.version     = "0.4.1"
+  s.version     = "0.4.2"
   s.summary     = "Video recorder."
 
   s.description = <<-DESC
@@ -21,5 +21,6 @@ Pod::Spec.new do |s|
   s.source          = { :git => "https://github.com/Limon-O-O/Medusa.git", :tag => s.version }
   s.source_files    = "Medusa/*.swift"
   s.requires_arc    = true
+  s.swift_version= '4.2'
 
 end
