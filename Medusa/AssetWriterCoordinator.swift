@@ -181,7 +181,7 @@ class AssetWriterCoordinator {
         objc_sync_exit(self)
     }
 
-    func prepareToRecord(deviceOrientation: UIDeviceOrientation = .portrait) {
+    func prepareToRecord(devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) {
 
         objc_sync_enter(self)
         guard writerStatus == .idle else { return }
@@ -201,7 +201,7 @@ class AssetWriterCoordinator {
 
                     if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, let videoTrackSettings = self.videoTrackSettings {
 
-                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings, deviceOrientation: deviceOrientation)
+                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings, devicePosition: devicePosition, deviceOrientation: deviceOrientation)
 
                         if let videoInput = self.assetWriterVideoInput {
 
@@ -391,24 +391,48 @@ extension AssetWriterCoordinator {
         return AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: sourcePixelBufferAttributes)
     }
 
-    private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescription, settings videoSettings: [String: Any], deviceOrientation: UIDeviceOrientation) -> AVAssetWriterInput? {
+    private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescription, settings videoSettings: [String: Any], devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) -> AVAssetWriterInput? {
 
         guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: videoSettings, forMediaType: AVMediaType.video) else { return nil }
 
-        let videoInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings, sourceFormatHint: videoFormatDescription)
+        let videoInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
 
         videoInput.expectsMediaDataInRealTime = true
+
+        if let videoTrackSettings = self.videoTrackSettings,
+            let videoWidth = videoTrackSettings[AVVideoWidthKey] as? Int,
+            let videoHeight = videoTrackSettings[AVVideoHeightKey] as? Int {
+            videoInput.naturalSize = CGSize(width: videoWidth, height: videoHeight)
+        }
 
         // videoConnection.videoOrientation = .Portrait, so videoInput.transform = CGAffineTransformIdentity
 
         var angle: CGFloat = 0.0
 
         // 横屏拍摄的时候，保证写入的视频和预览的时候一致，调整 assetWriterInput.transform 保证横屏显示
-        switch deviceOrientation {
-        case .landscapeLeft:
+        // 手机默认 landscapeLeft 拍摄，即 videoConnection.videoOrientation = .landscapeLeft
+        // 考虑到读取视频文件需要取得正确宽高，简单的方法是不改变 videoOrientation，通过改变 preview 及 assetWriterInput 的 transform 来调整正确的方向
+        switch devicePosition {
+        case .front:
             angle = -90.0
-        case .landscapeRight:
+            switch deviceOrientation {
+            case .landscapeLeft:
+                angle = 180.0
+            case .landscapeRight:
+                angle = 0.0
+            default:
+                break
+            }
+        case .back:
             angle = 90.0
+            switch deviceOrientation {
+            case .landscapeLeft:
+                angle = 0.0
+            case .landscapeRight:
+                angle = 180.0
+            default:
+                break
+            }
         default:
             break
         }

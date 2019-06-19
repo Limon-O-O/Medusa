@@ -296,7 +296,7 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
 extension CaptureSessionAssetWriterCoordinator {
 
-    public func startRecording(videoDimensions: CMVideoDimensions? = nil, deviceOrientation: UIDeviceOrientation = .portrait) {
+    public func startRecording(videoDimensions: CMVideoDimensions? = nil, deviceOrientation: UIDeviceOrientation) {
 
         objc_sync_enter(self)
 
@@ -331,7 +331,7 @@ extension CaptureSessionAssetWriterCoordinator {
         assetWriterCoordinator?.delegate = self
 
         // asynchronous, will call us back with recorderDidFinishPreparing: or recorder:didFailWithError: when done
-        assetWriterCoordinator?.prepareToRecord(deviceOrientation: deviceOrientation)
+        assetWriterCoordinator?.prepareToRecord(devicePosition: captureDevice.position, deviceOrientation: deviceOrientation)
     }
 
     public func stopRecording(isCancel: Bool) {
@@ -476,13 +476,13 @@ extension CaptureSessionAssetWriterCoordinator {
         }
 
         // Up Orientation
-        unwrappedVideoConnection.videoOrientation = videoOrientation
+        //        unwrappedVideoConnection.videoOrientation = videoOrientation
 
         // Flip Horizontal
         if captureDevice.position == .front && unwrappedVideoConnection.isVideoMirroringSupported && unwrappedVideoConnection.isVideoOrientationSupported {
             unwrappedVideoConnection.isVideoMirrored = true
-//            unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
-            unwrappedVideoConnection.videoOrientation = videoOrientation
+            //            unwrappedVideoConnection.automaticallyAdjustsVideoMirroring = true
+            //            unwrappedVideoConnection.videoOrientation = videoOrientation
         }
 
         return (videoConnection: unwrappedVideoConnection, audioConnection: unwrappedAudioConnection)
