@@ -55,9 +55,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
     private var videoConnection: AVCaptureConnection!
     private var audioConnection: AVCaptureConnection!
 
-    private var outputVideoFormatDescription: CMFormatDescription?
-    private var outputAudioFormatDescription: CMFormatDescription?
-
     private var assetWriterCoordinator: AssetWriterCoordinator?
 
     private var segments = [Segment]()
@@ -257,7 +254,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         // reset
         do {
-            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
 
             let (videoConnection, audioConnection) = try fetchConnections(from: captureDevice, fromVideoDataOutput: videoDataOutput, videoOrientation: self.videoConnection.videoOrientation, andAudioDataOutput: audioDataOutput)
             self.videoConnection = videoConnection
@@ -280,7 +276,6 @@ public final class CaptureSessionAssetWriterCoordinator: CaptureSessionCoordinat
 
         // reset
         do {
-            (outputVideoFormatDescription, outputAudioFormatDescription) = (nil, nil)
             let (videoConnection, audioConnection) = try fetchConnections(from: captureDevice, fromVideoDataOutput: videoDataOutput, videoOrientation: videoOrientation, andAudioDataOutput: audioDataOutput)
             self.videoConnection = videoConnection
             self.audioConnection = audioConnection
@@ -320,13 +315,9 @@ extension CaptureSessionAssetWriterCoordinator {
 
         assetWriterCoordinator = AssetWriterCoordinator(URL: attributes._destinationURL, fileType: attributes.mediaFormat.fileFormat)
 
-        if let outputVideoFormatDescription = outputVideoFormatDescription {
-            assetWriterCoordinator?.addVideoTrackWithSourceFormatDescription(outputVideoFormatDescription, settings: attributes.videoCompressionSettings)
-        }
+        assetWriterCoordinator?.addVideoTrack(with: attributes.videoCompressionSettings)
 
-        if let outputAudioFormatDescription = outputAudioFormatDescription {
-            assetWriterCoordinator?.addAudioTrackWithSourceFormatDescription(outputAudioFormatDescription, settings: attributes.audioCompressionSettings)
-        }
+        assetWriterCoordinator?.addAudioTrack(with: attributes.audioCompressionSettings)
 
         assetWriterCoordinator?.delegate = self
 
@@ -367,7 +358,7 @@ extension CaptureSessionAssetWriterCoordinator {
 
 extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
 
-    func writerCoordinatorDidFinishPreparing(_ coordinator: AssetWriterCoordinator) {
+    public func writerCoordinatorDidFinishPreparing(_ coordinator: AssetWriterCoordinator) {
 
         objc_sync_enter(self)
         guard recordingStatus == .startingRecording else { return }
@@ -375,20 +366,20 @@ extension CaptureSessionAssetWriterCoordinator: AssetWriterCoordinatorDelegate {
         objc_sync_exit(self)
     }
 
-    func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: Error?) {
+    public func writerCoordinator(_ coordinator: AssetWriterCoordinator, didFailWithError error: Error?) {
 
         objc_sync_enter(self)
         recordingStatus = .idle(error: error)
         objc_sync_exit(self)
     }
 
-    func writerCoordinatorDidRecording(_ coordinator: AssetWriterCoordinator, seconds: Float) {
+    public func writerCoordinatorDidRecording(_ coordinator: AssetWriterCoordinator, seconds: Float) {
         DispatchQueue.main.async {
             self.delegate?.coordinatorDidRecording(self, seconds: seconds)
         }
     }
 
-    func writerCoordinatorDidFinishRecording(_ coordinator: AssetWriterCoordinator, seconds: Float) {
+    public func writerCoordinatorDidFinishRecording(_ coordinator: AssetWriterCoordinator, seconds: Float) {
 
         if !segments.isEmpty {
             segments[segments.count - 1].seconds = seconds
@@ -417,24 +408,24 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
 
     public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
 
-        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
+//        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
 
         if connection == videoConnection {
 
-            if outputVideoFormatDescription == nil {
-
-                // Don't render the first sample buffer.
-                // This gives us one frame interval (33ms at 30fps) for setupVideoPipelineWithInputFormatDescription: to complete.
-                // Ideally this would be done asynchronously to ensure frames don't back up on slower devices.
-
-                // outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
-
-                outputVideoFormatDescription = formatDescription
-
-            } else {
-
-                outputVideoFormatDescription = formatDescription
-            }
+//            if outputVideoFormatDescription == nil {
+//
+//                // Don't render the first sample buffer.
+//                // This gives us one frame interval (33ms at 30fps) for setupVideoPipelineWithInputFormatDescription: to complete.
+//                // Ideally this would be done asynchronously to ensure frames don't back up on slower devices.
+//
+//                // outputVideoFormatDescription should be updated whenever video configuration is changed (frame rate, etc.)
+//
+//                outputVideoFormatDescription = formatDescription
+//
+//            } else {
+//
+//                outputVideoFormatDescription = formatDescription
+//            }
 
             delegate?.coordinatorVideoDataOutput(didOutputSampleBuffer: sampleBuffer, completionHandler: { [weak self] buffer, image in
 
@@ -446,8 +437,6 @@ extension CaptureSessionAssetWriterCoordinator: AVCaptureVideoDataOutputSampleBu
             })
 
         } else if connection == audioConnection {
-
-            outputAudioFormatDescription = formatDescription
 
             if recordingStatus == .recording {
                 assetWriterCoordinator?.appendAudioSampleBuffer(sampleBuffer)

@@ -8,7 +8,7 @@
 
 import AVFoundation
 
-protocol AssetWriterCoordinatorDelegate: class {
+public protocol AssetWriterCoordinatorDelegate: class {
 
     func writerCoordinatorDidFinishPreparing(_ coordinator: AssetWriterCoordinator)
 
@@ -52,11 +52,11 @@ enum WriterStatus: Equatable {
     }
 }
 
-class AssetWriterCoordinator {
+public class AssetWriterCoordinator {
 
     var URL: Foundation.URL
 
-    weak var delegate: AssetWriterCoordinatorDelegate?
+    public weak var delegate: AssetWriterCoordinatorDelegate?
 
     private let outputFileType: AVFileType
 
@@ -71,9 +71,6 @@ class AssetWriterCoordinator {
 
     private var assetWriterVideoInput: AVAssetWriterInput?
     private var assetWriterAudioInput: AVAssetWriterInput?
-
-    private weak var videoTrackSourceFormatDescription: CMFormatDescription?
-    private weak var audioTrackSourceFormatDescription: CMFormatDescription?
 
     private var didStartedSession = false
 
@@ -137,7 +134,7 @@ class AssetWriterCoordinator {
         }
     }
 
-    init(URL: Foundation.URL, fileType outputFileType: AVFileType) {
+    public init(URL: Foundation.URL, fileType outputFileType: AVFileType) {
         self.URL = URL
         self.writingQueue = DispatchQueue(label: "top.limon.assetwriter.writing", attributes: [])
         self.outputFileType = outputFileType
@@ -147,41 +144,37 @@ class AssetWriterCoordinator {
         med_print("AssetWriterCoordinator Deinit")
     }
 
-    func appendVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage?) {
+    public func appendVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer, outputImage: CIImage?) {
         appendSampleBuffer(sampleBuffer, outputImage: outputImage, ofMediaType: AVMediaType.video)
     }
 
-    func appendAudioSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+    public func appendAudioSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
         appendSampleBuffer(sampleBuffer, outputImage: nil, ofMediaType: AVMediaType.audio)
     }
 
-    func addAudioTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings audioSettings: [String: Any]) {
+    public func addAudioTrack(with audioSettings: [String: Any]) {
 
         objc_sync_enter(self)
 
         guard writerStatus == .idle else { return }
-
-        audioTrackSourceFormatDescription = formatDescription
 
         audioTrackSettings = audioSettings
 
         objc_sync_exit(self)
     }
 
-    func addVideoTrackWithSourceFormatDescription(_ formatDescription: CMFormatDescription, settings videoSettings: [String: Any]) {
+    public func addVideoTrack(with videoSettings: [String: Any]) {
 
         objc_sync_enter(self)
 
         guard writerStatus == .idle else { return }
-
-        videoTrackSourceFormatDescription = formatDescription
 
         videoTrackSettings = videoSettings
 
         objc_sync_exit(self)
     }
 
-    func prepareToRecord(devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) {
+    public func prepareToRecord(devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) {
 
         objc_sync_enter(self)
         guard writerStatus == .idle else { return }
@@ -199,9 +192,9 @@ class AssetWriterCoordinator {
                     let assetWriter = try AVAssetWriter(outputURL: self.URL, fileType: self.outputFileType)
                     self.assetWriter = assetWriter
 
-                    if let videoTrackSourceFormatDescription = self.videoTrackSourceFormatDescription, let videoTrackSettings = self.videoTrackSettings {
+                    if let videoTrackSettings = self.videoTrackSettings {
 
-                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(withSourceFormatDescription: videoTrackSourceFormatDescription, settings: videoTrackSettings, devicePosition: devicePosition, deviceOrientation: deviceOrientation)
+                        self.assetWriterVideoInput = self.makeAssetWriterVideoInput(settings: videoTrackSettings, devicePosition: devicePosition, deviceOrientation: deviceOrientation)
 
                         if let videoInput = self.assetWriterVideoInput {
 
@@ -219,9 +212,9 @@ class AssetWriterCoordinator {
                         }
                     }
 
-                    if let audioTrackSourceFormatDescription = self.audioTrackSourceFormatDescription, let audioTrackSettings = self.audioTrackSettings {
+                    if let audioTrackSettings = self.audioTrackSettings {
 
-                        let assetWriterAudioInput = self.makeAssetWriterAudioInput(withSourceFormatDescription: audioTrackSourceFormatDescription, settings: audioTrackSettings)
+                        let assetWriterAudioInput = self.makeAssetWriterAudioInput(settings: audioTrackSettings)
 
                         if let unwrappedAssetWriterAudioInput = assetWriterAudioInput , assetWriter.canAdd(unwrappedAssetWriterAudioInput) {
                             assetWriter.add(unwrappedAssetWriterAudioInput)
@@ -247,7 +240,19 @@ class AssetWriterCoordinator {
         }
     }
 
-    func finishRecording() {
+    public func cancelRecording() {
+        objc_sync_enter(self)
+        guard writerStatus == .recording else { return }
+        writerStatus = .idle
+        objc_sync_exit(self)
+        guard let assetWriter = assetWriter, assetWriter.status == .writing else { return }
+        writingQueue.async { [weak assetWriter] in
+            guard let sAssetWriter = assetWriter else { return }
+            sAssetWriter.cancelWriting()
+        }
+    }
+
+    public func finishRecording() {
 
         objc_sync_enter(self)
         guard let _ = assetWriter, writerStatus == .recording else { return }
@@ -391,7 +396,7 @@ extension AssetWriterCoordinator {
         return AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: sourcePixelBufferAttributes)
     }
 
-    private func makeAssetWriterVideoInput(withSourceFormatDescription videoFormatDescription: CMFormatDescription, settings videoSettings: [String: Any], devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) -> AVAssetWriterInput? {
+    private func makeAssetWriterVideoInput(settings videoSettings: [String: Any], devicePosition: AVCaptureDevice.Position, deviceOrientation: UIDeviceOrientation) -> AVAssetWriterInput? {
 
         guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: videoSettings, forMediaType: AVMediaType.video) else { return nil }
 
@@ -444,11 +449,11 @@ extension AssetWriterCoordinator {
         return videoInput
     }
 
-    private func makeAssetWriterAudioInput(withSourceFormatDescription audioFormatDescription: CMFormatDescription, settings audioSettings: [String: Any]) -> AVAssetWriterInput? {
+    private func makeAssetWriterAudioInput(settings audioSettings: [String: Any]) -> AVAssetWriterInput? {
 
         guard let assetWriter = self.assetWriter, assetWriter.canApply(outputSettings: audioSettings, forMediaType: AVMediaType.audio) else { return nil }
 
-        let audioInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings, sourceFormatHint: audioFormatDescription)
+        let audioInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings)
         audioInput.expectsMediaDataInRealTime = true
 
         return audioInput
