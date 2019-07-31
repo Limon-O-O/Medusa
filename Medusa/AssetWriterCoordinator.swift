@@ -356,7 +356,7 @@ extension AssetWriterCoordinator {
                         } else {
                             med_print("Unable to obtain a pixel buffer from the pool.")
                         }
-                    } else if let assetWriterVideoInput = ssSelf.assetWriterVideoInput {
+                    } else if let assetWriterVideoInput = ssSelf.assetWriterVideoInput, assetWriterVideoInput.isReadyForMoreMediaData {
                         ssSelf.currentTimeStamp = timeStamp
                         success = assetWriterVideoInput.append(sampleBuffer)
                         ssSelf.delegate?.writerCoordinatorDidRecording(ssSelf, seconds: ssSelf.recordingSeconds)
